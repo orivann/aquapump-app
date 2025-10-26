@@ -1,8 +1,10 @@
 import { useEffect, useRef } from 'react';
 import sustainabilityImage from '@/assets/sustainability.jpg';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const Sustainability = () => {
   const sectionRef = useRef<HTMLDivElement>(null);
+  const { t } = useLanguage();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -29,41 +31,39 @@ const Sustainability = () => {
           {/* Content Side - Left on Desktop */}
           <div className="space-y-6 text-primary-foreground">
             <h2 className="font-display">
-              Green. Sustainable. Future-Ready.
+              {t('sustain.title')}
             </h2>
             
             <p className="text-lg text-primary-foreground/90 leading-relaxed">
-              At AquaPump, we believe in creating solutions that don't just serve today's 
-              needs, but protect tomorrow's world. Our eco-friendly technology reduces 
-              environmental impact while delivering superior performance.
+              {t('sustain.intro')}
             </p>
             
             <div className="grid gap-6 pt-4 sm:grid-cols-2">
-              <div className="rounded-xl bg-primary-foreground/10 p-6 backdrop-blur-sm">
+              <div className="rounded-xl bg-primary-foreground/10 p-6 backdrop-blur-sm transition-all duration-300 hover:bg-primary-foreground/15">
                 <div className="mb-2 text-4xl font-bold text-accent">60%</div>
                 <div className="text-sm text-primary-foreground/80">
-                  Energy Reduction
+                  {t('sustain.energy')}
                 </div>
               </div>
               
-              <div className="rounded-xl bg-primary-foreground/10 p-6 backdrop-blur-sm">
+              <div className="rounded-xl bg-primary-foreground/10 p-6 backdrop-blur-sm transition-all duration-300 hover:bg-primary-foreground/15">
                 <div className="mb-2 text-4xl font-bold text-accent">100%</div>
                 <div className="text-sm text-primary-foreground/80">
-                  Recyclable Materials
+                  {t('sustain.recyclable')}
                 </div>
               </div>
               
-              <div className="rounded-xl bg-primary-foreground/10 p-6 backdrop-blur-sm">
+              <div className="rounded-xl bg-primary-foreground/10 p-6 backdrop-blur-sm transition-all duration-300 hover:bg-primary-foreground/15">
                 <div className="mb-2 text-4xl font-bold text-accent">25+</div>
                 <div className="text-sm text-primary-foreground/80">
-                  Years Lifespan
+                  {t('sustain.lifespan')}
                 </div>
               </div>
               
-              <div className="rounded-xl bg-primary-foreground/10 p-6 backdrop-blur-sm">
-                <div className="mb-2 text-4xl font-bold text-accent">Zero</div>
+              <div className="rounded-xl bg-primary-foreground/10 p-6 backdrop-blur-sm transition-all duration-300 hover:bg-primary-foreground/15">
+                <div className="mb-2 text-4xl font-bold text-accent">{t('sustain.emissions')}</div>
                 <div className="text-sm text-primary-foreground/80">
-                  Harmful Emissions
+                  {t('sustain.emissions')}
                 </div>
               </div>
             </div>

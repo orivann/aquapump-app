@@ -1,36 +1,38 @@
 import { useEffect, useRef } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-
-const products = [
-  {
-    name: 'AquaPump Pro',
-    category: 'Industrial Series',
-    description: 'High-capacity pumping for large-scale operations',
-    specs: ['50-500 HP', 'Up to 10,000 GPM', 'Smart Controls']
-  },
-  {
-    name: 'AquaPump Eco',
-    category: 'Residential Series',
-    description: 'Perfect for homes and small businesses',
-    specs: ['1-10 HP', 'Up to 500 GPM', 'Ultra Quiet']
-  },
-  {
-    name: 'AquaPump Solar',
-    category: 'Green Energy Series',
-    description: 'Solar-powered sustainable water solutions',
-    specs: ['Solar Ready', 'Battery Backup', 'Off-Grid']
-  },
-  {
-    name: 'AquaPump Smart',
-    category: 'IoT Series',
-    description: 'Connected pumps with AI-powered optimization',
-    specs: ['IoT Enabled', 'Mobile App', 'Predictive AI']
-  }
-];
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const Products = () => {
   const sectionRef = useRef<HTMLDivElement>(null);
+  const { t } = useLanguage();
+  
+  const products = [
+    {
+      nameKey: 'products.pro.name',
+      categoryKey: 'products.pro.category',
+      descKey: 'products.pro.desc',
+      specs: ['50-500 HP', 'Up to 10,000 GPM', 'Smart Controls']
+    },
+    {
+      nameKey: 'products.eco.name',
+      categoryKey: 'products.eco.category',
+      descKey: 'products.eco.desc',
+      specs: ['1-10 HP', 'Up to 500 GPM', 'Ultra Quiet']
+    },
+    {
+      nameKey: 'products.solar.name',
+      categoryKey: 'products.solar.category',
+      descKey: 'products.solar.desc',
+      specs: ['Solar Ready', 'Battery Backup', 'Off-Grid']
+    },
+    {
+      nameKey: 'products.smart.name',
+      categoryKey: 'products.smart.category',
+      descKey: 'products.smart.desc',
+      specs: ['IoT Enabled', 'Mobile App', 'Predictive AI']
+    }
+  ];
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -55,10 +57,10 @@ const Products = () => {
       <div className="mx-auto max-w-7xl">
         <div className="mb-16 text-center">
           <h2 className="mb-4 font-display text-primary">
-            Our Product Range
+            {t('products.title')}
           </h2>
           <p className="mx-auto max-w-2xl text-lg text-muted-foreground md:text-xl">
-            From residential to industrial, discover the perfect water pump solution for your needs
+            {t('products.subtitle')}
           </p>
         </div>
 
@@ -75,21 +77,21 @@ const Products = () => {
               <div className="p-6">
                 <div className="mb-4">
                   <div className="mb-2 text-sm font-medium text-accent">
-                    {product.category}
+                    {t(product.categoryKey)}
                   </div>
                   <h3 className="text-2xl font-bold text-card-foreground">
-                    {product.name}
+                    {t(product.nameKey)}
                   </h3>
                 </div>
                 
                 <p className="mb-6 text-muted-foreground">
-                  {product.description}
+                  {t(product.descKey)}
                 </p>
                 
                 <div className="mb-6 space-y-2">
                   {product.specs.map((spec, i) => (
                     <div key={i} className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <div className="h-1.5 w-1.5 rounded-full bg-accent" />
+                      <div className="h-1.5 w-1.5 rounded-full bg-accent flex-shrink-0" />
                       {spec}
                     </div>
                   ))}
@@ -97,9 +99,9 @@ const Products = () => {
                 
                 <Button 
                   variant="ghost" 
-                  className="group/btn w-full justify-between text-primary hover:text-accent"
+                  className="group/btn w-full justify-between text-primary hover:text-accent hover:bg-accent/5"
                 >
-                  Learn More
+                  {t('products.learnMore')}
                   <ArrowRight className="h-4 w-4 transition-transform group-hover/btn:translate-x-1" />
                 </Button>
               </div>

@@ -1,8 +1,10 @@
 import { Facebook, Twitter, Linkedin, Instagram } from 'lucide-react';
-import brandLogo from '@/assets/brand-logo.png';
+import logoIcon from '@/assets/logo-icon.png';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
+  const { t } = useLanguage();
 
   return (
     <footer className="bg-primary text-primary-foreground">
@@ -11,11 +13,10 @@ const Footer = () => {
           {/* Brand */}
           <div className="space-y-4">
             <div className="flex items-center gap-3">
-              <img src={brandLogo} alt="AquaPump" className="h-12 w-12" />
-              <span className="text-xl font-bold font-display">AquaPump</span>
+              <img src={logoIcon} alt="AquaPump" className="h-16 w-auto" />
             </div>
             <p className="text-sm text-primary-foreground/80 leading-relaxed">
-              Your Pump, Our Solution. Leading the future of sustainable water technology.
+              {t('footer.tagline')}
             </p>
             <div className="flex gap-4">
               <a href="#" className="hover:text-accent transition-colors">
@@ -35,7 +36,7 @@ const Footer = () => {
 
           {/* Products */}
           <div>
-            <h3 className="mb-4 font-semibold text-accent">Products</h3>
+            <h3 className="mb-4 font-semibold text-accent">{t('footer.products')}</h3>
             <ul className="space-y-2 text-sm">
               <li><a href="#" className="hover:text-accent transition-colors">Industrial Series</a></li>
               <li><a href="#" className="hover:text-accent transition-colors">Residential Series</a></li>
@@ -46,7 +47,7 @@ const Footer = () => {
 
           {/* Company */}
           <div>
-            <h3 className="mb-4 font-semibold text-accent">Company</h3>
+            <h3 className="mb-4 font-semibold text-accent">{t('footer.company')}</h3>
             <ul className="space-y-2 text-sm">
               <li><a href="#" className="hover:text-accent transition-colors">About Us</a></li>
               <li><a href="#" className="hover:text-accent transition-colors">Sustainability</a></li>
@@ -57,7 +58,7 @@ const Footer = () => {
 
           {/* Support */}
           <div>
-            <h3 className="mb-4 font-semibold text-accent">Support</h3>
+            <h3 className="mb-4 font-semibold text-accent">{t('footer.support')}</h3>
             <ul className="space-y-2 text-sm">
               <li><a href="#" className="hover:text-accent transition-colors">Contact Us</a></li>
               <li><a href="#" className="hover:text-accent transition-colors">Documentation</a></li>
@@ -68,7 +69,7 @@ const Footer = () => {
         </div>
 
         <div className="mt-12 pt-8 border-t border-primary-foreground/20 text-center text-sm text-primary-foreground/60">
-          <p>&copy; {currentYear} AquaPump. All rights reserved.</p>
+          <p>&copy; {currentYear} {t('footer.copyright')}</p>
         </div>
       </div>
     </footer>

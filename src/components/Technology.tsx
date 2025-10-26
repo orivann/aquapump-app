@@ -1,8 +1,10 @@
 import { useEffect, useRef } from 'react';
 import technologyImage from '@/assets/technology.jpg';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const Technology = () => {
   const sectionRef = useRef<HTMLDivElement>(null);
+  const { t } = useLanguage();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -45,42 +47,40 @@ const Technology = () => {
           {/* Content Side */}
           <div className="tech-content space-y-6 opacity-0">
             <h2 className="font-display text-primary">
-              Precision Engineering
+              {t('tech.title')}
             </h2>
             
             <p className="text-lg text-foreground/80 leading-relaxed">
-              Our water pump systems represent the pinnacle of modern engineering. 
-              Every component is meticulously designed and tested to deliver unparalleled 
-              performance, efficiency, and reliability.
+              {t('tech.intro')}
             </p>
             
             <div className="space-y-4">
               <div className="flex items-start gap-4">
-                <div className="mt-1 h-2 w-2 rounded-full bg-accent" />
+                <div className="mt-1 h-2 w-2 rounded-full bg-accent flex-shrink-0" />
                 <div>
-                  <h4 className="mb-1 font-semibold text-primary">Advanced Materials</h4>
+                  <h4 className="mb-1 font-semibold text-primary">{t('tech.materials.title')}</h4>
                   <p className="text-muted-foreground">
-                    Corrosion-resistant alloys ensure decades of maintenance-free operation
+                    {t('tech.materials.desc')}
                   </p>
                 </div>
               </div>
               
               <div className="flex items-start gap-4">
-                <div className="mt-1 h-2 w-2 rounded-full bg-accent" />
+                <div className="mt-1 h-2 w-2 rounded-full bg-accent flex-shrink-0" />
                 <div>
-                  <h4 className="mb-1 font-semibold text-primary">Smart Controls</h4>
+                  <h4 className="mb-1 font-semibold text-primary">{t('tech.controls.title')}</h4>
                   <p className="text-muted-foreground">
-                    Intelligent automation optimizes performance in real-time
+                    {t('tech.controls.desc')}
                   </p>
                 </div>
               </div>
               
               <div className="flex items-start gap-4">
-                <div className="mt-1 h-2 w-2 rounded-full bg-accent" />
+                <div className="mt-1 h-2 w-2 rounded-full bg-accent flex-shrink-0" />
                 <div>
-                  <h4 className="mb-1 font-semibold text-primary">Tested Excellence</h4>
+                  <h4 className="mb-1 font-semibold text-primary">{t('tech.tested.title')}</h4>
                   <p className="text-muted-foreground">
-                    Rigorous quality control in extreme conditions
+                    {t('tech.tested.desc')}
                   </p>
                 </div>
               </div>

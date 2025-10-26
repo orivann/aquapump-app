@@ -2,10 +2,12 @@ import { useEffect, useRef } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import heroImage from '@/assets/hero-pump.jpg';
-import brandLogo from '@/assets/brand-logo.png';
+import logoFull from '@/assets/logo-full.png';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const Hero = () => {
   const heroRef = useRef<HTMLDivElement>(null);
+  const { t } = useLanguage();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -47,17 +49,17 @@ const Hero = () => {
       {/* Hero Content */}
       <div className="hero-content relative z-10 flex h-full flex-col items-center justify-center px-6 text-center">
         <img 
-          src={brandLogo} 
+          src={logoFull} 
           alt="AquaPump Logo" 
-          className="mb-8 h-24 w-24 animate-fade-in md:h-32 md:w-32"
+          className="mb-8 h-auto w-64 animate-fade-in md:w-80"
         />
         
         <h1 className="mb-6 font-display text-primary-foreground animate-fade-up">
-          The Future of Water Technology
+          {t('hero.title')}
         </h1>
         
         <p className="mb-12 max-w-2xl text-xl text-primary-foreground/90 animate-fade-up md:text-2xl" style={{ animationDelay: '0.2s' }}>
-          Your Pump, Our Solution — Premium, sustainable, eco-friendly water pump systems
+          {t('hero.subtitle')}
         </p>
         
         <div className="flex flex-col gap-4 animate-fade-up sm:flex-row" style={{ animationDelay: '0.4s' }}>
@@ -65,14 +67,14 @@ const Hero = () => {
             size="lg" 
             className="bg-accent text-accent-foreground hover:bg-accent-light shadow-glow transition-all duration-300 hover:scale-105"
           >
-            Explore Products
+            {t('hero.explore')}
           </Button>
           <Button 
             size="lg" 
             variant="outline"
-            className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground/10 backdrop-blur-sm"
+            className="border-primary-foreground/30 bg-primary-foreground/10 text-primary-foreground hover:bg-primary-foreground/20 hover:border-primary-foreground/50 backdrop-blur-sm transition-all duration-300"
           >
-            Learn More
+            {t('hero.learn')}
           </Button>
         </div>
       </div>

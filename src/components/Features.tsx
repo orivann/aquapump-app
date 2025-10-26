@@ -1,41 +1,43 @@
 import { useEffect, useRef } from 'react';
 import { Droplet, Zap, Leaf, Shield, Gauge, Wrench } from 'lucide-react';
-
-const features = [
-  {
-    icon: Droplet,
-    title: 'Advanced Flow Technology',
-    description: 'Precision-engineered water flow systems for optimal performance and efficiency.'
-  },
-  {
-    icon: Zap,
-    title: 'Energy Efficient',
-    description: 'Smart power management reduces energy consumption by up to 60%.'
-  },
-  {
-    icon: Leaf,
-    title: 'Eco-Friendly Design',
-    description: 'Sustainable materials and green technology for a better tomorrow.'
-  },
-  {
-    icon: Shield,
-    title: 'Built to Last',
-    description: 'Premium materials ensure decades of reliable, maintenance-free operation.'
-  },
-  {
-    icon: Gauge,
-    title: 'Smart Monitoring',
-    description: 'Real-time performance tracking and intelligent diagnostics.'
-  },
-  {
-    icon: Wrench,
-    title: 'Easy Installation',
-    description: 'Streamlined setup process with comprehensive support.'
-  }
-];
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const Features = () => {
   const sectionRef = useRef<HTMLDivElement>(null);
+  const { t } = useLanguage();
+  
+  const features = [
+    {
+      icon: Droplet,
+      titleKey: 'features.flow.title',
+      descKey: 'features.flow.desc'
+    },
+    {
+      icon: Zap,
+      titleKey: 'features.energy.title',
+      descKey: 'features.energy.desc'
+    },
+    {
+      icon: Leaf,
+      titleKey: 'features.eco.title',
+      descKey: 'features.eco.desc'
+    },
+    {
+      icon: Shield,
+      titleKey: 'features.durable.title',
+      descKey: 'features.durable.desc'
+    },
+    {
+      icon: Gauge,
+      titleKey: 'features.smart.title',
+      descKey: 'features.smart.desc'
+    },
+    {
+      icon: Wrench,
+      titleKey: 'features.install.title',
+      descKey: 'features.install.desc'
+    }
+  ];
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -60,10 +62,10 @@ const Features = () => {
       <div className="mx-auto max-w-7xl">
         <div className="mb-16 text-center">
           <h2 className="mb-4 font-display text-primary">
-            Innovation in Every Drop
+            {t('features.title')}
           </h2>
           <p className="mx-auto max-w-2xl text-lg text-muted-foreground md:text-xl">
-            Cutting-edge features designed for maximum efficiency, sustainability, and performance
+            {t('features.subtitle')}
           </p>
         </div>
 
@@ -79,11 +81,11 @@ const Features = () => {
               </div>
               
               <h3 className="mb-3 text-2xl font-bold text-card-foreground">
-                {feature.title}
+                {t(feature.titleKey)}
               </h3>
               
               <p className="text-muted-foreground leading-relaxed">
-                {feature.description}
+                {t(feature.descKey)}
               </p>
             </div>
           ))}
