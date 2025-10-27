@@ -36,24 +36,18 @@ const Hero = () => {
 
   return (
     <section ref={heroRef} className="relative h-screen w-full overflow-hidden">
-      {/* Hero Image with Parallax */}
+      {/* Hero Image with Parallax - Brightened */}
       <div className="hero-image absolute inset-0 z-0">
         <img 
           src={heroImage} 
           alt="AquaPump Premium Water Technology" 
-          className="h-full w-full object-cover"
+          className="h-full w-full object-cover brightness-110"
         />
-        <div className="absolute inset-0 bg-gradient-overlay" />
+        <div className="absolute inset-0 bg-gradient-overlay opacity-80" />
       </div>
 
       {/* Hero Content */}
       <div className="hero-content relative z-10 flex h-full flex-col items-center justify-center px-6 text-center">
-        <img 
-          src={logoFull} 
-          alt="AquaPump Logo" 
-          className="mb-12 h-auto w-72 animate-fade-in drop-shadow-2xl md:w-96"
-        />
-        
         <h1 className="mb-8 font-display text-primary-foreground animate-fade-up drop-shadow-lg">
           {t('hero.title')}
         </h1>
@@ -62,7 +56,7 @@ const Hero = () => {
           {t('hero.subtitle')}
         </p>
         
-        <div className="flex flex-col gap-4 animate-fade-up sm:flex-row" style={{ animationDelay: '0.4s' }}>
+        <div className="flex flex-col gap-4 animate-fade-up sm:flex-row mb-16" style={{ animationDelay: '0.4s' }}>
           <Button 
             size="lg" 
             className="bg-accent text-accent-foreground hover:bg-accent-light shadow-glow transition-all duration-300 hover:scale-105 hover:shadow-xl px-10 py-7 text-lg"
@@ -77,6 +71,13 @@ const Hero = () => {
             {t('hero.learn')}
           </Button>
         </div>
+
+        <img 
+          src={logoFull} 
+          alt="AquaPump Logo" 
+          className="h-auto w-80 animate-fade-in drop-shadow-2xl md:w-[28rem] opacity-0"
+          style={{ animationDelay: '0.6s', animationFillMode: 'forwards' }}
+        />
       </div>
 
       {/* Scroll Indicator */}

@@ -8,17 +8,35 @@ const Footer = () => {
   const { t } = useLanguage();
 
   return (
-    <footer className="bg-background text-foreground border-t border-border">
-      <div className="mx-auto max-w-7xl px-6 py-16">
-        <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-4">
-          {/* Brand */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-3">
-              <img src={logoIcon} alt="AquaPump" className="h-16 w-auto" />
-            </div>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              {t('footer.tagline')}
-            </p>
+    <footer className="bg-background text-foreground">
+      {/* Animation Section */}
+      <div className="relative bg-white py-32 overflow-hidden">
+        <div className="mx-auto max-w-7xl px-6">
+          <div className="text-center">
+            <img 
+              src={animationWaves} 
+              alt="AquaPump Flow Animation" 
+              className="mx-auto w-full max-w-2xl h-auto animate-float"
+            />
+          </div>
+        </div>
+        {/* Decorative gradient overlays */}
+        <div className="absolute top-0 left-0 w-1/3 h-full bg-gradient-to-r from-accent/10 to-transparent pointer-events-none" />
+        <div className="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-primary/10 to-transparent pointer-events-none" />
+      </div>
+
+      {/* Footer Content */}
+      <div className="border-t border-border">
+        <div className="mx-auto max-w-7xl px-6 py-16">
+          <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-4">
+            {/* Brand */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <img src={logoIcon} alt="AquaPump" className="h-16 w-auto" />
+              </div>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                {t('footer.tagline')}
+              </p>
             <div className="flex gap-4">
               <a href="#" className="text-foreground hover:text-accent transition-all duration-300 hover:scale-110">
                 <Facebook size={20} />
@@ -69,20 +87,12 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="mt-16 pt-8 border-t border-border">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="flex items-center gap-4">
-              <img 
-                src={animationWaves} 
-                alt="AquaPump Animation" 
-                className="h-16 w-auto"
-              />
-              <p className="text-sm text-muted-foreground">
-                &copy; {currentYear} {t('footer.copyright')}
-              </p>
-            </div>
-          </div>
+        <div className="mt-16 pt-8 border-t border-border text-center">
+          <p className="text-sm text-muted-foreground">
+            &copy; {currentYear} {t('footer.copyright')}
+          </p>
         </div>
+      </div>
       </div>
     </footer>
   );

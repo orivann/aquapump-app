@@ -38,17 +38,17 @@ const Navbar = () => {
     >
       <div className="mx-auto max-w-7xl px-6">
         <div className="flex h-20 items-center justify-between">
-          {/* Logo */}
+          {/* Logo - Larger */}
           <a href="#" className="flex items-center">
             <img 
               src={isScrolled ? logoIcon : logoIcon} 
               alt="AquaPump" 
-              className="h-12 w-auto md:hidden"
+              className="h-16 w-auto md:hidden"
             />
             <img 
               src={isScrolled ? logoFull : logoFull} 
               alt="AquaPump" 
-              className="hidden md:block h-12 w-auto"
+              className="hidden md:block h-16 w-auto"
             />
           </a>
 
