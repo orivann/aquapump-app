@@ -25,3 +25,4 @@ backend/app/__pycache__/
 *.njsproj
 *.sln
 *.sw?
+argocd-linux-amd64
