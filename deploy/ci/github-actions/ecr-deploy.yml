@@ -8,9 +8,9 @@ on:
   workflow_dispatch: {}
 
 env:
-  AWS_REGION: us-east-1
-  ECR_REPOSITORY_BACKEND: aquapump-backend
-  ECR_REPOSITORY_FRONTEND: aquapump-frontend
+  AWS_REGION: eu-north-1
+  ECR_REPOSITORY_BACKEND: aquapump/backend
+  ECR_REPOSITORY_FRONTEND: aquapump/frontend
   IMAGE_TAG: ${{ github.sha }}
 
 jobs:
@@ -74,8 +74,9 @@ jobs:
         uses: mikefarah/yq@v4
         with:
           cmd: |
-            yq -i '.backend.image.tag = "${{ env.IMAGE_TAG }}"' deploy/helm/aquapump/values.yaml
-            yq -i '.frontend.image.tag = "${{ env.IMAGE_TAG }}"' deploy/helm/aquapump/values.yaml
+            yq -i '.image.backend.tag = "${{ env.IMAGE_TAG }}"' deploy/helm/aquapump/values.yaml
+            yq -i '.image.frontend.tag = "${{ env.IMAGE_TAG }}"' deploy/helm/aquapump/values.yaml
+
 
       - name: Commit and push changes
         uses: EndBug/add-and-commit@v9
