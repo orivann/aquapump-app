@@ -1,12 +1,5 @@
 import { type CSSProperties, useRef } from "react";
-import {
-  BarChart3,
-  BriefcaseBusiness,
-  Rocket,
-  Send,
-  ShieldCheck,
-  Users,
-} from "lucide-react";
+import { Droplet, Zap, Leaf, Shield, Gauge, Wrench } from "lucide-react";
 
 import { useLanguage } from "@/contexts/LanguageContext";
 import useScrollReveal from "@/hooks/use-scroll-reveal";
@@ -17,32 +10,32 @@ const Features = () => {
 
   const features = [
     {
-      icon: BriefcaseBusiness,
+      icon: Droplet,
       titleKey: "features.flow.title",
       descKey: "features.flow.desc",
     },
     {
-      icon: Send,
+      icon: Zap,
       titleKey: "features.energy.title",
       descKey: "features.energy.desc",
     },
     {
-      icon: Users,
+      icon: Leaf,
       titleKey: "features.eco.title",
       descKey: "features.eco.desc",
     },
     {
-      icon: ShieldCheck,
+      icon: Shield,
       titleKey: "features.durable.title",
       descKey: "features.durable.desc",
     },
     {
-      icon: BarChart3,
+      icon: Gauge,
       titleKey: "features.smart.title",
       descKey: "features.smart.desc",
     },
     {
-      icon: Rocket,
+      icon: Wrench,
       titleKey: "features.install.title",
       descKey: "features.install.desc",
     },

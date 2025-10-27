@@ -39,16 +39,16 @@ const Navbar = () => {
       <div className="mx-auto max-w-7xl px-6">
         <div className="flex h-20 items-center justify-between">
           {/* Logo - Larger */}
-          <a href="#" className="flex items-center" aria-label="WorkWave Careers home">
-            <img
-              src={isScrolled ? logoIcon : logoIcon}
-              alt="WorkWave Careers logo"
+          <a href="#" className="flex items-center">
+            <img 
+              src={isScrolled ? logoIcon : logoIcon} 
+              alt="AquaPump" 
               className="h-16 w-auto md:hidden"
             />
-            <img
-              src={isScrolled ? logoFull : logoFull}
-              alt="WorkWave Careers wordmark"
-              className="hidden h-16 w-auto md:block"
+            <img 
+              src={isScrolled ? logoFull : logoFull} 
+              alt="AquaPump" 
+              className="hidden md:block h-16 w-auto"
             />
           </a>
 
@@ -66,12 +66,11 @@ const Navbar = () => {
               </a>
             ))}
             <LanguageSwitcher />
-            <Button
+            <Button 
               size="sm"
-              className="bg-accent text-accent-foreground shadow-glow hover:bg-accent-light"
-              asChild
+              className="bg-accent text-accent-foreground hover:bg-accent-light shadow-glow"
             >
-              <a href="#contact">{t('nav.getStarted')}</a>
+              {t('nav.getStarted')}
             </Button>
           </div>
 
@@ -104,11 +103,10 @@ const Navbar = () => {
             <div className="pt-2 border-t border-border">
               <LanguageSwitcher />
             </div>
-            <Button
-              className="w-full bg-accent text-accent-foreground shadow-glow hover:bg-accent-light"
-              asChild
+            <Button 
+              className="w-full bg-accent text-accent-foreground hover:bg-accent-light shadow-glow"
             >
-              <a href="#contact">{t('nav.getStarted')}</a>
+              {t('nav.getStarted')}
             </Button>
           </div>
         </div>

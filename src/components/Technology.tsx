@@ -1,4 +1,6 @@
 import { type CSSProperties, useEffect, useRef } from "react";
+
+import technologyImage from "@/assets/technology.jpg";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useIsMobile } from "@/hooks/use-mobile";
 import usePrefersReducedMotion from "@/hooks/use-prefers-reduced-motion";
@@ -18,14 +20,14 @@ const Technology = () => {
     }
 
     const section = sectionRef.current;
-    const visualElement = section.querySelector<HTMLElement>(".tech-visual");
+    const imageElement = section.querySelector<HTMLElement>(".tech-image");
     const handleScroll = () => {
       const rect = section.getBoundingClientRect();
       const viewportHeight = window.innerHeight || 1;
       const progress = Math.max(0, Math.min(1, 1 - rect.top / viewportHeight));
 
-      if (visualElement) {
-        visualElement.style.transform = `scale(${1 + progress * 0.06}) translateY(${progress * -30}px)`;
+      if (imageElement) {
+        imageElement.style.transform = `scale(${1 + progress * 0.08}) translateY(${progress * -40}px)`;
       }
     };
 
@@ -44,36 +46,15 @@ const Technology = () => {
       <div className="relative mx-auto max-w-7xl px-6">
         <div className="grid items-center gap-16 lg:grid-cols-[minmax(0,_1.05fr)_minmax(0,_1fr)] lg:gap-20">
           <div
-            className="group relative mx-auto h-[320px] w-full max-w-[520px] overflow-hidden rounded-3xl bg-gradient-to-br from-primary/25 via-secondary/30 to-background shadow-premium sm:h-[420px] lg:h-[520px] lg:max-w-none"
+            className="group relative mx-auto h-[320px] w-full max-w-[520px] overflow-hidden rounded-3xl shadow-premium sm:h-[420px] lg:h-[520px] lg:max-w-none"
             data-animate="zoom"
           >
-            <div className="tech-visual absolute inset-0 transition-transform duration-700 ease-out group-hover:scale-[1.04]">
-              <div className="absolute inset-0 bg-gradient-to-b from-background/10 via-background/40 to-background/80" />
-              <div className="absolute left-6 right-6 top-10 rounded-3xl border border-white/20 bg-background/60 p-6 backdrop-blur">
-                <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary">Workflow</p>
-                <h3 className="mt-3 text-2xl font-bold text-foreground">{t("tech.title")}</h3>
-                <ul className="mt-6 space-y-4 text-sm text-muted-foreground">
-                  <li className="flex items-start gap-3">
-                    <span className="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-accent" />
-                    {t("tech.materials.title")}
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-accent" />
-                    {t("tech.controls.title")}
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-accent" />
-                    {t("tech.tested.title")}
-                  </li>
-                </ul>
-              </div>
-              <div className="absolute bottom-10 left-6 right-6 rounded-3xl border border-white/10 bg-background/40 p-6 backdrop-blur">
-                <p className="text-sm font-semibold text-foreground">ATS sync</p>
-                <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
-                  {t("tech.intro")}
-                </p>
-              </div>
-            </div>
+            <img
+              src={technologyImage}
+              alt="Advanced Water Pump Technology"
+              className="tech-image h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.08]"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-primary/35 via-primary/10 to-transparent" />
           </div>
 
           <div className="space-y-7" data-animate="slide-right" style={{ "--stagger-delay": "160ms" } as CSSProperties}>

@@ -35,7 +35,7 @@ type ChatWidgetContextValue = {
 
 const ChatWidgetContext = createContext<ChatWidgetContextValue | null>(null);
 
-const SESSION_STORAGE_KEY = "workwave.chat.session";
+const SESSION_STORAGE_KEY = "aquapump.chat.session";
 
 export const useChatWidget = (): ChatWidgetContextValue => {
   const context = useContext(ChatWidgetContext);
@@ -46,8 +46,6 @@ export const useChatWidget = (): ChatWidgetContextValue => {
 };
 
 const useSessionId = () => {
-  // Manages persisting the active chat session identifier to local storage so
-  // conversations survive page reloads without additional backend calls.
   const [sessionId, setSessionId] = useState<string | null>(() => {
     if (typeof window === "undefined") return null;
     return window.localStorage.getItem(SESSION_STORAGE_KEY);
@@ -81,15 +79,15 @@ const FloatingLauncher = ({
         className="fixed bottom-6 right-6 z-40 h-14 w-14 rounded-full bg-primary text-primary-foreground shadow-glow transition hover:bg-primary-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
       >
         {isBusy ? <Loader2 className="h-6 w-6 animate-spin" /> : <MessageCircle className="h-6 w-6" />}
-        <span className="sr-only">Open Wave recruiting assistant</span>
+        <span className="sr-only">Open Aqua AI assistant</span>
       </Button>
     </TooltipTrigger>
-    <TooltipContent className="text-xs">Chat with Wave</TooltipContent>
+    <TooltipContent className="text-xs">Chat with Aqua AI</TooltipContent>
   </Tooltip>
 );
 
 const roleLabels: Record<ChatMessage["role"], string> = {
-  assistant: "Wave",
+  assistant: "Aqua AI",
   user: "You",
   system: "System",
 };
@@ -105,7 +103,6 @@ export const ChatWidgetProvider = ({ children }: { children: ReactNode }) => {
   const [error, setError] = useState<string | null>(null);
   const isMobile = useIsMobile();
   const bottomRef = useRef<HTMLDivElement | null>(null);
-  const activeRequest = useRef<AbortController | null>(null);
 
   useEffect(() => {
     if (!isOpen || !sessionId || hasAttemptedRestore || isLoadingHistory || messages.length > 0) {
@@ -115,34 +112,20 @@ export const ChatWidgetProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
 
-    let isSubscribed = true;
-    const controller = new AbortController();
-
     setIsLoadingHistory(true);
     setHasAttemptedRestore(true);
 
-    fetchChatHistory(sessionId, { signal: controller.signal })
+    fetchChatHistory(sessionId)
       .then((response) => {
-        if (!isSubscribed) return;
         setMessages(response.messages);
       })
       .catch((err: unknown) => {
-        if (!isSubscribed || (err instanceof DOMException && err.name === "AbortError")) {
-          return;
-        }
         const message = err instanceof Error ? err.message : "Unable to load chat history";
         setError(message);
       })
       .finally(() => {
-        if (isSubscribed) {
-          setIsLoadingHistory(false);
-        }
+        setIsLoadingHistory(false);
       });
-
-    return () => {
-      isSubscribed = false;
-      controller.abort();
-    };
   }, [hasAttemptedRestore, isLoadingHistory, isOpen, messages.length, sessionId]);
 
   useEffect(() => {
@@ -156,15 +139,7 @@ export const ChatWidgetProvider = ({ children }: { children: ReactNode }) => {
     bottomRef.current?.scrollIntoView({ behavior: isSending ? "smooth" : "auto" });
   }, [isOpen, isSending, messages]);
 
-  useEffect(
-    () => () => {
-      activeRequest.current?.abort();
-    },
-    [],
-  );
-
   const resetChat = useCallback(() => {
-    activeRequest.current?.abort();
     setSessionId(null);
     setMessages([]);
     setDraft("");
@@ -187,25 +162,16 @@ export const ChatWidgetProvider = ({ children }: { children: ReactNode }) => {
     setIsSending(true);
     setError(null);
 
-    const controller = new AbortController();
-    activeRequest.current?.abort();
-    activeRequest.current = controller;
-
     try {
-      const response = await sendChatMessage(sessionId, trimmed, { signal: controller.signal });
+      const response = await sendChatMessage(sessionId, trimmed);
       setSessionId(response.session_id);
       setMessages(response.messages);
       setHasAttemptedRestore(true);
     } catch (err) {
-      if (!(err instanceof DOMException && err.name === "AbortError")) {
-        const message = err instanceof Error ? err.message : "Unable to send message";
-        setError(message);
-        setMessages((prev) => prev.filter((message) => message !== optimistic));
-      }
+      const message = err instanceof Error ? err.message : "Unable to send message";
+      setError(message);
+      setMessages((prev) => prev.filter((message) => message !== optimistic));
     } finally {
-      if (activeRequest.current === controller) {
-        activeRequest.current = null;
-      }
       setIsSending(false);
     }
   }, [draft, isSending, sessionId, setSessionId]);
@@ -257,9 +223,9 @@ export const ChatWidgetProvider = ({ children }: { children: ReactNode }) => {
                 <MessageCircle className="h-5 w-5" />
               </span>
               <div>
-                <SheetTitle className="text-xl">Wave recruiting assistant</SheetTitle>
+                <SheetTitle className="text-xl">Aqua AI Assistant</SheetTitle>
                 <SheetDescription className="text-sm">
-                  Ask anything about WorkWave hiring workflows, plans, or candidate experiences.
+                  Ask anything about AquaPump products and sustainability practices.
                 </SheetDescription>
               </div>
             </div>
@@ -282,7 +248,7 @@ export const ChatWidgetProvider = ({ children }: { children: ReactNode }) => {
                   {isLoadingHistory ? <p className="text-sm text-muted-foreground">Loading previous messages…</p> : null}
                   {messages.length === 0 && !isLoadingHistory ? (
                     <p className="text-sm text-muted-foreground">
-                      Welcome! Ask about sourcing automations, role templates, integrations, or global hiring support.
+                      Welcome! Ask about pump specifications, energy efficiency, or installation guidance.
                     </p>
                   ) : null}
                   {messages.map((message, index) => (
@@ -316,7 +282,7 @@ export const ChatWidgetProvider = ({ children }: { children: ReactNode }) => {
                   value={draft}
                   onChange={(event) => setDraft(event.target.value)}
                   onKeyDown={handleTextareaKeyDown}
-                  placeholder="Ask Wave how WorkWave can support your hiring goals…"
+                  placeholder="Ask Aqua AI anything about our pumps…"
                   rows={isMobile ? 4 : 3}
                   className="resize-none"
                   disabled={isSending}

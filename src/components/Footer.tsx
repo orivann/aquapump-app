@@ -15,7 +15,7 @@ const Footer = () => {
           <div className="text-center">
             <img
               src={animationWaves}
-              alt="WorkWave hiring animation"
+              alt="AquaPump Flow Animation"
               className="mx-auto h-auto w-full max-w-2xl animate-float"
             />
           </div>
@@ -29,7 +29,7 @@ const Footer = () => {
           <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-4">
             <div className="space-y-4">
               <div className="flex items-center gap-3">
-                <img src={logoIcon} alt="WorkWave Careers" className="h-16 w-auto" />
+                <img src={logoIcon} alt="AquaPump" className="h-16 w-auto" />
               </div>
               <p className="text-sm leading-relaxed text-muted-foreground">{t('footer.tagline')}</p>
               <div className="flex gap-4">
@@ -52,23 +52,23 @@ const Footer = () => {
               <h3 className="mb-4 font-semibold text-primary">{t('footer.products')}</h3>
               <ul className="space-y-3 text-sm">
                 <li>
-                  <a href="#products" className="text-muted-foreground transition-colors duration-200 hover:text-accent">
-                    {t('products.pro.name')}
+                  <a href="#" className="text-muted-foreground transition-colors duration-200 hover:text-accent">
+                    Industrial Series
                   </a>
                 </li>
                 <li>
-                  <a href="#products" className="text-muted-foreground transition-colors duration-200 hover:text-accent">
-                    {t('products.eco.name')}
+                  <a href="#" className="text-muted-foreground transition-colors duration-200 hover:text-accent">
+                    Residential Series
                   </a>
                 </li>
                 <li>
-                  <a href="#products" className="text-muted-foreground transition-colors duration-200 hover:text-accent">
-                    {t('products.solar.name')}
+                  <a href="#" className="text-muted-foreground transition-colors duration-200 hover:text-accent">
+                    Solar Series
                   </a>
                 </li>
                 <li>
-                  <a href="#products" className="text-muted-foreground transition-colors duration-200 hover:text-accent">
-                    {t('products.smart.name')}
+                  <a href="#" className="text-muted-foreground transition-colors duration-200 hover:text-accent">
+                    Smart IoT Series
                   </a>
                 </li>
               </ul>
@@ -78,23 +78,23 @@ const Footer = () => {
               <h3 className="mb-4 font-semibold text-primary">{t('footer.company')}</h3>
               <ul className="space-y-3 text-sm">
                 <li>
-                  <a href="#features" className="text-muted-foreground transition-colors duration-200 hover:text-accent">
-                    About WorkWave
+                  <a href="#" className="text-muted-foreground transition-colors duration-200 hover:text-accent">
+                    About Us
                   </a>
                 </li>
                 <li>
-                  <a href="#technology" className="text-muted-foreground transition-colors duration-200 hover:text-accent">
-                    Platform
+                  <a href="#" className="text-muted-foreground transition-colors duration-200 hover:text-accent">
+                    Sustainability
                   </a>
                 </li>
                 <li>
-                  <a href="#assistant" className="text-muted-foreground transition-colors duration-200 hover:text-accent">
-                    AI copilot
+                  <a href="#" className="text-muted-foreground transition-colors duration-200 hover:text-accent">
+                    Careers
                   </a>
                 </li>
                 <li>
-                  <a href="#contact" className="text-muted-foreground transition-colors duration-200 hover:text-accent">
-                    Contact
+                  <a href="#" className="text-muted-foreground transition-colors duration-200 hover:text-accent">
+                    News
                   </a>
                 </li>
               </ul>
@@ -104,23 +104,23 @@ const Footer = () => {
               <h3 className="mb-4 font-semibold text-primary">{t('footer.support')}</h3>
               <ul className="space-y-3 text-sm">
                 <li>
-                  <a href="#contact" className="text-muted-foreground transition-colors duration-200 hover:text-accent">
-                    Help center
+                  <a href="#" className="text-muted-foreground transition-colors duration-200 hover:text-accent">
+                    Contact Us
                   </a>
                 </li>
                 <li>
                   <a href="#" className="text-muted-foreground transition-colors duration-200 hover:text-accent">
-                    Security
+                    Documentation
                   </a>
                 </li>
                 <li>
                   <a href="#" className="text-muted-foreground transition-colors duration-200 hover:text-accent">
-                    Status
+                    Installation
                   </a>
                 </li>
                 <li>
                   <a href="#" className="text-muted-foreground transition-colors duration-200 hover:text-accent">
-                    Privacy
+                    Warranty
                   </a>
                 </li>
               </ul>

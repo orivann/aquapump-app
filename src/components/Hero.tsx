@@ -2,6 +2,7 @@ import { type CSSProperties, useEffect, useRef } from "react";
 import { ChevronDown } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import heroImage from "@/assets/hero-pump.jpg";
 import logoFull from "@/assets/logo-full.png";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -23,7 +24,7 @@ const Hero = () => {
     }
 
     const heroElement = heroRef.current;
-    const visualElement = heroElement.querySelector<HTMLElement>(".hero-visual");
+    const imageElement = heroElement.querySelector<HTMLElement>(".hero-image img");
     const overlayElement = heroElement.querySelector<HTMLElement>(".hero-overlay");
     const contentElement = contentRef.current;
 
@@ -31,8 +32,8 @@ const Hero = () => {
       const scrolled = window.scrollY;
       const eased = Math.min(scrolled, 400);
 
-      if (visualElement) {
-        visualElement.style.transform = `translateY(${eased * 0.15}px) scale(${1 + eased * 0.0005})`;
+      if (imageElement) {
+        imageElement.style.transform = `translateY(${eased * 0.25}px) scale(${1 + eased * 0.0006})`;
       }
 
       if (overlayElement) {
@@ -55,11 +56,13 @@ const Hero = () => {
       ref={heroRef}
       className="relative flex min-h-[90vh] w-full items-center justify-center overflow-hidden bg-background pt-24 text-primary-foreground md:pt-32"
     >
-      <div className="hero-visual absolute inset-0">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-background to-secondary/60" />
-        <div className="pointer-events-none absolute -left-32 top-20 h-[420px] w-[420px] rounded-full bg-[radial-gradient(circle_at_center,_rgba(76,114,255,0.35)_0%,_transparent_70%)] blur-3xl" />
-        <div className="pointer-events-none absolute -right-24 bottom-12 h-[360px] w-[360px] rounded-full bg-[radial-gradient(circle_at_center,_rgba(68,214,197,0.4)_0%,_transparent_70%)] blur-3xl" />
-        <div className="hero-overlay absolute inset-0 bg-gradient-to-b from-background/10 via-background/40 to-background" />
+      <div className="hero-image absolute inset-0">
+        <img
+          src={heroImage}
+          alt="AquaPump Premium Water Technology"
+          className="h-full w-full object-cover brightness-110"
+        />
+        <div className="hero-overlay absolute inset-0 bg-gradient-to-b from-primary/40 via-primary/30 to-primary/90" />
       </div>
 
       <div
@@ -97,23 +100,21 @@ const Hero = () => {
           <Button
             size="lg"
             className="w-full max-w-[220px] bg-accent text-lg font-semibold tracking-wide text-accent-foreground shadow-glow transition-transform duration-300 hover:scale-[1.03] hover:shadow-xl sm:w-auto"
-            asChild
           >
-            <a href="#products">{t("hero.explore")}</a>
+            {t("hero.explore")}
           </Button>
           <Button
             size="lg"
             variant="outline"
             className="w-full max-w-[220px] border-primary-foreground/40 bg-primary-foreground/10 text-lg font-semibold tracking-wide text-primary-foreground backdrop-blur transition-transform duration-300 hover:scale-[1.03] hover:bg-primary-foreground/20 hover:shadow-xl sm:w-auto"
-            asChild
           >
-            <a href="#features">{t("hero.learn")}</a>
+            {t("hero.learn")}
           </Button>
         </div>
 
         <img
           src={logoFull}
-          alt="WorkWave Careers signature"
+          alt="AquaPump Logo"
           className="mt-12 w-48 max-w-full opacity-0 drop-shadow-2xl md:w-64 lg:w-80"
           data-animate="fade-in"
           style={{ "--stagger-delay": "420ms" } as CSSProperties}

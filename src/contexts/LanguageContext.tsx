@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
-type Language = "en" | "he";
+type Language = 'en' | 'he';
 
 interface LanguageContextType {
   language: Language;
@@ -8,264 +8,245 @@ interface LanguageContextType {
   t: (key: string) => string;
 }
 
-const STORAGE_KEY = "workwave.language";
-
-const translations: Record<Language, Record<string, string>> = {
+const translations = {
   en: {
     // Navbar
-    "nav.features": "Platform",
-    "nav.technology": "How it works",
-    "nav.sustainability": "Impact",
-    "nav.products": "Hiring plans",
-    "nav.contact": "Contact",
-    "nav.getStarted": "Post a job",
-
+    'nav.features': 'Features',
+    'nav.technology': 'Technology',
+    'nav.sustainability': 'Sustainability',
+    'nav.products': 'Products',
+    'nav.contact': 'Contact',
+    'nav.getStarted': 'Get Started',
+    
     // Hero
-    "hero.badge": "WorkWave Careers",
-    "hero.title": "Build high-performing teams with confidence",
-    "hero.subtitle": "WorkWave unifies sourcing, screening, and candidate care so you can launch roles and hire faster.",
-    "hero.explore": "Explore plans",
-    "hero.learn": "View open roles",
-    "hero.scrollLabel": "Scroll",
-
+    'hero.badge': 'Premium Water Systems',
+    'hero.title': 'The Future of Water Technology',
+    'hero.subtitle': 'Your Pump, Our Solution — Premium, sustainable, eco-friendly water pump systems',
+    'hero.explore': 'Explore Products',
+    'hero.learn': 'Learn More',
+    'hero.scrollLabel': 'Scroll',
+    
     // Features
-    "features.title": "Everything you need to hire faster",
-    "features.subtitle": "Modern recruiting workflows for lean teams and global enterprises alike.",
-    "features.flow.title": "Intelligent role matching",
-    "features.flow.desc": "AI-powered recommendations surface the right candidates for every job posting.",
-    "features.energy.title": "Automated outreach",
-    "features.energy.desc": "Sequenced messaging keeps prospects engaged without manual follow-up.",
-    "features.eco.title": "Inclusive by design",
-    "features.eco.desc": "Bias-aware tooling and structured interview kits create equitable hiring journeys.",
-    "features.durable.title": "Compliance ready",
-    "features.durable.desc": "Global privacy controls and audit logs keep every search compliant.",
-    "features.smart.title": "Real-time analytics",
-    "features.smart.desc": "Dashboards highlight funnel health, conversion rates, and hiring velocity.",
-    "features.install.title": "Launch in days",
-    "features.install.desc": "Guided onboarding and integrations connect WorkWave to your ATS instantly.",
-
+    'features.title': 'Innovation in Every Drop',
+    'features.subtitle': 'Cutting-edge features designed for maximum efficiency, sustainability, and performance',
+    'features.flow.title': 'Advanced Flow Technology',
+    'features.flow.desc': 'Precision-engineered water flow systems for optimal performance and efficiency.',
+    'features.energy.title': 'Energy Efficient',
+    'features.energy.desc': 'Smart power management reduces energy consumption by up to 60%.',
+    'features.eco.title': 'Eco-Friendly Design',
+    'features.eco.desc': 'Sustainable materials and green technology for a better tomorrow.',
+    'features.durable.title': 'Built to Last',
+    'features.durable.desc': 'Premium materials ensure decades of reliable, maintenance-free operation.',
+    'features.smart.title': 'Smart Monitoring',
+    'features.smart.desc': 'Real-time performance tracking and intelligent diagnostics.',
+    'features.install.title': 'Easy Installation',
+    'features.install.desc': 'Streamlined setup process with comprehensive support.',
+    
     // Technology
-    "tech.title": "A platform recruiters love, and candidates trust",
-    "tech.intro": "WorkWave orchestrates sourcing, nurturing, and scheduling in a unified workspace so hiring teams can collaborate effortlessly.",
-    "tech.materials.title": "Unified candidate graph",
-    "tech.materials.desc": "Aggregate applications, referrals, and talent network data into one living profile.",
-    "tech.controls.title": "Workflow automation",
-    "tech.controls.desc": "Trigger assessments, background checks, and updates with reusable playbooks.",
-    "tech.tested.title": "Enterprise-grade security",
-    "tech.tested.desc": "SOC 2 compliant infrastructure, SSO, and granular permissions from day one.",
-
-    // Impact
-    "sustain.title": "Hiring outcomes you can measure",
-    "sustain.intro": "From sourcing to signed offer, WorkWave gives your team the data and guardrails to hire confidently at scale.",
-    "sustain.energy": "Average time to shortlist",
-    "sustain.recyclable": "Offer acceptance rate",
-    "sustain.lifespan": "Candidate NPS",
-    "sustain.emissions": "Manual busywork reduced",
-    "sustain.emissionsValue": "70%",
-
-    // Plans
-    "products.title": "Flexible hiring plans",
-    "products.subtitle": "Choose the package that matches your growth stage and hiring goals.",
-    "products.pro.category": "Scale plan",
-    "products.pro.name": "Growth hiring suite",
-    "products.pro.desc": "Unlimited roles, talent network automation, and advanced analytics.",
-    "products.eco.category": "Starter plan",
-    "products.eco.name": "Launch essentials",
-    "products.eco.desc": "Up to 10 active roles with branded job pages and quick offers.",
-    "products.solar.category": "Global plan",
-    "products.solar.name": "Worldwide recruiting",
-    "products.solar.desc": "Localized compliance, multi-currency offers, and visa workflows.",
-    "products.smart.category": "Talent network",
-    "products.smart.name": "Community nurture",
-    "products.smart.desc": "Always-on talent CRM with events, referrals, and alumni campaigns.",
-    "products.learnMore": "See plan details",
+    'tech.title': 'Precision Engineering',
+    'tech.intro': 'Our water pump systems represent the pinnacle of modern engineering. Every component is meticulously designed and tested to deliver unparalleled performance, efficiency, and reliability.',
+    'tech.materials.title': 'Advanced Materials',
+    'tech.materials.desc': 'Corrosion-resistant alloys ensure decades of maintenance-free operation',
+    'tech.controls.title': 'Smart Controls',
+    'tech.controls.desc': 'Intelligent automation optimizes performance in real-time',
+    'tech.tested.title': 'Tested Excellence',
+    'tech.tested.desc': 'Rigorous quality control in extreme conditions',
+    
+    // Sustainability
+    'sustain.title': 'Green. Sustainable. Future-Ready.',
+    'sustain.intro': 'At AquaPump, we believe in creating solutions that don\'t just serve today\'s needs, but protect tomorrow\'s world. Our eco-friendly technology reduces environmental impact while delivering superior performance.',
+    'sustain.energy': 'Energy Reduction',
+    'sustain.recyclable': 'Recyclable Materials',
+    'sustain.lifespan': 'Years Lifespan',
+    'sustain.emissions': 'Harmful Emissions',
+    'sustain.emissionsValue': 'Net Zero',
+    
+    // Products
+    'products.title': 'Our Product Range',
+    'products.subtitle': 'From residential to industrial, discover the perfect water pump solution for your needs',
+    'products.pro.category': 'Industrial Series',
+    'products.pro.name': 'AquaPump Pro',
+    'products.pro.desc': 'High-capacity pumping for large-scale operations',
+    'products.eco.category': 'Residential Series',
+    'products.eco.name': 'AquaPump Eco',
+    'products.eco.desc': 'Perfect for homes and small businesses',
+    'products.solar.category': 'Green Energy Series',
+    'products.solar.name': 'AquaPump Solar',
+    'products.solar.desc': 'Solar-powered sustainable water solutions',
+    'products.smart.category': 'IoT Series',
+    'products.smart.name': 'AquaPump Smart',
+    'products.smart.desc': 'Connected pumps with AI-powered optimization',
+    'products.learnMore': 'Learn More',
 
     // Chatbot
-    "chatbot.badge": "AI talent concierge",
-    "chatbot.title": "Meet Wave, your always-on recruiting copilot",
-    "chatbot.description": "Wave answers candidate questions, screens applicants, and syncs notes to your ATS so recruiters stay focused on the conversations that matter.",
-    "chatbot.cta": "Chat with Wave",
-    "chatbot.secondaryCta": "Book a walkthrough",
-    "chatbot.highlight.instant.title": "Instant expertise",
-    "chatbot.highlight.instant.desc": "Give candidates fast, accurate answers about roles, culture, and next steps.",
-    "chatbot.highlight.reliable.title": "Reliable screening",
-    "chatbot.highlight.reliable.desc": "AI summaries capture intent and qualification data for every conversation.",
-    "chatbot.highlight.available.title": "Always available",
-    "chatbot.highlight.available.desc": "Engage talent 24/7 while keeping humans in the loop when you need them.",
-
+    'chatbot.badge': 'Conversational AI',
+    'chatbot.title': 'Meet Aqua AI, your on-demand pump specialist',
+    'chatbot.description': 'Aqua AI handles inbound questions, technical clarifications, and project discovery so your team can focus on closing deals. Conversations persist automatically and can hand off to humans at any time.',
+    'chatbot.cta': 'Chat with Aqua AI',
+    'chatbot.secondaryCta': 'Talk to sales',
+    'chatbot.highlight.instant.title': 'Instant expertise',
+    'chatbot.highlight.instant.desc': 'Get immediate answers about product specs, configurations, and ROI calculations.',
+    'chatbot.highlight.reliable.title': 'Reliable guidance',
+    'chatbot.highlight.reliable.desc': 'Responses are grounded in curated AquaPump knowledge and best practices.',
+    'chatbot.highlight.available.title': 'Always available',
+    'chatbot.highlight.available.desc': 'Engage prospects 24/7 and capture context for seamless human follow-up.',
+    
     // Contact
-    "contact.title": "Let’s talk hiring",
-    "contact.intro": "Share your hiring goals and we’ll tailor a WorkWave plan for your team.",
-    "contact.phone": "Phone",
-    "contact.email": "Email",
-    "contact.location": "HQ",
-    "contact.form.name": "Name",
-    "contact.form.namePlaceholder": "Your name",
-    "contact.form.email": "Email",
-    "contact.form.emailPlaceholder": "you@company.com",
-    "contact.form.subject": "Subject",
-    "contact.form.subjectPlaceholder": "What roles are you hiring for?",
-    "contact.form.message": "Message",
-    "contact.form.messagePlaceholder": "Tell us about your talent goals...",
-    "contact.form.send": "Request demo",
-
+    'contact.title': 'Let\'s Connect',
+    'contact.intro': 'Ready to transform your water management? Our team is here to help you find the perfect solution for your needs.',
+    'contact.phone': 'Phone',
+    'contact.email': 'Email',
+    'contact.location': 'Location',
+    'contact.form.name': 'Name',
+    'contact.form.namePlaceholder': 'Your name',
+    'contact.form.email': 'Email',
+    'contact.form.emailPlaceholder': 'your@email.com',
+    'contact.form.subject': 'Subject',
+    'contact.form.subjectPlaceholder': 'How can we help?',
+    'contact.form.message': 'Message',
+    'contact.form.messagePlaceholder': 'Tell us about your project...',
+    'contact.form.send': 'Send Message',
+    
     // Footer
-    "footer.tagline": "Powering confident hiring for modern teams.",
-    "footer.products": "Hiring plans",
-    "footer.company": "Company",
-    "footer.support": "Resources",
-    "footer.copyright": "WorkWave Careers. All rights reserved.",
+    'footer.tagline': 'Your Pump, Our Solution. Leading the future of sustainable water technology.',
+    'footer.products': 'Products',
+    'footer.company': 'Company',
+    'footer.support': 'Support',
+    'footer.copyright': 'AquaPump. All rights reserved.',
   },
   he: {
     // Navbar
-    "nav.features": "הפלטפורמה",
-    "nav.technology": "איך זה עובד",
-    "nav.sustainability": "השפעה",
-    "nav.products": "תוכניות גיוס",
-    "nav.contact": "צור קשר",
-    "nav.getStarted": "פרסם משרה",
-
+    'nav.features': 'תכונות',
+    'nav.technology': 'טכנולוגיה',
+    'nav.sustainability': 'קיימות',
+    'nav.products': 'מוצרים',
+    'nav.contact': 'צור קשר',
+    'nav.getStarted': 'התחל עכשיו',
+    
     // Hero
-    "hero.badge": "WorkWave Careers",
-    "hero.title": "בנו צוותים מצטיינים בביטחון",
-    "hero.subtitle": "WorkWave מאחדת סורסינג, סינון ודאגה למועמדים כך שתוכלו להשיק משרות ולגייס מהר יותר.",
-    "hero.explore": "גלו תוכניות",
-    "hero.learn": "צפו במשרות פתוחות",
-    "hero.scrollLabel": "גללו",
-
+    'hero.badge': 'מערכות מים פרימיום',
+    'hero.title': 'העתיד של טכנולוגיית המים',
+    'hero.subtitle': 'המשאבה שלך, הפתרון שלנו — מערכות משאבות מים פרימיום, בנות קיימא וידידותיות לסביבה',
+    'hero.explore': 'גלה מוצרים',
+    'hero.learn': 'למד עוד',
+    'hero.scrollLabel': 'גלול',
+    
     // Features
-    "features.title": "כל מה שצריך כדי לגייס מהר",
-    "features.subtitle": "זרימות גיוס מודרניות לצוותים רזים ולארגונים גלובליים כאחד.",
-    "features.flow.title": "התאמת תפקידים חכמה",
-    "features.flow.desc": "המלצות מבוססות בינה מלאכותית מציעות את המועמדים הנכונים לכל משרה.",
-    "features.energy.title": "אוטומציה של פנייה",
-    "features.energy.desc": "רצפי מסרים שומרים על עניין המועמדים בלי מעקב ידני.",
-    "features.eco.title": "עיצוב כוללני",
-    "features.eco.desc": "כלים מודעים להטיה ומדריכי ריאיון מובנים מייצרים מסע גיוס הוגן.",
-    "features.durable.title": "תואם רגולציה",
-    "features.durable.desc": "בקרות פרטיות גלובליות ולוגי ביקורת שומרים על תאימות בכל חיפוש.",
-    "features.smart.title": "ניתוח בזמן אמת",
-    "features.smart.desc": "לוחות מחוונים מציגים את בריאות המשפך, שיעורי ההמרה ומהירות הגיוס.",
-    "features.install.title": "השקה תוך ימים",
-    "features.install.desc": "הטמעה מודרכת ואינטגרציות מחברות את WorkWave ל-ATS שלכם מיד.",
-
+    'features.title': 'חדשנות בכל טיפה',
+    'features.subtitle': 'תכונות מתקדמות שתוכננו ליעילות, קיימות וביצועים מקסימליים',
+    'features.flow.title': 'טכנולוגיית זרימה מתקדמת',
+    'features.flow.desc': 'מערכות זרימת מים מהונדסות בדיוק לביצועים ויעילות אופטימליים.',
+    'features.energy.title': 'יעילות אנרגטית',
+    'features.energy.desc': 'ניהול חכם של צריכת חשמל מפחית את צריכת האנרגיה עד 60%.',
+    'features.eco.title': 'עיצוב ידידותי לסביבה',
+    'features.eco.desc': 'חומרים בני קיימא וטכנולוגיה ירוקה למען מחר טוב יותר.',
+    'features.durable.title': 'בנוי להחזיק מעמד',
+    'features.durable.desc': 'חומרים פרימיום מבטיחים עשרות שנים של תפעול אמין וללא תחזוקה.',
+    'features.smart.title': 'ניטור חכם',
+    'features.smart.desc': 'מעקב ביצועים בזמן אמת ואבחון אינטליגנטי.',
+    'features.install.title': 'התקנה קלה',
+    'features.install.desc': 'תהליך התקנה יעיל עם תמיכה מקיפה.',
+    
     // Technology
-    "tech.title": "פלטפורמה שמגייסים אוהבים ומועמדים סומכים עליה",
-    "tech.intro": "WorkWave מתזמרת סורסינג, טיפוח ותזמון בחלל עבודה אחד כך שצוותי הגיוס ישתפו פעולה ללא מאמץ.",
-    "tech.materials.title": "גרף מועמדים מאוחד",
-    "tech.materials.desc": "אוספים קורות חיים, הפניות ומידע מרשת הכישרונות לפרופיל חי אחד.",
-    "tech.controls.title": "אוטומציית תהליכים",
-    "tech.controls.desc": "מפעילים בדיקות רקע, הערכות ועדכונים עם פלייבוקים חוזרים.",
-    "tech.tested.title": "אבטחה ברמת אנטרפרייז",
-    "tech.tested.desc": "תשתית תואמת SOC 2, התחברות אחודה והרשאות מפורטות מהיום הראשון.",
-
-    // Impact
-    "sustain.title": "תוצאות גיוס שאפשר למדוד",
-    "sustain.intro": "מהסורסינג ועד החתימה, WorkWave מספקת נתונים וכללי עבודה כדי לגייס בביטחון ובקנה מידה.",
-    "sustain.energy": "זמן ממוצע לרשימת מועמדים",
-    "sustain.recyclable": "שיעור קבלת הצעה",
-    "sustain.lifespan": "ציון NPS של מועמדים",
-    "sustain.emissions": "הפחתת עבודה ידנית",
-    "sustain.emissionsValue": "70%",
-
-    // Plans
-    "products.title": "תוכניות גיוס גמישות",
-    "products.subtitle": "בחרו את החבילה שמתאימה לשלב הצמיחה ויעדי הגיוס שלכם.",
-    "products.pro.category": "תוכנית צמיחה",
-    "products.pro.name": "חבילת גיוס לצמיחה",
-    "products.pro.desc": "תפקידים ללא הגבלה, אוטומציה של רשת טאלנט וניתוחים מתקדמים.",
-    "products.eco.category": "תוכנית סטארט-אפ",
-    "products.eco.name": "כלי השקה חיוניים",
-    "products.eco.desc": "עד 10 משרות פעילות עם דפי קריירה ממותגים והצעות מהירות.",
-    "products.solar.category": "תוכנית גלובלית",
-    "products.solar.name": "גיוס עולמי",
-    "products.solar.desc": "תאימות מקומית, הצעות במטבעות שונים ותהליכי ויזה.",
-    "products.smart.category": "קהילת טאלנט",
-    "products.smart.name": "טיפוח קהילה",
-    "products.smart.desc": "CRM טאלנט פעיל תמיד עם אירועים, הפניות וקמפיינים לבוגרים.",
-    "products.learnMore": "ראו פרטי תוכנית",
+    'tech.title': 'הנדסת דיוק',
+    'tech.intro': 'מערכות המשאבות שלנו מייצגות את שיא ההנדסה המודרנית. כל רכיב מתוכנן ונבדק בקפידה כדי לספק ביצועים, יעילות ואמינות ללא תחרות.',
+    'tech.materials.title': 'חומרים מתקדמים',
+    'tech.materials.desc': 'סגסוגות עמידות בפני קורוזיה מבטיחות עשרות שנים של פעולה ללא תחזוקה',
+    'tech.controls.title': 'בקרה חכמה',
+    'tech.controls.desc': 'אוטומציה אינטליגנטית מייעלת ביצועים בזמן אמת',
+    'tech.tested.title': 'מצוינות נבדקת',
+    'tech.tested.desc': 'בקרת איכות קפדנית בתנאי קיצון',
+    
+    // Sustainability
+    'sustain.title': 'ירוק. בר קיימא. מוכן לעתיד.',
+    'sustain.intro': 'ב-AquaPump, אנו מאמינים ביצירת פתרונות שלא רק משרתים את הצרכים של היום, אלא גם מגנים על עולם המחר. הטכנולוגיה הידידותית לסביבה שלנו מפחיתה את ההשפעה הסביבתית תוך מתן ביצועים מעולים.',
+    'sustain.energy': 'הפחתת אנרגיה',
+    'sustain.recyclable': 'חומרים הניתנים למיחזור',
+    'sustain.lifespan': 'שנות חיים',
+    'sustain.emissions': 'פליטות מזיקות',
+    'sustain.emissionsValue': 'אפס פליטות',
+    
+    // Products
+    'products.title': 'מגוון המוצרים שלנו',
+    'products.subtitle': 'ממגורים לתעשייה, גלה את פתרון משאבת המים המושלם לצרכים שלך',
+    'products.pro.category': 'סדרה תעשייתית',
+    'products.pro.name': 'AquaPump Pro',
+    'products.pro.desc': 'שאיבה בקיבולת גבוהה לפעולות בקנה מידה גדול',
+    'products.eco.category': 'סדרה למגורים',
+    'products.eco.name': 'AquaPump Eco',
+    'products.eco.desc': 'מושלם לבתים ועסקים קטנים',
+    'products.solar.category': 'סדרת אנרגיה ירוקה',
+    'products.solar.name': 'AquaPump Solar',
+    'products.solar.desc': 'פתרונות מים בני קיימא המופעלים באנרגיה סולארית',
+    'products.smart.category': 'סדרת IoT',
+    'products.smart.name': 'AquaPump Smart',
+    'products.smart.desc': 'משאבות מחוברות עם אופטימיזציה מבוססת AI',
+    'products.learnMore': 'למד עוד',
 
     // Chatbot
-    "chatbot.badge": "קונסיירז׳ טאלנט מבוסס בינה מלאכותית",
-    "chatbot.title": "הכירו את Wave, הקופיילוט הקבוע שלכם בגיוס",
-    "chatbot.description": "Wave עונה לשאלות מועמדים, מסננת פניות ומסנכרנת הערות עם ה-ATS כדי שהמגייסים יתמקדו בשיחות החשובות.",
-    "chatbot.cta": "שוחחו עם Wave",
-    "chatbot.secondaryCta": "קבעו סיור",
-    "chatbot.highlight.instant.title": "מומחיות מיידית",
-    "chatbot.highlight.instant.desc": "מספק תשובות מהירות ומדויקות על תפקידים, תרבות ושלבים הבאים.",
-    "chatbot.highlight.reliable.title": "סינון אמין",
-    "chatbot.highlight.reliable.desc": "תקצירים מבוססי AI מתעדים כוונה ונתוני התאמה לכל שיחה.",
-    "chatbot.highlight.available.title": "זמין תמיד",
-    "chatbot.highlight.available.desc": "מפעילים את המועמדים 24/7 תוך שמירת צוות הגיוס בלופ כשצריך.",
-
+    'chatbot.badge': 'בינה מלאכותית שיחתית',
+    'chatbot.title': 'הכירו את Aqua AI, המומחה למשאבות הזמין תמיד',
+    'chatbot.description': 'Aqua AI מטפל בשאלות נכנסות, בהבהרות טכניות ובאיסוף צרכים כך שהצוות שלכם יכול להתמקד בסגירת עסקאות. השיחות נשמרות אוטומטית וניתנות להעברה חלקה לנציג אנושי בכל שלב.',
+    'chatbot.cta': 'דברו עם Aqua AI',
+    'chatbot.secondaryCta': 'דברו עם המכירות',
+    'chatbot.highlight.instant.title': 'מומחיות מיידית',
+    'chatbot.highlight.instant.desc': 'קבלו תשובות מידיות על מפרטי מוצר, תצורות וחישובי ROI.',
+    'chatbot.highlight.reliable.title': 'הכוונה אמינה',
+    'chatbot.highlight.reliable.desc': 'התשובות מבוססות על הידע המסונן של AquaPump ועל שיטות עבודה מומלצות.',
+    'chatbot.highlight.available.title': 'זמין תמיד',
+    'chatbot.highlight.available.desc': 'העוזר זמין 24/7 ושומר הקשר להמשך טיפול אנושי חסר מאמץ.',
+    
     // Contact
-    "contact.title": "בואו נדבר על גיוס",
-    "contact.intro": "שתפו את יעדי הגיוס שלכם ונבנה עבורכם תוכנית WorkWave מותאמת.",
-    "contact.phone": "טלפון",
-    "contact.email": "אימייל",
-    "contact.location": "מטה",
-    "contact.form.name": "שם",
-    "contact.form.namePlaceholder": "השם שלך",
-    "contact.form.email": "אימייל",
-    "contact.form.emailPlaceholder": "you@company.com",
-    "contact.form.subject": "נושא",
-    "contact.form.subjectPlaceholder": "אילו תפקידים אתם מחפשים?",
-    "contact.form.message": "הודעה",
-    "contact.form.messagePlaceholder": "ספרו לנו על יעדי הטאלנט שלכם...",
-    "contact.form.send": "בקשת הדגמה",
-
+    'contact.title': 'בואו נתחבר',
+    'contact.intro': 'מוכנים לשנות את ניהול המים שלכם? הצוות שלנו כאן כדי לעזור לכם למצוא את הפתרון המושלם לצרכים שלכם.',
+    'contact.phone': 'טלפון',
+    'contact.email': 'אימייל',
+    'contact.location': 'מיקום',
+    'contact.form.name': 'שם',
+    'contact.form.namePlaceholder': 'השם שלך',
+    'contact.form.email': 'אימייל',
+    'contact.form.emailPlaceholder': 'your@email.com',
+    'contact.form.subject': 'נושא',
+    'contact.form.subjectPlaceholder': 'איך נוכל לעזור?',
+    'contact.form.message': 'הודעה',
+    'contact.form.messagePlaceholder': 'ספר לנו על הפרויקט שלך...',
+    'contact.form.send': 'שלח הודעה',
+    
     // Footer
-    "footer.tagline": "מניעים גיוס בטוח לצוותים מודרניים.",
-    "footer.products": "תוכניות גיוס",
-    "footer.company": "חברה",
-    "footer.support": "משאבים",
-    "footer.copyright": "WorkWave Careers. כל הזכויות שמורות.",
-  },
+    'footer.tagline': 'המשאבה שלך, הפתרון שלנו. מובילים את עתיד טכנולוגיית המים הברת קיימא.',
+    'footer.products': 'מוצרים',
+    'footer.company': 'חברה',
+    'footer.support': 'תמיכה',
+    'footer.copyright': 'AquaPump. כל הזכויות שמורות.',
+  }
 };
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [language, setLanguageState] = useState<Language>(() => {
-    if (typeof window === "undefined") {
-      return "en";
-    }
-
-    const stored = window.localStorage.getItem(STORAGE_KEY);
-    return stored === "he" ? "he" : "en";
-  });
+  const [language, setLanguage] = useState<Language>('en');
 
   useEffect(() => {
-    if (typeof document === "undefined") {
-      return;
-    }
-
-    // Update document direction and lang attribute for accessibility and RTL support.
-    document.documentElement.dir = language === "he" ? "rtl" : "ltr";
+    // Update document direction and lang attribute
+    document.documentElement.dir = language === 'he' ? 'rtl' : 'ltr';
     document.documentElement.lang = language;
   }, [language]);
 
-  const setLanguage = useCallback((lang: Language) => {
-    setLanguageState(lang);
-    if (typeof window !== "undefined") {
-      window.localStorage.setItem(STORAGE_KEY, lang);
-    }
-  }, []);
-
-  const t = useCallback(
-    (key: string): string => translations[language][key] ?? key,
-    [language],
-  );
+  const t = (key: string): string => {
+    return translations[language][key as keyof typeof translations['en']] || key;
+  };
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, t }}>{children}</LanguageContext.Provider>
+    <LanguageContext.Provider value={{ language, setLanguage, t }}>
+      {children}
+    </LanguageContext.Provider>
   );
 };
 
 export const useLanguage = () => {
   const context = useContext(LanguageContext);
   if (context === undefined) {
-    throw new Error("useLanguage must be used within a LanguageProvider");
+    throw new Error('useLanguage must be used within a LanguageProvider');
   }
   return context;
 };

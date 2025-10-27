@@ -19,10 +19,6 @@ export interface ChatHistoryResponse {
 
 const apiBase = (import.meta.env.VITE_REACT_APP_API_BASE as string | undefined) || "";
 
-type RequestOptions = {
-  signal?: AbortSignal;
-};
-
 const withBase = (path: string) => {
   if (!apiBase) {
     return path;
@@ -40,18 +36,17 @@ async function handleResponse<T>(response: Response): Promise<T> {
   return response.json() as Promise<T>;
 }
 
-export async function fetchChatHistory(sessionId: string, { signal }: RequestOptions = {}) {
-  const response = await fetch(withBase(`/chat/${sessionId}`), { signal });
+export async function fetchChatHistory(sessionId: string) {
+  const response = await fetch(withBase(`/chat/${sessionId}`));
   return handleResponse<ChatHistoryResponse>(response);
 }
 
-export async function sendChatMessage(sessionId: string | null, message: string, { signal }: RequestOptions = {}) {
+export async function sendChatMessage(sessionId: string | null, message: string) {
   const response = await fetch(withBase("/chat"), {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    signal,
     body: JSON.stringify({
       session_id: sessionId,
       message,
