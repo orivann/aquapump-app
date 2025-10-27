@@ -3,6 +3,7 @@ import Hero from '@/components/Hero';
 import Features from '@/components/Features';
 import Technology from '@/components/Technology';
 import Sustainability from '@/components/Sustainability';
+import BrandShowcase from '@/components/BrandShowcase';
 import Products from '@/components/Products';
 import Chatbot from '@/components/Chatbot';
 import Contact from '@/components/Contact';
@@ -22,6 +23,9 @@ const Index = () => {
         </div>
         <div id="sustainability">
           <Sustainability />
+        </div>
+        <div id="brand-experience">
+          <BrandShowcase />
         </div>
         <div id="products">
           <Products />

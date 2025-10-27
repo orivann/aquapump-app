@@ -49,15 +49,17 @@ const Products = () => {
   return (
     <section
       ref={sectionRef}
-      className="relative overflow-hidden bg-gradient-to-b from-background via-secondary/30 to-background py-28"
+      className="relative overflow-hidden bg-gradient-to-b from-background via-secondary/20 to-background pt-56 pb-40 sm:pt-72 sm:pb-44 lg:pt-80"
     >
-      <div className="absolute inset-x-0 top-0 h-40 bg-[radial-gradient(circle_at_top,_rgba(0,63,123,0.16)_0%,_transparent_70%)]" />
+      <div className="pointer-events-none absolute inset-x-0 -top-20 h-[420px] bg-[radial-gradient(circle_at_top,_rgba(0,63,123,0.16)_0%,_transparent_82%)]" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-48 bg-[radial-gradient(circle_at_bottom,_rgba(0,63,123,0.12)_0%,_transparent_70%)]" />
 
-      <div className="relative mx-auto flex w-full max-w-6xl flex-col gap-12 px-6">
+      <div className="relative mx-auto flex w-full max-w-6xl flex-col gap-16 px-6">
         <SectionHeading
           eyebrow={t("products.badge")}
           title={t("products.title")}
           description={t("products.subtitle")}
+          className="mx-auto max-w-3xl gap-14 [&>div]:gap-7"
         />
 
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4" data-animate style={{ "--stagger-delay": "120ms" } as CSSProperties}>

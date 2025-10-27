@@ -10,6 +10,7 @@ const LogoAnimation = () => {
           alt="Animated AquaPump waves"
           className="h-full w-full object-cover"
           loading="eager"
+          decoding="async"
         />
       </div>
       <div className="relative flex items-center justify-center p-6 sm:p-8">
@@ -18,6 +19,7 @@ const LogoAnimation = () => {
           alt="AquaPump"
           className="h-12 w-auto sm:h-14"
           loading="eager"
+          decoding="async"
         />
       </div>
     </div>
