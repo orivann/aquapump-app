@@ -6,7 +6,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/your-org/aquapump.git
+    repoURL: https://github.com/orivann/aquapump.git
     targetRevision: main
     path: deploy/helm/aquapump
     helm:
