@@ -1,111 +1,107 @@
-import { useEffect, useRef } from 'react';
-import { ArrowRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { useLanguage } from '@/contexts/LanguageContext';
+import { type CSSProperties, useMemo, useRef } from "react";
+import { ArrowRight } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/contexts/LanguageContext";
+import useScrollReveal from "@/hooks/use-scroll-reveal";
 
 const Products = () => {
   const sectionRef = useRef<HTMLDivElement>(null);
   const { t } = useLanguage();
-  
-  const products = [
-    {
-      nameKey: 'products.pro.name',
-      categoryKey: 'products.pro.category',
-      descKey: 'products.pro.desc',
-      specs: ['50-500 HP', 'Up to 10,000 GPM', 'Smart Controls']
-    },
-    {
-      nameKey: 'products.eco.name',
-      categoryKey: 'products.eco.category',
-      descKey: 'products.eco.desc',
-      specs: ['1-10 HP', 'Up to 500 GPM', 'Ultra Quiet']
-    },
-    {
-      nameKey: 'products.solar.name',
-      categoryKey: 'products.solar.category',
-      descKey: 'products.solar.desc',
-      specs: ['Solar Ready', 'Battery Backup', 'Off-Grid']
-    },
-    {
-      nameKey: 'products.smart.name',
-      categoryKey: 'products.smart.category',
-      descKey: 'products.smart.desc',
-      specs: ['IoT Enabled', 'Mobile App', 'Predictive AI']
-    }
-  ];
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('animate-fade-up');
-          }
-        });
+  const products = useMemo(
+    () => [
+      {
+        nameKey: "products.pro.name",
+        categoryKey: "products.pro.category",
+        descKey: "products.pro.desc",
+        specs: ["50-500 HP", "Up to 10,000 GPM", "Smart Controls"],
       },
-      { threshold: 0.1 }
-    );
+      {
+        nameKey: "products.eco.name",
+        categoryKey: "products.eco.category",
+        descKey: "products.eco.desc",
+        specs: ["1-10 HP", "Up to 500 GPM", "Ultra Quiet"],
+      },
+      {
+        nameKey: "products.solar.name",
+        categoryKey: "products.solar.category",
+        descKey: "products.solar.desc",
+        specs: ["Solar Ready", "Battery Backup", "Off-Grid"],
+      },
+      {
+        nameKey: "products.smart.name",
+        categoryKey: "products.smart.category",
+        descKey: "products.smart.desc",
+        specs: ["IoT Enabled", "Mobile App", "Predictive AI"],
+      },
+    ],
+    []
+  );
 
-    const cards = sectionRef.current?.querySelectorAll('.product-card');
-    cards?.forEach((card) => observer.observe(card));
-
-    return () => observer.disconnect();
-  }, []);
+  useScrollReveal(sectionRef, { threshold: 0.2 });
 
   return (
-    <section ref={sectionRef} className="relative bg-gradient-to-b from-background via-secondary to-background py-32 px-6 md:py-40">
-      <div className="mx-auto max-w-7xl">
-        <div className="mb-20 text-center">
-          <h2 className="mb-6 font-display bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-            {t('products.title')}
+    <section
+      ref={sectionRef}
+      className="relative overflow-hidden bg-gradient-to-b from-background via-secondary to-background py-28 px-6 md:py-36"
+    >
+      <div className="absolute inset-x-0 top-0 h-64 bg-[radial-gradient(circle_at_top,_rgba(0,63,123,0.12)_0%,_transparent_70%)]" />
+
+      <div className="relative mx-auto max-w-7xl">
+        <div className="mb-16 text-center md:mb-20" data-animate>
+          <h2 className="mb-6 font-display bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-4xl text-transparent md:text-5xl">
+            {t("products.title")}
           </h2>
-          <p className="mx-auto max-w-3xl text-lg text-muted-foreground md:text-xl leading-relaxed">
-            {t('products.subtitle')}
+          <p className="mx-auto max-w-3xl text-base leading-relaxed text-muted-foreground md:text-xl">
+            {t("products.subtitle")}
           </p>
         </div>
 
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
           {products.map((product, index) => (
-            <div
-              key={index}
-              className="product-card group opacity-0 relative overflow-hidden rounded-3xl bg-card shadow-card transition-all duration-500 hover:shadow-premium hover:-translate-y-3 border border-transparent hover:border-accent/30"
-              style={{ animationDelay: `${index * 0.1}s` }}
+            <article
+              key={product.nameKey}
+              className="group relative overflow-hidden rounded-3xl border border-transparent bg-card shadow-card transition-all duration-500 hover:-translate-y-3 hover:border-accent/40 hover:shadow-premium"
+              data-animate
+              style={{ "--stagger-delay": `${index * 80}ms` } as CSSProperties}
             >
-              {/* Gradient Accent Bar */}
-              <div className="h-2 bg-gradient-accent transition-all duration-300 group-hover:h-3" />
-              
-              <div className="p-8">
+              <div className="absolute inset-x-0 top-0 h-1 bg-gradient-accent transition-all duration-300 group-hover:h-2" />
+
+              <div className="relative flex h-full flex-col p-8">
                 <div className="mb-6">
-                  <div className="mb-3 text-sm font-semibold text-accent uppercase tracking-wider">
+                  <div className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-accent">
                     {t(product.categoryKey)}
                   </div>
-                  <h3 className="text-2xl font-bold text-card-foreground group-hover:text-accent transition-colors duration-300">
+                  <h3 className="text-2xl font-bold text-card-foreground transition-colors duration-300 group-hover:text-accent">
                     {t(product.nameKey)}
                   </h3>
                 </div>
-                
-                <p className="mb-8 text-muted-foreground leading-relaxed">
+
+                <p className="mb-6 text-sm leading-relaxed text-muted-foreground md:text-base">
                   {t(product.descKey)}
                 </p>
-                
-                <div className="mb-8 space-y-3">
-                  {product.specs.map((spec, i) => (
-                    <div key={i} className="flex items-center gap-3 text-sm text-muted-foreground">
-                      <div className="h-2 w-2 rounded-full bg-accent flex-shrink-0" />
+
+                <div className="mb-8 space-y-3 text-sm text-muted-foreground">
+                  {product.specs.map((spec) => (
+                    <div key={spec} className="flex items-center gap-3">
+                      <div className="h-2 w-2 flex-shrink-0 rounded-full bg-accent" />
                       {spec}
                     </div>
                   ))}
                 </div>
-                
-                <Button 
-                  variant="ghost" 
-                  className="group/btn w-full justify-between text-primary hover:text-accent hover:bg-accent/10 transition-all duration-300"
-                >
-                  {t('products.learnMore')}
-                  <ArrowRight className="h-4 w-4 transition-transform group-hover/btn:translate-x-2" />
-                </Button>
+
+                <div className="mt-auto">
+                  <Button
+                    variant="ghost"
+                    className="group/btn w-full justify-between text-primary hover:bg-accent/10 hover:text-accent transition-all duration-300"
+                  >
+                    {t("products.learnMore")}
+                    <ArrowRight className="h-4 w-4 transition-transform group-hover/btn:translate-x-2" />
+                  </Button>
+                </div>
               </div>
-            </div>
+            </article>
           ))}
         </div>
       </div>
