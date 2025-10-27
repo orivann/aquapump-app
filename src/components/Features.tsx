@@ -1,82 +1,89 @@
-import { type CSSProperties, useRef } from "react";
-import { Droplet, Zap, Leaf, Shield, Gauge, Wrench } from "lucide-react";
+import { type CSSProperties, useMemo, useRef } from "react";
+import { Droplet, Gauge, Leaf, Shield, Wrench, Zap } from "lucide-react";
 
+import SectionHeading from "@/components/SectionHeading";
 import { useLanguage } from "@/contexts/LanguageContext";
 import useScrollReveal from "@/hooks/use-scroll-reveal";
 
 const Features = () => {
-  const sectionRef = useRef<HTMLDivElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
   const { t } = useLanguage();
 
-  const features = [
-    {
-      icon: Droplet,
-      titleKey: "features.flow.title",
-      descKey: "features.flow.desc",
-    },
-    {
-      icon: Zap,
-      titleKey: "features.energy.title",
-      descKey: "features.energy.desc",
-    },
-    {
-      icon: Leaf,
-      titleKey: "features.eco.title",
-      descKey: "features.eco.desc",
-    },
-    {
-      icon: Shield,
-      titleKey: "features.durable.title",
-      descKey: "features.durable.desc",
-    },
-    {
-      icon: Gauge,
-      titleKey: "features.smart.title",
-      descKey: "features.smart.desc",
-    },
-    {
-      icon: Wrench,
-      titleKey: "features.install.title",
-      descKey: "features.install.desc",
-    },
-  ];
+  const features = useMemo(
+    () => [
+      {
+        icon: Droplet,
+        titleKey: "features.flow.title",
+        descKey: "features.flow.desc",
+      },
+      {
+        icon: Zap,
+        titleKey: "features.energy.title",
+        descKey: "features.energy.desc",
+      },
+      {
+        icon: Leaf,
+        titleKey: "features.eco.title",
+        descKey: "features.eco.desc",
+      },
+      {
+        icon: Shield,
+        titleKey: "features.durable.title",
+        descKey: "features.durable.desc",
+      },
+      {
+        icon: Gauge,
+        titleKey: "features.smart.title",
+        descKey: "features.smart.desc",
+      },
+      {
+        icon: Wrench,
+        titleKey: "features.install.title",
+        descKey: "features.install.desc",
+      },
+    ],
+    [],
+  );
 
   useScrollReveal(sectionRef, { threshold: 0.2 });
 
   return (
     <section
       ref={sectionRef}
-      className="relative overflow-hidden bg-gradient-to-b from-background via-secondary/50 to-background py-28 px-6 md:py-36"
+      className="relative overflow-hidden bg-gradient-to-b from-background via-secondary/40 to-background py-28"
     >
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(107,203,99,0.14)_0%,_transparent_60%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(16,76,145,0.12)_0%,_transparent_60%)]" />
 
-      <div className="relative mx-auto max-w-7xl">
-        <div className="mb-16 text-center md:mb-20" data-animate>
-          <h2 className="mb-6 font-display bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-4xl text-transparent md:text-5xl">
-            {t("features.title")}
-          </h2>
-          <p className="mx-auto max-w-3xl text-base leading-relaxed text-muted-foreground md:text-xl">
-            {t("features.subtitle")}
-          </p>
+      <div className="relative mx-auto flex w-full max-w-6xl flex-col gap-14 px-6 md:flex-row md:items-start md:gap-20">
+        <div className="md:sticky md:top-28 md:h-fit md:max-w-sm" data-animate="slide-left">
+          <SectionHeading
+            eyebrow={t("features.badge")}
+            title={t("features.title")}
+            description={t("features.subtitle")}
+            align="left"
+            className="gap-8"
+          />
+          <div className="mt-8 rounded-3xl border border-border/70 bg-muted/40 p-6 text-sm text-muted-foreground">
+            <p className="leading-relaxed">
+              AquaPump systems harmonise engineering, AI automation, and sustainable sourcing to deliver a premium experience that feels effortless for operators and installers alike.
+            </p>
+          </div>
         </div>
 
-        <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="grid flex-1 gap-6 md:grid-cols-2" data-animate="slide-right" style={{ "--stagger-delay": "120ms" } as CSSProperties}>
           {features.map((feature, index) => (
             <article
               key={feature.titleKey}
-              className="group rounded-3xl border border-transparent bg-card/95 p-8 shadow-card backdrop-blur transition-all duration-500 hover:-translate-y-3 hover:border-accent/40 hover:shadow-premium"
+              className="group relative overflow-hidden rounded-3xl border border-border/50 bg-card/90 p-8 shadow-[0_20px_40px_rgba(0,63,123,0.08)] backdrop-blur transition-transform duration-500 hover:-translate-y-2"
               data-animate
-              style={{ "--stagger-delay": `${index * 80}ms` } as CSSProperties}
+              style={{ "--stagger-delay": `${index * 90}ms` } as CSSProperties}
             >
-              <div className="mb-8 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-accent text-accent-foreground shadow-glow transition-transform duration-300 group-hover:scale-110">
-                <feature.icon className="h-9 w-9" />
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/4 via-transparent to-accent/5 opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+              <div className="relative flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                <feature.icon className="h-6 w-6" />
               </div>
-
-              <h3 className="mb-4 text-2xl font-bold text-card-foreground transition-colors duration-300 group-hover:text-accent">
-                {t(feature.titleKey)}
-              </h3>
-
-              <p className="text-base leading-relaxed text-muted-foreground">
+              <h3 className="relative mt-6 text-xl font-semibold text-foreground">{t(feature.titleKey)}</h3>
+              <p className="relative mt-3 text-sm leading-relaxed text-muted-foreground">
                 {t(feature.descKey)}
               </p>
             </article>

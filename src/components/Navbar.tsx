@@ -1,15 +1,19 @@
-import { useState, useEffect } from 'react';
-import { Menu, X } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import logoFull from '@/assets/logo-full.png';
-import logoIcon from '@/assets/logo-icon.png';
-import { useLanguage } from '@/contexts/LanguageContext';
-import LanguageSwitcher from './LanguageSwitcher';
+import { useEffect, useMemo, useState } from "react";
+import { Menu, X } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import logoFull from "@/assets/logo-full.png";
+import logoIcon from "@/assets/logo-icon.png";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { useChatWidget } from "@/contexts/ChatWidgetContext";
+
+import LanguageSwitcher from "./LanguageSwitcher";
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { t } = useLanguage();
+  const { open } = useChatWidget();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -20,97 +24,116 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const navLinks = [
-    { name: t('nav.features'), href: '#features' },
-    { name: t('nav.technology'), href: '#technology' },
-    { name: t('nav.sustainability'), href: '#sustainability' },
-    { name: t('nav.products'), href: '#products' },
-    { name: t('nav.contact'), href: '#contact' },
-  ];
+  const navLinks = useMemo(
+    () => [
+      { name: t("nav.features"), href: "#features" },
+      { name: t("nav.technology"), href: "#technology" },
+      { name: t("nav.sustainability"), href: "#sustainability" },
+      { name: t("nav.products"), href: "#products" },
+      { name: t("nav.contact"), href: "#contact" },
+    ],
+    [t],
+  );
 
   return (
-    <nav 
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled 
-          ? 'bg-background/95 backdrop-blur-md shadow-card' 
-          : 'bg-transparent'
+    <nav
+      className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${
+        isScrolled
+          ? "bg-background/85 shadow-[0_4px_30px_rgba(0,0,0,0.12)] backdrop-blur-xl"
+          : "bg-gradient-to-b from-background/80 via-background/40 to-transparent backdrop-blur-lg"
       }`}
     >
-      <div className="mx-auto max-w-7xl px-6">
-        <div className="flex h-20 items-center justify-between">
-          {/* Logo - Larger */}
-          <a href="#" className="flex items-center">
-            <img 
-              src={isScrolled ? logoIcon : logoIcon} 
-              alt="AquaPump" 
-              className="h-16 w-auto md:hidden"
-            />
-            <img 
-              src={isScrolled ? logoFull : logoFull} 
-              alt="AquaPump" 
-              className="hidden md:block h-16 w-auto"
-            />
-          </a>
+      <div className="mx-auto flex h-20 w-full max-w-6xl items-center justify-between px-6">
+        <a href="#" className="flex items-center gap-3">
+          <img src={logoIcon} alt="AquaPump" className="h-9 w-9" />
+          <img src={logoFull} alt="AquaPump" className="hidden h-7 md:block" />
+        </a>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-6">
+        <div className="hidden items-center gap-10 md:flex">
+          <ul className="flex items-center gap-8 text-sm font-medium text-muted-foreground">
             {navLinks.map((link) => (
-              <a
-                key={link.name}
-                href={link.href}
-                className={`text-sm font-medium transition-colors hover:text-accent ${
-                  isScrolled ? 'text-foreground' : 'text-primary-foreground'
-                }`}
-              >
-                {link.name}
-              </a>
+              <li key={link.href}>
+                <a
+                  href={link.href}
+                  className="relative transition-colors duration-300 hover:text-foreground"
+                >
+                  <span className="after:absolute after:-bottom-1 after:left-0 after:h-[2px] after:w-0 after:bg-gradient-to-r after:from-primary after:to-accent after:transition-all after:duration-500 hover:after:w-full">
+                    {link.name}
+                  </span>
+                </a>
+              </li>
             ))}
+          </ul>
+          <div className="flex items-center gap-3">
             <LanguageSwitcher />
-            <Button 
-              size="sm"
-              className="bg-accent text-accent-foreground hover:bg-accent-light shadow-glow"
+            <Button
+              variant="ghost"
+              className="hidden h-10 rounded-full border border-border/40 bg-muted/60 px-5 text-sm font-semibold text-foreground shadow-none transition hover:border-border hover:bg-background/80 md:inline-flex"
+              asChild
             >
-              {t('nav.getStarted')}
+              <a href="#contact">{t("nav.getStarted")}</a>
+            </Button>
+            <Button
+              size="sm"
+              className="h-11 rounded-full bg-gradient-to-r from-primary via-primary to-accent px-5 text-sm font-semibold text-primary-foreground shadow-glow"
+              onClick={open}
+            >
+              {t("chatbot.cta")}
             </Button>
           </div>
-
-          {/* Mobile Menu Button */}
-          <button
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className={`md:hidden transition-colors ${
-              isScrolled ? 'text-primary' : 'text-primary-foreground'
-            }`}
-          >
-            {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
         </div>
+
+        <button
+          type="button"
+          onClick={() => setIsMobileMenuOpen((prev) => !prev)}
+          className="flex h-11 w-11 items-center justify-center rounded-full border border-border/50 text-foreground transition hover:border-border md:hidden"
+        >
+          {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+          <span className="sr-only">Toggle navigation</span>
+        </button>
       </div>
 
-      {/* Mobile Menu */}
-      {isMobileMenuOpen && (
-        <div className="md:hidden bg-background/95 backdrop-blur-md border-t border-border shadow-card">
-          <div className="px-6 py-6 space-y-4">
-            {navLinks.map((link) => (
-              <a
-                key={link.name}
-                href={link.href}
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="block text-foreground hover:text-accent transition-colors font-medium"
-              >
-                {link.name}
-              </a>
-            ))}
-            <div className="pt-2 border-t border-border">
+      {isMobileMenuOpen ? (
+        <div className="md:hidden">
+          <div className="mx-4 mb-4 rounded-3xl border border-border/60 bg-background/95 p-6 shadow-lg backdrop-blur">
+            <ul className="space-y-3 text-sm font-medium text-muted-foreground">
+              {navLinks.map((link) => (
+                <li key={link.href}>
+                  <a
+                    href={link.href}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex items-center justify-between rounded-2xl bg-muted/30 px-4 py-3 text-foreground transition hover:bg-muted/60"
+                  >
+                    {link.name}
+                    <span className="text-xs text-muted-foreground/70">→</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+            <div className="mt-6 flex flex-col gap-3">
               <LanguageSwitcher />
+              <Button
+                className="h-11 w-full rounded-full bg-gradient-to-r from-primary via-primary to-accent text-primary-foreground"
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  open();
+                }}
+              >
+                {t("chatbot.cta")}
+              </Button>
+              <Button
+                variant="ghost"
+                className="h-11 w-full rounded-full border border-border/50 text-foreground"
+                asChild
+              >
+                <a href="#contact" onClick={() => setIsMobileMenuOpen(false)}>
+                  {t("nav.getStarted")}
+                </a>
+              </Button>
             </div>
-            <Button 
-              className="w-full bg-accent text-accent-foreground hover:bg-accent-light shadow-glow"
-            >
-              {t('nav.getStarted')}
-            </Button>
           </div>
         </div>
-      )}
+      ) : null}
     </nav>
   );
 };

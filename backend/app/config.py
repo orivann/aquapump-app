@@ -18,6 +18,7 @@ class Settings(BaseSettings):
     ai_api_key: str
     ai_model: str = "gpt-4o-mini"
     ai_api_base_url: str | None = None
+    ai_request_timeout: float = Field(default=60.0, gt=0, le=300)
 
     class Config:
         env_file = ".env"

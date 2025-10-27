@@ -1,5 +1,6 @@
-import { type CSSProperties, useEffect, useRef } from "react";
+import { type CSSProperties, useEffect, useMemo, useRef } from "react";
 
+import SectionHeading from "@/components/SectionHeading";
 import technologyImage from "@/assets/technology.jpg";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -7,12 +8,21 @@ import usePrefersReducedMotion from "@/hooks/use-prefers-reduced-motion";
 import useScrollReveal from "@/hooks/use-scroll-reveal";
 
 const Technology = () => {
-  const sectionRef = useRef<HTMLDivElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
   const { t } = useLanguage();
   const isMobile = useIsMobile();
   const prefersReducedMotion = usePrefersReducedMotion();
 
-  useScrollReveal(sectionRef, { threshold: 0.15 });
+  const highlights = useMemo(
+    () => [
+      { title: t("tech.materials.title"), description: t("tech.materials.desc") },
+      { title: t("tech.controls.title"), description: t("tech.controls.desc") },
+      { title: t("tech.tested.title"), description: t("tech.tested.desc") },
+    ],
+    [t],
+  );
+
+  useScrollReveal(sectionRef, { threshold: 0.2 });
 
   useEffect(() => {
     if (!sectionRef.current || prefersReducedMotion || isMobile) {
@@ -27,7 +37,7 @@ const Technology = () => {
       const progress = Math.max(0, Math.min(1, 1 - rect.top / viewportHeight));
 
       if (imageElement) {
-        imageElement.style.transform = `scale(${1 + progress * 0.08}) translateY(${progress * -40}px)`;
+        imageElement.style.transform = `scale(${1 + progress * 0.06}) translateY(${progress * -30}px)`;
       }
     };
 
@@ -39,63 +49,48 @@ const Technology = () => {
   return (
     <section
       ref={sectionRef}
-      className="relative overflow-hidden bg-gradient-to-b from-background via-muted/20 to-background py-28 md:py-36"
+      className="relative overflow-hidden bg-background py-28"
     >
-      <div className="absolute inset-y-0 right-0 hidden w-1/2 bg-[radial-gradient(circle_at_center,_rgba(0,63,123,0.15)_0%,_transparent_65%)] lg:block" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(0,63,123,0.14)_0%,_transparent_65%)]" />
 
-      <div className="relative mx-auto max-w-7xl px-6">
-        <div className="grid items-center gap-16 lg:grid-cols-[minmax(0,_1.05fr)_minmax(0,_1fr)] lg:gap-20">
-          <div
-            className="group relative mx-auto h-[320px] w-full max-w-[520px] overflow-hidden rounded-3xl shadow-premium sm:h-[420px] lg:h-[520px] lg:max-w-none"
-            data-animate="zoom"
-          >
+      <div className="relative mx-auto grid w-full max-w-6xl items-center gap-12 px-6 lg:grid-cols-[minmax(0,_1.1fr)_minmax(0,_1fr)] lg:gap-20">
+        <div className="relative order-2 h-full lg:order-1" data-animate="slide-left">
+          <div className="relative overflow-hidden rounded-[32px] border border-border/60 bg-muted/40 p-10 backdrop-blur">
+            <SectionHeading
+              eyebrow={t("tech.badge")}
+              title={t("tech.title")}
+              description={t("tech.intro")}
+              align="left"
+              className="gap-10"
+            />
+
+            <div className="mt-10 space-y-5">
+              {highlights.map((item, index) => (
+                <div
+                  key={item.title}
+                  className="rounded-3xl border border-border/50 bg-background/60 p-6 shadow-[0_18px_32px_rgba(0,0,0,0.06)] backdrop-blur"
+                  data-animate
+                  style={{ "--stagger-delay": `${180 + index * 90}ms` } as CSSProperties}
+                >
+                  <p className="text-xs uppercase tracking-[0.4em] text-muted-foreground/70">{String(index + 1).padStart(2, "0")}</p>
+                  <h3 className="mt-3 text-xl font-semibold text-foreground">{item.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{item.description}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="relative order-1 lg:order-2" data-animate="zoom">
+          <div className="relative mx-auto aspect-[4/5] w-full max-w-[540px] overflow-hidden rounded-[36px] border border-border/50 bg-primary/10 shadow-[0_28px_60px_rgba(0,63,123,0.18)]">
+            <div className="absolute inset-0 bg-gradient-to-tr from-primary/40 via-transparent to-accent/20" />
             <img
               src={technologyImage}
-              alt="Advanced Water Pump Technology"
-              className="tech-image h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.08]"
+              alt="Advanced AquaPump engineering"
+              className="tech-image h-full w-full object-cover transition-transform duration-1000 ease-out"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-primary/35 via-primary/10 to-transparent" />
-          </div>
-
-          <div className="space-y-7" data-animate="slide-right" style={{ "--stagger-delay": "160ms" } as CSSProperties}>
-            <h2 className="font-display text-3xl text-primary md:text-5xl">
-              {t("tech.title")}
-            </h2>
-
-            <p className="text-base leading-relaxed text-foreground/80 md:text-xl">
-              {t("tech.intro")}
-            </p>
-
-            <div className="space-y-5 rounded-2xl border border-border/60 bg-card/80 p-6 backdrop-blur">
-              <div className="flex items-start gap-4">
-                <div className="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-accent" />
-                <div>
-                  <h4 className="mb-1 text-lg font-semibold text-primary">{t("tech.materials.title")}</h4>
-                  <p className="text-sm leading-relaxed text-muted-foreground md:text-base">
-                    {t("tech.materials.desc")}
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-4">
-                <div className="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-accent" />
-                <div>
-                  <h4 className="mb-1 text-lg font-semibold text-primary">{t("tech.controls.title")}</h4>
-                  <p className="text-sm leading-relaxed text-muted-foreground md:text-base">
-                    {t("tech.controls.desc")}
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-4">
-                <div className="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-accent" />
-                <div>
-                  <h4 className="mb-1 text-lg font-semibold text-primary">{t("tech.tested.title")}</h4>
-                  <p className="text-sm leading-relaxed text-muted-foreground md:text-base">
-                    {t("tech.tested.desc")}
-                  </p>
-                </div>
-              </div>
+            <div className="absolute bottom-6 left-6 right-6 rounded-2xl border border-primary/30 bg-background/70 p-4 text-sm text-muted-foreground backdrop-blur">
+              Built for real-world extremes — pressure, salinity, temperature.
             </div>
           </div>
         </div>
