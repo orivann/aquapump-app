@@ -1,6 +1,6 @@
 import { Facebook, Instagram, Linkedin, Twitter } from "lucide-react";
 
-import brandLogo from "@/assets/brand-logo.png";
+import logoIcon from "@/assets/logo-icon.png";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -28,7 +28,10 @@ const Footer = () => {
       <div className="relative mx-auto flex w-full max-w-6xl flex-col gap-16 px-6 py-20">
         <div className="flex flex-col items-start justify-between gap-8 rounded-[36px] border border-border/60 bg-muted/40 p-10 backdrop-blur md:flex-row md:items-center">
           <div className="max-w-2xl space-y-4">
-            <img src={brandLogo} alt="AquaPump" className="h-12 w-auto" />
+            <div className="flex items-center gap-3">
+              <img src={logoIcon} alt="AquaPump" className="h-12 w-12" />
+              <span className="font-display text-2xl tracking-tight">AquaPump</span>
+            </div>
             <p className="text-sm text-muted-foreground md:text-base">{t("footer.tagline")}</p>
           </div>
           <Button

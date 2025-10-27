@@ -63,7 +63,7 @@ const Hero = () => {
   return (
     <section
       ref={heroRef}
-      className="relative flex min-h-[95vh] flex-col justify-center overflow-hidden bg-background pt-32 text-primary-foreground md:pt-40"
+      className="relative flex min-h-[95vh] flex-col justify-center overflow-hidden bg-background pt-28 text-primary-foreground md:pt-32"
     >
       <div className="absolute inset-0">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.25)_0%,_transparent_55%)]" />
@@ -77,13 +77,13 @@ const Hero = () => {
         <div className="absolute -right-24 bottom-16 h-[420px] w-[420px] rounded-full bg-primary/30 blur-3xl" />
       </div>
 
-      <div className="pointer-events-none absolute inset-x-0 top-20 flex justify-center px-6 sm:top-24">
-        <LogoAnimation />
+      <div className="pointer-events-none absolute inset-x-0 top-28 flex justify-center">
+        <img src={logoFull} alt="AquaPump" className="h-10 opacity-60" />
       </div>
 
       <div
         ref={contentRef}
-        className="relative z-10 mx-auto flex w-full max-w-5xl flex-col gap-10 px-6 pt-32 text-center sm:px-10 sm:pt-40"
+        className="relative z-10 mx-auto flex w-full max-w-5xl flex-col gap-10 px-6 text-center sm:px-10"
       >
         <span
           className="mx-auto inline-flex items-center gap-2 rounded-full border border-primary-foreground/30 bg-primary-foreground/20 px-6 py-2 text-xs font-semibold uppercase tracking-[0.35em] text-primary-foreground"

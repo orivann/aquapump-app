@@ -132,10 +132,10 @@ The build artifacts are generated in `dist/` and served via Nginx in the provide
 
 ## Optimization summary
 
-- **Polished branding** – a single transparent AquaPump logo is used across the experience, complemented by the restored wave animation showcased on a white card in the hero for a premium reveal.
-- **Responsive layout tuning** – hero spacing accounts for the animation tray, the product grid receives balanced padding across breakpoints, and section headings remain centered and legible in every locale.
-- **Backend resilience** – structured logging, stricter request validation, Supabase client caching, and tunable AI request timeouts improve operability and debugging.
-- **Dev environment parity** – Vite’s dev server now binds to port 5173, matching Docker, CORS defaults, and the documented health checks.
+- **Sleek UI/UX** – refined navigation, hero, and section layouts provide consistent spacing, motion, and responsive behavior while highlighting the chatbot call-to-action across breakpoints.
+- **Lean dependencies** – removed unused React Query provider and trimmed bundle surfacing by consolidating section heading logic.
+- **Backend resilience** – structured logging, stricter request validation, and tunable AI request timeouts improve operability and debugging.
+- **Accessibility & performance** – scroll-triggered reveals respect reduced-motion preferences and parallax effects throttle smoothly on mobile.
 
 ## DevOps scaffolding
 
