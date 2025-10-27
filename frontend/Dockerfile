@@ -5,10 +5,12 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
 
-COPY . .
-
 ARG VITE_REACT_APP_API_BASE=http://localhost:8000
 ENV VITE_REACT_APP_API_BASE=${VITE_REACT_APP_API_BASE}
+COPY tsconfig.json tsconfig.app.json tsconfig.node.json vite.config.ts tailwind.config.ts postcss.config.js components.json ./
+COPY index.html ./index.html
+COPY public ./public
+COPY src ./src
 RUN npm run build
 
 # Production stage

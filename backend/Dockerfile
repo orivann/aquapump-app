@@ -10,4 +10,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY backend/app ./app
 
+RUN groupadd --system aquapump && useradd --system --create-home --gid aquapump aquapump && chown -R aquapump:aquapump /app
+
+USER aquapump
+
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

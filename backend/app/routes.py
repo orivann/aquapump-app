@@ -1,20 +1,38 @@
 from datetime import datetime, timezone
 from uuid import UUID, uuid4
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 from fastapi.concurrency import run_in_threadpool
 
 from .ai_client import generate_response
 from .config import get_settings
-from .schemas import ChatHistoryResponse, ChatRequest, ChatResponse, Message
-from .supabase_client import fetch_history, get_client, store_messages
+from .schemas import ChatHistoryResponse, ChatRequest, ChatResponse, HealthCheck, HealthResponse, Message
+from .supabase_client import fetch_history, get_client, ping_database, store_messages
 
 router = APIRouter()
 
 
-@router.get("/health")
-async def health() -> dict[str, str]:
-    return {"status": "ok"}
+@router.get("/health", response_model=HealthResponse)
+async def health(include: str = Query(default="basic", pattern="^(basic|dependencies|all)$")) -> HealthResponse:
+    checks: dict[str, HealthCheck] = {}
+    include_dependencies = include in {"dependencies", "all"}
+
+    if include_dependencies:
+        client = get_client()
+        try:
+            await run_in_threadpool(ping_database, client)
+            checks["database"] = HealthCheck(status="ok")
+        except Exception as exc:  # pragma: no cover - supabase failures
+            checks["database"] = HealthCheck(status="error", detail=str(exc))
+
+    overall_status = "ok"
+
+    if any(check.status == "error" for check in checks.values()):
+        overall_status = "error"
+    elif any(check.status == "degraded" for check in checks.values()):
+        overall_status = "degraded"
+
+    return HealthResponse(status=overall_status, checks=checks)
 
 
 @router.get("/chat/{session_id}", response_model=ChatHistoryResponse)
@@ -37,21 +55,20 @@ async def create_chat_completion(payload: ChatRequest) -> ChatResponse:
 
     reply = await generate_response(history, payload.message)
 
-    now_user = datetime.now(timezone.utc)
-    now_assistant = datetime.now(timezone.utc)
+    timestamp = datetime.now(timezone.utc)
 
     records = [
         {
             "session_id": str(session_id),
             "role": "user",
             "content": payload.message,
-            "created_at": now_user.isoformat(),
+            "created_at": timestamp.isoformat(),
         },
         {
             "session_id": str(session_id),
             "role": "assistant",
             "content": reply,
-            "created_at": now_assistant.isoformat(),
+            "created_at": timestamp.isoformat(),
         },
     ]
 
@@ -61,8 +78,8 @@ async def create_chat_completion(payload: ChatRequest) -> ChatResponse:
         raise HTTPException(status_code=502, detail="Unable to persist chat messages") from exc
 
     messages = history + [
-        Message(role="user", content=payload.message, created_at=now_user),
-        Message(role="assistant", content=reply, created_at=now_assistant),
+        Message(role="user", content=payload.message, created_at=timestamp),
+        Message(role="assistant", content=reply, created_at=timestamp),
     ]
 
     return ChatResponse(session_id=session_id, reply=reply, messages=messages)

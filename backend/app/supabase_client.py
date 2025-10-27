@@ -29,3 +29,7 @@ def store_messages(client: Client, records: list[dict[str, Any]]) -> None:
         return
 
     client.table(get_settings().supabase_chat_table).insert(records).execute()
+
+
+def ping_database(client: Client) -> None:
+    client.table(get_settings().supabase_chat_table).select("role", count="exact").limit(1).execute()
