@@ -6,6 +6,7 @@ from pydantic import BaseModel, Field
 
 
 Role = Literal["user", "assistant", "system"]
+HealthStatus = Literal["ok", "degraded", "error"]
 
 
 class Message(BaseModel):
@@ -28,3 +29,13 @@ class ChatResponse(BaseModel):
 class ChatHistoryResponse(BaseModel):
     session_id: UUID
     messages: list[Message]
+
+
+class HealthCheck(BaseModel):
+    status: HealthStatus
+    detail: str | None = None
+
+
+class HealthResponse(BaseModel):
+    status: HealthStatus = "ok"
+    checks: dict[str, HealthCheck] = Field(default_factory=dict)

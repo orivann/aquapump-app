@@ -77,6 +77,19 @@ const translations = {
     'products.smart.name': 'AquaPump Smart',
     'products.smart.desc': 'Connected pumps with AI-powered optimization',
     'products.learnMore': 'Learn More',
+
+    // Chatbot
+    'chatbot.badge': 'Conversational AI',
+    'chatbot.title': 'Meet Aqua AI, your on-demand pump specialist',
+    'chatbot.description': 'Aqua AI handles inbound questions, technical clarifications, and project discovery so your team can focus on closing deals. Conversations persist automatically and can hand off to humans at any time.',
+    'chatbot.cta': 'Chat with Aqua AI',
+    'chatbot.secondaryCta': 'Talk to sales',
+    'chatbot.highlight.instant.title': 'Instant expertise',
+    'chatbot.highlight.instant.desc': 'Get immediate answers about product specs, configurations, and ROI calculations.',
+    'chatbot.highlight.reliable.title': 'Reliable guidance',
+    'chatbot.highlight.reliable.desc': 'Responses are grounded in curated AquaPump knowledge and best practices.',
+    'chatbot.highlight.available.title': 'Always available',
+    'chatbot.highlight.available.desc': 'Engage prospects 24/7 and capture context for seamless human follow-up.',
     
     // Contact
     'contact.title': 'Let\'s Connect',
@@ -169,6 +182,19 @@ const translations = {
     'products.smart.name': 'AquaPump Smart',
     'products.smart.desc': 'משאבות מחוברות עם אופטימיזציה מבוססת AI',
     'products.learnMore': 'למד עוד',
+
+    // Chatbot
+    'chatbot.badge': 'בינה מלאכותית שיחתית',
+    'chatbot.title': 'הכירו את Aqua AI, המומחה למשאבות הזמין תמיד',
+    'chatbot.description': 'Aqua AI מטפל בשאלות נכנסות, בהבהרות טכניות ובאיסוף צרכים כך שהצוות שלכם יכול להתמקד בסגירת עסקאות. השיחות נשמרות אוטומטית וניתנות להעברה חלקה לנציג אנושי בכל שלב.',
+    'chatbot.cta': 'דברו עם Aqua AI',
+    'chatbot.secondaryCta': 'דברו עם המכירות',
+    'chatbot.highlight.instant.title': 'מומחיות מיידית',
+    'chatbot.highlight.instant.desc': 'קבלו תשובות מידיות על מפרטי מוצר, תצורות וחישובי ROI.',
+    'chatbot.highlight.reliable.title': 'הכוונה אמינה',
+    'chatbot.highlight.reliable.desc': 'התשובות מבוססות על הידע המסונן של AquaPump ועל שיטות עבודה מומלצות.',
+    'chatbot.highlight.available.title': 'זמין תמיד',
+    'chatbot.highlight.available.desc': 'העוזר זמין 24/7 ושומר הקשר להמשך טיפול אנושי חסר מאמץ.',
     
     // Contact
     'contact.title': 'בואו נתחבר',

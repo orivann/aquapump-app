@@ -1,0 +1,51 @@
+global:
+  imagePullSecrets: []
+
+backend:
+  replicaCount: 1
+  image:
+    repository: ghcr.io/your-org/aquapump-backend
+    tag: latest
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 8000
+  env:
+    SUPABASE_URL: ""
+    SUPABASE_SERVICE_ROLE_KEY: ""
+    SUPABASE_CHAT_TABLE: "chat_messages"
+    AI_API_KEY: ""
+    AI_MODEL: "gpt-4o-mini"
+    AI_API_BASE_URL: ""
+    CORS_ALLOW_ORIGINS: "https://aquapump.example.com"
+  resources: {}
+  nodeSelector: {}
+  affinity: {}
+  tolerations: []
+
+frontend:
+  replicaCount: 1
+  image:
+    repository: ghcr.io/your-org/aquapump-frontend
+    tag: latest
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 80
+  env:
+    VITE_REACT_APP_API_BASE: "https://aquapump.example.com/api"
+  resources: {}
+  nodeSelector: {}
+  affinity: {}
+  tolerations: []
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: aquapump.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
