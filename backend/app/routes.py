@@ -6,10 +6,20 @@ from fastapi.concurrency import run_in_threadpool
 
 from .ai_client import generate_response
 from .config import get_settings
-from .schemas import ChatHistoryResponse, ChatRequest, ChatResponse, HealthCheck, HealthResponse, Message
+from .logging import get_logger
+from .schemas import (
+    ChatHistoryResponse,
+    ChatRequest,
+    ChatResponse,
+    HealthCheck,
+    HealthResponse,
+    HealthStatus,
+    Message,
+)
 from .supabase_client import fetch_history, get_client, ping_database, store_messages
 
 router = APIRouter()
+logger = get_logger("routes")
 
 
 @router.get("/health", response_model=HealthResponse)
@@ -23,16 +33,18 @@ async def health(include: str = Query(default="basic", pattern="^(basic|dependen
             await run_in_threadpool(ping_database, client)
             checks["database"] = HealthCheck(status="ok")
         except Exception as exc:  # pragma: no cover - supabase failures
+            logger.warning("Database health check failed", exc_info=exc)
             checks["database"] = HealthCheck(status="error", detail=str(exc))
 
-    overall_status = "ok"
+    status: HealthStatus = "ok"
+    if checks:
+        if any(check.status == "error" for check in checks.values()):
+            status = "error"
+        elif any(check.status == "degraded" for check in checks.values()):
+            status = "degraded"
 
-    if any(check.status == "error" for check in checks.values()):
-        overall_status = "error"
-    elif any(check.status == "degraded" for check in checks.values()):
-        overall_status = "degraded"
-
-    return HealthResponse(status=overall_status, checks=checks)
+    logger.debug("Health probe evaluated", extra={"include": include, "status": status})
+    return HealthResponse(status=status, checks=checks)
 
 
 @router.get("/chat/{session_id}", response_model=ChatHistoryResponse)
@@ -41,6 +53,7 @@ async def get_chat_history(session_id: UUID) -> ChatHistoryResponse:
     settings = get_settings()
     raw_history = await run_in_threadpool(fetch_history, client, str(session_id), settings.history_limit)
     messages = [Message(**row) for row in raw_history]
+    logger.debug("Fetched chat history", extra={"session_id": str(session_id), "messages": len(messages)})
     return ChatHistoryResponse(session_id=session_id, messages=messages)
 
 
@@ -52,6 +65,8 @@ async def create_chat_completion(payload: ChatRequest) -> ChatResponse:
 
     raw_history = await run_in_threadpool(fetch_history, client, str(session_id), settings.history_limit)
     history = [Message(**row) for row in raw_history]
+
+    logger.info("Generating assistant response", extra={"session_id": str(session_id), "history": len(history)})
 
     reply = await generate_response(history, payload.message)
 
@@ -75,6 +90,7 @@ async def create_chat_completion(payload: ChatRequest) -> ChatResponse:
     try:
         await run_in_threadpool(store_messages, client, records)
     except Exception as exc:  # pragma: no cover - database errors
+        logger.error("Unable to persist chat messages", extra={"session_id": str(session_id)}, exc_info=exc)
         raise HTTPException(status_code=502, detail="Unable to persist chat messages") from exc
 
     messages = history + [
@@ -82,4 +98,5 @@ async def create_chat_completion(payload: ChatRequest) -> ChatResponse:
         Message(role="assistant", content=reply, created_at=timestamp),
     ]
 
+    logger.debug("Assistant reply generated", extra={"session_id": str(session_id), "total_messages": len(messages)})
     return ChatResponse(session_id=session_id, reply=reply, messages=messages)

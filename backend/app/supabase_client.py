@@ -4,8 +4,12 @@ from typing import Any
 from supabase import Client, create_client
 
 from .config import get_settings
+from .logging import get_logger
+
+logger = get_logger("supabase")
 
 
+# Cache the Supabase client across requests so connection pooling stays efficient
 @lru_cache
 def get_client() -> Client:
     settings = get_settings()
@@ -21,6 +25,7 @@ def fetch_history(client: Client, session_id: str, limit: int) -> list[dict[str,
         .limit(limit)
         .execute()
     )
+    logger.debug("Supabase history fetch", extra={"session_id": session_id, "count": len(response.data or [])})
     return response.data or []
 
 
@@ -29,6 +34,7 @@ def store_messages(client: Client, records: list[dict[str, Any]]) -> None:
         return
 
     client.table(get_settings().supabase_chat_table).insert(records).execute()
+    logger.debug("Persisted chat messages", extra={"count": len(records)})
 
 
 def ping_database(client: Client) -> None:
