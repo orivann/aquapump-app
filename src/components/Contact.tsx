@@ -17,17 +17,17 @@ const Contact = () => {
     {
       icon: Phone,
       title: t("contact.phone"),
-      description: "+1 (555) 123-4567",
+      description: "+1 (415) 555-0199",
     },
     {
       icon: Mail,
       title: t("contact.email"),
-      description: "info@aquapump.com",
+      description: "hello@workwave.jobs",
     },
     {
       icon: MapPin,
       title: t("contact.location"),
-      description: "123 Water Street\nInnovation City, IC 12345",
+      description: "575 Market Street\nSan Francisco, CA 94105",
     },
   ];
 
