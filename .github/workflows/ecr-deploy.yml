@@ -85,7 +85,7 @@ jobs:
           add: deploy/helm/aquapump/values.yaml
 
       - name: Notify Argo CD
-        uses: clowdhaus/argo-cd-action@v2
+        uses: clowdhaus/argo-cd-action@v2.10.4
         with:
           version: v2.10.4
           address: ${{ secrets.ARGOCD_SERVER }}
