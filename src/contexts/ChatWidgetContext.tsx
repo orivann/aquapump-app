@@ -76,7 +76,7 @@ const FloatingLauncher = ({
         type="button"
         onClick={onClick}
         size="icon"
-        className="fixed bottom-6 right-6 z-40 h-14 w-14 rounded-full bg-primary text-primary-foreground shadow-glow transition hover:bg-primary-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+        className="fixed bottom-6 right-6 z-40 h-16 w-16 rounded-full border-0 bg-gradient-to-br from-primary via-primary to-accent text-primary-foreground shadow-[0_25px_45px_rgba(9,29,78,0.35)] transition hover:-translate-y-1 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-accent/40"
       >
         {isBusy ? <Loader2 className="h-6 w-6 animate-spin" /> : <MessageCircle className="h-6 w-6" />}
         <span className="sr-only">Open Aqua AI assistant</span>

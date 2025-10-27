@@ -25,8 +25,18 @@ const translations = {
     'hero.explore': 'Explore Products',
     'hero.learn': 'Learn More',
     'hero.scrollLabel': 'Scroll',
-    
+    'hero.metrics.energy.label': 'kWh saved',
+    'hero.metrics.energy.value': '60%',
+    'hero.metrics.energy.description': 'Average reduction in energy consumption',
+    'hero.metrics.roi.label': 'ROI horizon',
+    'hero.metrics.roi.value': '18 mo',
+    'hero.metrics.roi.description': 'Typical deployment payback',
+    'hero.metrics.support.label': 'Support',
+    'hero.metrics.support.value': '24/7',
+    'hero.metrics.support.description': 'Human experts backed by AI',
+
     // Features
+    'features.badge': 'Design DNA',
     'features.title': 'Innovation in Every Drop',
     'features.subtitle': 'Cutting-edge features designed for maximum efficiency, sustainability, and performance',
     'features.flow.title': 'Advanced Flow Technology',
@@ -43,6 +53,7 @@ const translations = {
     'features.install.desc': 'Streamlined setup process with comprehensive support.',
     
     // Technology
+    'tech.badge': 'Engineering Core',
     'tech.title': 'Precision Engineering',
     'tech.intro': 'Our water pump systems represent the pinnacle of modern engineering. Every component is meticulously designed and tested to deliver unparalleled performance, efficiency, and reliability.',
     'tech.materials.title': 'Advanced Materials',
@@ -53,6 +64,7 @@ const translations = {
     'tech.tested.desc': 'Rigorous quality control in extreme conditions',
     
     // Sustainability
+    'sustain.badge': 'Sustainability at scale',
     'sustain.title': 'Green. Sustainable. Future-Ready.',
     'sustain.intro': 'At AquaPump, we believe in creating solutions that don\'t just serve today\'s needs, but protect tomorrow\'s world. Our eco-friendly technology reduces environmental impact while delivering superior performance.',
     'sustain.energy': 'Energy Reduction',
@@ -62,6 +74,7 @@ const translations = {
     'sustain.emissionsValue': 'Net Zero',
     
     // Products
+    'products.badge': 'Product lineup',
     'products.title': 'Our Product Range',
     'products.subtitle': 'From residential to industrial, discover the perfect water pump solution for your needs',
     'products.pro.category': 'Industrial Series',
@@ -92,6 +105,7 @@ const translations = {
     'chatbot.highlight.available.desc': 'Engage prospects 24/7 and capture context for seamless human follow-up.',
     
     // Contact
+    'contact.badge': 'Let’s talk',
     'contact.title': 'Let\'s Connect',
     'contact.intro': 'Ready to transform your water management? Our team is here to help you find the perfect solution for your needs.',
     'contact.phone': 'Phone',
@@ -130,8 +144,18 @@ const translations = {
     'hero.explore': 'גלה מוצרים',
     'hero.learn': 'למד עוד',
     'hero.scrollLabel': 'גלול',
-    
+    'hero.metrics.energy.label': 'קוט"ש שנחסכו',
+    'hero.metrics.energy.value': '60%',
+    'hero.metrics.energy.description': 'חיסכון ממוצע בצריכת אנרגיה',
+    'hero.metrics.roi.label': 'החזר השקעה',
+    'hero.metrics.roi.value': '18 ח׳',
+    'hero.metrics.roi.description': 'תקופת החזר טיפוסית לאחר ההטמעה',
+    'hero.metrics.support.label': 'תמיכה',
+    'hero.metrics.support.value': '24/7',
+    'hero.metrics.support.description': 'מומחים אנושיים עם גב AI',
+
     // Features
+    'features.badge': 'DNA הנדסי',
     'features.title': 'חדשנות בכל טיפה',
     'features.subtitle': 'תכונות מתקדמות שתוכננו ליעילות, קיימות וביצועים מקסימליים',
     'features.flow.title': 'טכנולוגיית זרימה מתקדמת',
@@ -148,6 +172,7 @@ const translations = {
     'features.install.desc': 'תהליך התקנה יעיל עם תמיכה מקיפה.',
     
     // Technology
+    'tech.badge': 'ליבת ההנדסה',
     'tech.title': 'הנדסת דיוק',
     'tech.intro': 'מערכות המשאבות שלנו מייצגות את שיא ההנדסה המודרנית. כל רכיב מתוכנן ונבדק בקפידה כדי לספק ביצועים, יעילות ואמינות ללא תחרות.',
     'tech.materials.title': 'חומרים מתקדמים',
@@ -158,6 +183,7 @@ const translations = {
     'tech.tested.desc': 'בקרת איכות קפדנית בתנאי קיצון',
     
     // Sustainability
+    'sustain.badge': 'קיימות בהיקף',
     'sustain.title': 'ירוק. בר קיימא. מוכן לעתיד.',
     'sustain.intro': 'ב-AquaPump, אנו מאמינים ביצירת פתרונות שלא רק משרתים את הצרכים של היום, אלא גם מגנים על עולם המחר. הטכנולוגיה הידידותית לסביבה שלנו מפחיתה את ההשפעה הסביבתית תוך מתן ביצועים מעולים.',
     'sustain.energy': 'הפחתת אנרגיה',
@@ -167,6 +193,7 @@ const translations = {
     'sustain.emissionsValue': 'אפס פליטות',
     
     // Products
+    'products.badge': 'סדרת המוצרים',
     'products.title': 'מגוון המוצרים שלנו',
     'products.subtitle': 'ממגורים לתעשייה, גלה את פתרון משאבת המים המושלם לצרכים שלך',
     'products.pro.category': 'סדרה תעשייתית',
@@ -197,6 +224,7 @@ const translations = {
     'chatbot.highlight.available.desc': 'העוזר זמין 24/7 ושומר הקשר להמשך טיפול אנושי חסר מאמץ.',
     
     // Contact
+    'contact.badge': 'נדבר?',
     'contact.title': 'בואו נתחבר',
     'contact.intro': 'מוכנים לשנות את ניהול המים שלכם? הצוות שלנו כאן כדי לעזור לכם למצוא את הפתרון המושלם לצרכים שלכם.',
     'contact.phone': 'טלפון',

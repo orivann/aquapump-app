@@ -1,5 +1,5 @@
-import { type CSSProperties, useEffect, useRef } from "react";
-import { ChevronDown } from "lucide-react";
+import { type CSSProperties, useEffect, useMemo, useRef } from "react";
+import { ArrowRight, ChevronDown } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import heroImage from "@/assets/hero-pump.jpg";
@@ -18,31 +18,40 @@ const Hero = () => {
 
   useScrollReveal(heroRef, { threshold: 0.1, rootMargin: "-10% 0px" });
 
+  const metrics = useMemo(
+    () => [
+      { label: t("hero.metrics.energy.label"), value: t("hero.metrics.energy.value"), description: t("hero.metrics.energy.description") },
+      { label: t("hero.metrics.roi.label"), value: t("hero.metrics.roi.value"), description: t("hero.metrics.roi.description") },
+      { label: t("hero.metrics.support.label"), value: t("hero.metrics.support.value"), description: t("hero.metrics.support.description") },
+    ],
+    [t],
+  );
+
   useEffect(() => {
     if (!heroRef.current || prefersReducedMotion || isMobile) {
       return;
     }
 
     const heroElement = heroRef.current;
-    const imageElement = heroElement.querySelector<HTMLElement>(".hero-image img");
+    const imageElement = heroElement.querySelector<HTMLElement>(".hero-image");
     const overlayElement = heroElement.querySelector<HTMLElement>(".hero-overlay");
     const contentElement = contentRef.current;
 
     const handleScroll = () => {
       const scrolled = window.scrollY;
-      const eased = Math.min(scrolled, 400);
+      const eased = Math.min(scrolled, 360);
 
       if (imageElement) {
-        imageElement.style.transform = `translateY(${eased * 0.25}px) scale(${1 + eased * 0.0006})`;
+        imageElement.style.transform = `translateY(${eased * 0.2}px) scale(${1 + eased * 0.0005})`;
       }
 
       if (overlayElement) {
-        overlayElement.style.opacity = `${Math.min(0.85, 0.35 + eased * 0.0012)}`;
+        overlayElement.style.opacity = `${Math.min(0.92, 0.4 + eased * 0.0012)}`;
       }
 
       if (contentElement) {
-        contentElement.style.transform = `translateY(${eased * 0.12}px)`;
-        contentElement.style.opacity = `${Math.max(0, 1 - eased * 0.0025)}`;
+        contentElement.style.transform = `translateY(${eased * 0.1}px)`;
+        contentElement.style.opacity = `${Math.max(0.1, 1 - eased * 0.0023)}`;
       }
     };
 
@@ -54,30 +63,37 @@ const Hero = () => {
   return (
     <section
       ref={heroRef}
-      className="relative flex min-h-[90vh] w-full items-center justify-center overflow-hidden bg-background pt-24 text-primary-foreground md:pt-32"
+      className="relative flex min-h-[95vh] flex-col justify-center overflow-hidden bg-background pt-28 text-primary-foreground md:pt-32"
     >
-      <div className="hero-image absolute inset-0">
+      <div className="absolute inset-0">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.25)_0%,_transparent_55%)]" />
         <img
           src={heroImage}
           alt="AquaPump Premium Water Technology"
-          className="h-full w-full object-cover brightness-110"
+          className="hero-image h-full w-full scale-105 object-cover opacity-90"
         />
-        <div className="hero-overlay absolute inset-0 bg-gradient-to-b from-primary/40 via-primary/30 to-primary/90" />
+        <div className="hero-overlay absolute inset-0 bg-[linear-gradient(120deg,hsl(var(--primary)/0.8)_0%,hsl(var(--primary-dark)/0.8)_42%,hsl(var(--background))_100%)]" />
+        <div className="absolute -left-32 top-1/3 h-[520px] w-[520px] rounded-full bg-accent/20 blur-3xl" />
+        <div className="absolute -right-24 bottom-16 h-[420px] w-[420px] rounded-full bg-primary/30 blur-3xl" />
+      </div>
+
+      <div className="pointer-events-none absolute inset-x-0 top-28 flex justify-center">
+        <img src={logoFull} alt="AquaPump" className="h-10 opacity-60" />
       </div>
 
       <div
         ref={contentRef}
-        className="relative z-10 flex w-full max-w-6xl flex-col items-center px-6 text-center sm:px-10"
+        className="relative z-10 mx-auto flex w-full max-w-5xl flex-col gap-10 px-6 text-center sm:px-10"
       >
         <span
-          className="rounded-full bg-primary-foreground/20 px-6 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-primary-foreground/80 backdrop-blur"
+          className="mx-auto inline-flex items-center gap-2 rounded-full border border-primary-foreground/30 bg-primary-foreground/20 px-6 py-2 text-xs font-semibold uppercase tracking-[0.35em] text-primary-foreground"
           data-animate="zoom"
         >
           {t("hero.badge")}
         </span>
 
         <h1
-          className="mt-8 max-w-4xl font-display text-4xl leading-tight drop-shadow-lg md:text-6xl lg:text-[4.2rem]"
+          className="font-display text-4xl leading-tight text-primary-foreground md:text-6xl lg:text-[4rem]"
           data-animate
           style={{ "--stagger-delay": "120ms" } as CSSProperties}
         >
@@ -85,7 +101,7 @@ const Hero = () => {
         </h1>
 
         <p
-          className="mt-6 max-w-3xl text-balance text-base text-primary-foreground/90 md:mt-8 md:text-xl lg:text-[1.35rem]"
+          className="mx-auto max-w-3xl text-balance text-base text-primary-foreground/80 md:text-xl"
           data-animate
           style={{ "--stagger-delay": "220ms" } as CSSProperties}
         >
@@ -93,38 +109,50 @@ const Hero = () => {
         </p>
 
         <div
-          className="mt-10 flex w-full flex-col items-center justify-center gap-4 sm:flex-row sm:gap-6"
+          className="flex flex-col items-center justify-center gap-3 sm:flex-row"
           data-animate
           style={{ "--stagger-delay": "320ms" } as CSSProperties}
         >
           <Button
             size="lg"
-            className="w-full max-w-[220px] bg-accent text-lg font-semibold tracking-wide text-accent-foreground shadow-glow transition-transform duration-300 hover:scale-[1.03] hover:shadow-xl sm:w-auto"
+            className="group h-14 rounded-full border-0 bg-gradient-to-r from-primary via-primary to-accent px-8 text-base font-semibold text-primary-foreground shadow-[0_20px_60px_rgba(9,29,78,0.25)] transition hover:-translate-y-0.5"
+            asChild
           >
-            {t("hero.explore")}
+            <a href="#products" className="flex items-center gap-3">
+              {t("hero.explore")}
+              <ArrowRight className="h-5 w-5 transition group-hover:translate-x-1" />
+            </a>
           </Button>
           <Button
             size="lg"
-            variant="outline"
-            className="w-full max-w-[220px] border-primary-foreground/40 bg-primary-foreground/10 text-lg font-semibold tracking-wide text-primary-foreground backdrop-blur transition-transform duration-300 hover:scale-[1.03] hover:bg-primary-foreground/20 hover:shadow-xl sm:w-auto"
+            variant="ghost"
+            className="h-14 rounded-full border border-primary-foreground/40 bg-primary-foreground/10 px-8 text-base text-primary-foreground backdrop-blur transition hover:border-primary-foreground hover:bg-primary-foreground/20"
+            asChild
           >
-            {t("hero.learn")}
+            <a href="#technology">{t("hero.learn")}</a>
           </Button>
         </div>
 
-        <img
-          src={logoFull}
-          alt="AquaPump Logo"
-          className="mt-12 w-48 max-w-full opacity-0 drop-shadow-2xl md:w-64 lg:w-80"
-          data-animate="fade-in"
-          style={{ "--stagger-delay": "420ms" } as CSSProperties}
-        />
+        <div className="grid gap-4 text-left sm:grid-cols-3">
+          {metrics.map((metric, index) => (
+            <div
+              key={metric.label}
+              className="rounded-3xl border border-primary-foreground/20 bg-primary-foreground/5 p-6 backdrop-blur"
+              data-animate
+              style={{ "--stagger-delay": `${420 + index * 80}ms` } as CSSProperties}
+            >
+              <p className="text-xs uppercase tracking-[0.35em] text-primary-foreground/60">{metric.label}</p>
+              <p className="mt-3 text-3xl font-semibold text-primary-foreground">{metric.value}</p>
+              <p className="mt-2 text-sm text-primary-foreground/75">{metric.description}</p>
+            </div>
+          ))}
+        </div>
       </div>
 
-      <div className="pointer-events-none absolute bottom-8 left-1/2 z-10 hidden -translate-x-1/2 flex-col items-center text-xs font-medium uppercase tracking-[0.3em] text-primary-foreground/80 md:flex">
-        <span className="mb-4">{t("hero.scrollLabel")}</span>
-        <span className="flex h-12 w-8 items-center justify-center rounded-full border border-primary-foreground/40 bg-primary-foreground/10">
-          <ChevronDown className="animate-bounce text-primary-foreground" size={20} />
+      <div className="absolute inset-x-0 bottom-12 flex items-center justify-center text-primary-foreground/70">
+        <span className="flex items-center gap-3 text-xs uppercase tracking-[0.45em]">
+          {t("hero.scrollLabel")}
+          <ChevronDown className="h-4 w-4 animate-bounce" />
         </span>
       </div>
     </section>

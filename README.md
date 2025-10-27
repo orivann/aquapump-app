@@ -28,6 +28,11 @@ This project delivers the AquaPump marketing experience with a modern React fron
 - Python 3.12+
 - Docker (optional but recommended for parity with production)
 
+## Architecture
+
+- **Frontend** – React 18 + Vite with a bespoke Apple/Tesla-inspired marketing experience. Tailwind CSS drives theming while reusable sections (`SectionHeading`, animated metrics, responsive product grid) keep the markup declarative.
+- **Backend** – FastAPI application that fronts the AI assistant, persists conversations in Supabase, and emits structured logs via the built-in logging pipeline. The API enforces payload validation and consistent error handling.
+
 ## Environment variables
 
 ### Frontend (`.env`)
@@ -48,6 +53,7 @@ Copy `backend/.env.example` to `backend/.env` and provide your credentials:
 - `AI_API_KEY` – key for your AI provider (OpenAI-compatible)
 - `AI_MODEL` – model identifier (defaults to `gpt-4o-mini`)
 - `AI_API_BASE_URL` – optional custom base URL
+- `AI_REQUEST_TIMEOUT` – AI request timeout in seconds (defaults to `60`)
 - `CORS_ALLOW_ORIGINS` – comma-separated origins allowed to call the API
 
 The backend expects a Supabase table with the following columns:
@@ -120,6 +126,13 @@ npm run build
 
 The build artifacts are generated in `dist/` and served via Nginx in the provided Docker image.
 
+## Optimization summary
+
+- **Sleek UI/UX** – refined navigation, hero, and section layouts provide consistent spacing, motion, and responsive behavior while highlighting the chatbot call-to-action across breakpoints.
+- **Lean dependencies** – removed unused React Query provider and trimmed bundle surfacing by consolidating section heading logic.
+- **Backend resilience** – structured logging, stricter request validation, and tunable AI request timeouts improve operability and debugging.
+- **Accessibility & performance** – scroll-triggered reveals respect reduced-motion preferences and parallax effects throttle smoothly on mobile.
+
 ## DevOps scaffolding
 
 - **Helm** – `deploy/helm/aquapump` contains a chart that templates both services, ingress configuration, and environment variables.
@@ -129,11 +142,11 @@ The build artifacts are generated in `dist/` and served via Nginx in the provide
 
 ## Next steps
 
-1. **AWS ECR** – Create ECR repositories for the backend and frontend, then populate the `ECR_REPOSITORY_*` environment values in the GitHub Actions workflow. Attach an IAM role (`AWS_GITHUB_ROLE_ARN`) that grants push access.
-2. **Helm values hardening** – Externalize secrets using `values-prod.yaml` and leverage `helm secrets` or an external secrets operator to inject Supabase and AI keys securely.
-3. **Kubernetes overlays** – Add environment-specific overlays under `deploy/kubernetes/overlays/` (e.g., `staging`, `production`) that patch replica counts, autoscaling, and ingress hostnames.
-4. **Argo CD automation** – Point the Argo CD application at a release branch (or a Git tag) to promote changes via pull requests. Enable Argo CD notifications for sync status.
-5. **Continuous testing** – Extend the CI workflow to run `npm run build`, `npm run lint`, and Python unit tests before building images; gate deployments on successful checks.
+1. **Container image caching** – Pre-configure build cache mounts (e.g., `--mount=type=cache` for `pip`/`npm`) in Dockerfiles to accelerate CI builds.
+2. **Kubernetes readiness** – Add liveness/readiness probes that call `/health?include=dependencies` for the backend and `/` for the frontend. Consider horizontal pod autoscaling driven by latency metrics.
+3. **Secrets management** – Externalize Supabase/AI credentials with External Secrets Operator or SSM Parameter Store instead of embedding them in Helm values.
+4. **Observability** – Ship FastAPI logs to a centralized sink (CloudWatch, Loki) and instrument request traces (OpenTelemetry) for chatbot interactions.
+5. **CI/CD** – Introduce branch protection gating on `npm run build`, `npm run lint`, and Python test suites, followed by progressive rollout via Argo CD with manual approval hooks.
 
 ## License
 
