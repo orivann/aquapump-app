@@ -1,28 +1,18 @@
-import brandLogo from "@/assets/brand-logo.png";
 import logoAnimation from "@/assets/animation-waves.gif";
 
 const LogoAnimation = () => {
   return (
-    <div className="relative mx-auto w-full max-w-xs overflow-hidden rounded-[28px] border border-border/40 bg-white/95 shadow-[0_28px_60px_rgba(9,29,78,0.18)] backdrop-blur">
-      <div className="pointer-events-none absolute inset-0">
+    <figure className="group relative mx-auto w-full overflow-hidden rounded-[40px] border border-border/30 bg-white/80 shadow-[0_32px_88px_rgba(9,29,78,0.2)] backdrop-blur-sm transition-[transform,box-shadow] duration-500 ease-out sm:max-w-xl lg:max-w-3xl">
+      <div className="relative aspect-[5/4] sm:aspect-[4/3]">
         <img
           src={logoAnimation}
           alt="Animated AquaPump waves"
-          className="h-full w-full object-cover"
+          className="absolute inset-0 h-full w-full object-cover brightness-[1.05] transition-transform duration-700 ease-out group-hover:scale-[1.04]"
           loading="eager"
           decoding="async"
         />
       </div>
-      <div className="relative flex items-center justify-center p-6 sm:p-8">
-        <img
-          src={brandLogo}
-          alt="AquaPump"
-          className="h-12 w-auto sm:h-14"
-          loading="eager"
-          decoding="async"
-        />
-      </div>
-    </div>
+    </figure>
   );
 };
 
