@@ -2,8 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Menu, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import logoFull from "@/assets/logo-full.png";
-import logoIcon from "@/assets/logo-icon.png";
+import brandLogo from "@/assets/logo-full-trimmed.png";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useChatWidget } from "@/contexts/ChatWidgetContext";
 
@@ -44,9 +43,12 @@ const Navbar = () => {
       }`}
     >
       <div className="mx-auto flex h-20 w-full max-w-6xl items-center justify-between px-6">
-        <a href="#" className="flex items-center gap-3">
-          <img src={logoIcon} alt="AquaPump" className="h-9 w-9" />
-          <img src={logoFull} alt="AquaPump" className="hidden h-7 md:block" />
+        <a href="#" className="flex items-center gap-4">
+          <img
+            src={brandLogo}
+            alt="AquaPump"
+            className="h-14 w-auto object-contain md:h-16"
+          />
         </a>
 
         <div className="hidden items-center gap-10 md:flex">
