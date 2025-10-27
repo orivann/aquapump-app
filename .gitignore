@@ -27,3 +27,4 @@ backend/app/__pycache__/
 *.sw?
 argocd-linux-amd64
 argocd-linux-amd64
+argocd-linux-amd64
