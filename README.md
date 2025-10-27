@@ -1,73 +1,104 @@
-# Welcome to your Lovable project
+# AquaPump Platform
 
-## Project info
+This project delivers the AquaPump marketing experience with a modern React frontend and a FastAPI backend that powers the AI support assistant. Supabase persists chat sessions so visitors can resume conversations from any device.
 
-**URL**: https://lovable.dev/projects/9c0b40f2-98af-48a6-b170-3c84850475cd
+## Project structure
 
-## How can I edit this code?
+```
+.
+├── backend/              # FastAPI service
+│   ├── app/              # Application code
+│   ├── requirements.txt  # Python dependencies
+│   └── .env.example      # Backend environment template
+├── src/                  # React application source
+├── public/               # Static assets
+├── docker-compose.yml    # Local orchestration for frontend + backend
+└── frontend/Dockerfile   # Production frontend image (Nginx)
+```
 
-There are several ways of editing your application.
+## Requirements
 
-**Use Lovable**
+- Node.js 20+
+- Python 3.12+
+- Docker (optional but recommended for parity with production)
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/9c0b40f2-98af-48a6-b170-3c84850475cd) and start prompting.
+## Environment variables
 
-Changes made via Lovable will be committed automatically to this repo.
+### Frontend (`.env`)
 
-**Use your preferred IDE**
+Copy `.env.example` to `.env` and adjust as needed. The only required variable is the backend base URL:
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+```
+VITE_REACT_APP_API_BASE=http://localhost:8000
+```
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### Backend (`backend/.env`)
 
-Follow these steps:
+Copy `backend/.env.example` to `backend/.env` and provide your credentials:
+
+- `SUPABASE_URL` – Supabase project URL
+- `SUPABASE_SERVICE_ROLE_KEY` – service role key with read/write access to the chat table
+- `SUPABASE_CHAT_TABLE` – table used to store messages (defaults to `chat_messages`)
+- `AI_API_KEY` – key for your AI provider (OpenAI-compatible)
+- `AI_MODEL` – model identifier (defaults to `gpt-4o-mini`)
+- `AI_API_BASE_URL` – optional custom base URL
+
+The backend expects a Supabase table with the following columns:
+
+| Column       | Type    | Notes                        |
+|--------------|---------|------------------------------|
+| `id`         | uuid    | Primary key (default uuid)   |
+| `session_id` | uuid    | Conversation identifier      |
+| `role`       | text    | `user`, `assistant`, `system`|
+| `content`    | text    | Message body                 |
+| `created_at` | timestamptz | Defaults to `now()`      |
+
+## Running locally
+
+### With Docker Compose (recommended)
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+docker compose up --build
+```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+- Frontend available at http://localhost:5173
+- Backend available at http://localhost:8000
 
-# Step 3: Install the necessary dependencies.
-npm i
+### Manual setup
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+Run the backend:
+
+```sh
+cd backend
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+```
+
+Run the frontend in another terminal:
+
+```sh
+npm install
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+## Chat API
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+- `POST /chat` – submit a message; automatically stores conversation history and returns the assistant reply.
+- `GET /chat/{session_id}` – retrieve stored messages for a session.
+- `GET /health` – readiness probe.
 
-**Use GitHub Codespaces**
+The frontend keeps the chat session ID in local storage so visitors can resume conversations on reload.
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## Production build
 
-## What technologies are used for this project?
+```sh
+npm run build
+```
 
-This project is built with:
+The build artifacts are generated in `dist/` and served via Nginx in the provided Docker image.
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## License
 
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/9c0b40f2-98af-48a6-b170-3c84850475cd) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+This project is provided as-is for demonstration purposes. Update the license to match your organization’s requirements.

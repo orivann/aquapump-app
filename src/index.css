@@ -137,6 +137,39 @@ All colors MUST be HSL.
     transform: translateZ(0);
     will-change: transform;
   }
+
+  .will-animate {
+    --initial-transform: translateY(48px);
+    --stagger-delay: 0ms;
+    opacity: 0;
+    transform: var(--initial-transform);
+    transition-property: opacity, transform, filter;
+    transition-duration: 800ms;
+    transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+    transition-delay: var(--stagger-delay);
+  }
+
+  .will-animate[data-animate="fade-in"] {
+    --initial-transform: translateY(0px);
+  }
+
+  .will-animate[data-animate="slide-left"] {
+    --initial-transform: translateX(-48px);
+  }
+
+  .will-animate[data-animate="slide-right"] {
+    --initial-transform: translateX(48px);
+  }
+
+  .will-animate[data-animate="zoom"] {
+    --initial-transform: scale(0.92);
+  }
+
+  .will-animate.is-visible {
+    opacity: 1;
+    transform: none;
+    filter: drop-shadow(0 12px 30px hsl(var(--primary) / 0.12));
+  }
   
   @keyframes fade-up {
     from {
@@ -189,5 +222,13 @@ All colors MUST be HSL.
     50% {
       transform: translateY(-20px);
     }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .will-animate {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
   }
 }

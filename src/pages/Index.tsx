@@ -4,6 +4,7 @@ import Features from '@/components/Features';
 import Technology from '@/components/Technology';
 import Sustainability from '@/components/Sustainability';
 import Products from '@/components/Products';
+import Chatbot from '@/components/Chatbot';
 import Contact from '@/components/Contact';
 import Footer from '@/components/Footer';
 
@@ -24,6 +25,9 @@ const Index = () => {
         </div>
         <div id="products">
           <Products />
+        </div>
+        <div id="assistant">
+          <Chatbot />
         </div>
         <div id="contact">
           <Contact />
