@@ -2,22 +2,18 @@
 global:
   imagePullSecrets:
     - name: ecr-creds
-
 # ---------------------------
 # ⚙️ Backend Configuration
 # ---------------------------
 backend:
   replicaCount: 1
-
   image:
     repository: 043309328819.dkr.ecr.eu-central-1.amazonaws.com/aquapump/backend
     tag: latest
     pullPolicy: IfNotPresent
-
   service:
     type: ClusterIP
     port: 8000
-
   env:
     SUPABASE_URL: ""
     SUPABASE_SERVICE_ROLE_KEY: ""
@@ -26,7 +22,6 @@ backend:
     AI_MODEL: "gpt-4o-mini"
     AI_API_BASE_URL: ""
     CORS_ALLOW_ORIGINS: "https://aquapump.example.com"
-
   resources:
     requests:
       cpu: 100m
@@ -34,29 +29,23 @@ backend:
     limits:
       cpu: 500m
       memory: 512Mi
-
   nodeSelector: {}
   affinity: {}
   tolerations: []
-
 # ---------------------------
 # 🖥️ Frontend Configuration
 # ---------------------------
 frontend:
   replicaCount: 1
-
   image:
     repository: 043309328819.dkr.ecr.eu-central-1.amazonaws.com/aquapump/frontend
     tag: latest
     pullPolicy: IfNotPresent
-
   service:
     type: ClusterIP
     port: 80
-
   env:
     VITE_REACT_APP_API_BASE: "https://aquapump.example.com/api"
-
   resources:
     requests:
       cpu: 50m
@@ -64,11 +53,9 @@ frontend:
     limits:
       cpu: 200m
       memory: 256Mi
-
   nodeSelector: {}
   affinity: {}
   tolerations: []
-
 # ---------------------------
 # 🌐 Ingress Configuration
 # ---------------------------
@@ -85,3 +72,8 @@ ingress:
     - hosts:
         - aquapump.example.com
       secretName: aquapump-tls
+image:
+  backend:
+    tag: e6239a1fca437b1cf94f3b9fe08058cc7b5a4387
+  frontend:
+    tag: e6239a1fca437b1cf94f3b9fe08058cc7b5a4387
