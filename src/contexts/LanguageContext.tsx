@@ -19,10 +19,12 @@ const translations = {
     'nav.getStarted': 'Get Started',
     
     // Hero
+    'hero.badge': 'Premium Water Systems',
     'hero.title': 'The Future of Water Technology',
     'hero.subtitle': 'Your Pump, Our Solution — Premium, sustainable, eco-friendly water pump systems',
     'hero.explore': 'Explore Products',
     'hero.learn': 'Learn More',
+    'hero.scrollLabel': 'Scroll',
     
     // Features
     'features.title': 'Innovation in Every Drop',
@@ -57,6 +59,7 @@ const translations = {
     'sustain.recyclable': 'Recyclable Materials',
     'sustain.lifespan': 'Years Lifespan',
     'sustain.emissions': 'Harmful Emissions',
+    'sustain.emissionsValue': 'Net Zero',
     
     // Products
     'products.title': 'Our Product Range',
@@ -108,10 +111,12 @@ const translations = {
     'nav.getStarted': 'התחל עכשיו',
     
     // Hero
+    'hero.badge': 'מערכות מים פרימיום',
     'hero.title': 'העתיד של טכנולוגיית המים',
     'hero.subtitle': 'המשאבה שלך, הפתרון שלנו — מערכות משאבות מים פרימיום, בנות קיימא וידידותיות לסביבה',
     'hero.explore': 'גלה מוצרים',
     'hero.learn': 'למד עוד',
+    'hero.scrollLabel': 'גלול',
     
     // Features
     'features.title': 'חדשנות בכל טיפה',
@@ -146,6 +151,7 @@ const translations = {
     'sustain.recyclable': 'חומרים הניתנים למיחזור',
     'sustain.lifespan': 'שנות חיים',
     'sustain.emissions': 'פליטות מזיקות',
+    'sustain.emissionsValue': 'אפס פליטות',
     
     // Products
     'products.title': 'מגוון המוצרים שלנו',
