@@ -43,6 +43,8 @@ Copy `.env.example` to `.env` and adjust as needed. The only required variable i
 VITE_REACT_APP_API_BASE=http://localhost:8000
 ```
 
+The Vite dev server now runs on port **5173** to align with the production Docker image and CORS defaults.
+
 ### Backend (`backend/.env`)
 
 Copy `backend/.env.example` to `backend/.env` and provide your credentials:
@@ -54,7 +56,7 @@ Copy `backend/.env.example` to `backend/.env` and provide your credentials:
 - `AI_MODEL` – model identifier (defaults to `gpt-4o-mini`)
 - `AI_API_BASE_URL` – optional custom base URL
 - `AI_REQUEST_TIMEOUT` – AI request timeout in seconds (defaults to `60`)
-- `CORS_ALLOW_ORIGINS` – comma-separated origins allowed to call the API
+- `CORS_ALLOW_ORIGINS` – comma-separated origins allowed to call the API (defaults to `http://localhost:5173,http://127.0.0.1:5173`)
 
 The backend expects a Supabase table with the following columns:
 
@@ -96,6 +98,8 @@ Run the frontend in another terminal:
 npm install
 npm run dev
 ```
+
+The dev server listens on http://localhost:5173. Add `-- --host 0.0.0.0` if you need to expose it to other devices on your network.
 
 ## Chat API
 

@@ -3,7 +3,7 @@ import { ArrowRight, ChevronDown } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import heroImage from "@/assets/hero-pump.jpg";
-import logoFull from "@/assets/logo-full.png";
+import LogoAnimation from "@/components/LogoAnimation";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useIsMobile } from "@/hooks/use-mobile";
 import usePrefersReducedMotion from "@/hooks/use-prefers-reduced-motion";

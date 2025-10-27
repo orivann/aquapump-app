@@ -9,6 +9,7 @@ from .logging import get_logger
 logger = get_logger("supabase")
 
 
+# Cache the Supabase client across requests so connection pooling stays efficient
 @lru_cache
 def get_client() -> Client:
     settings = get_settings()
