@@ -15,25 +15,41 @@ const Products = () => {
         nameKey: "products.pro.name",
         categoryKey: "products.pro.category",
         descKey: "products.pro.desc",
-        specs: ["50-500 HP", "Up to 10,000 GPM", "Smart Controls"],
+        specs: [
+          "Unlimited active jobs",
+          "Talent network automation",
+          "Dedicated success manager",
+        ],
       },
       {
         nameKey: "products.eco.name",
         categoryKey: "products.eco.category",
         descKey: "products.eco.desc",
-        specs: ["1-10 HP", "Up to 500 GPM", "Ultra Quiet"],
+        specs: [
+          "Up to 10 active roles",
+          "Branded careers hub",
+          "Offer letters in clicks",
+        ],
       },
       {
         nameKey: "products.solar.name",
         categoryKey: "products.solar.category",
         descKey: "products.solar.desc",
-        specs: ["Solar Ready", "Battery Backup", "Off-Grid"],
+        specs: [
+          "Localized compliance",
+          "Currency-aware offers",
+          "Global payroll sync",
+        ],
       },
       {
         nameKey: "products.smart.name",
         categoryKey: "products.smart.category",
         descKey: "products.smart.desc",
-        specs: ["IoT Enabled", "Mobile App", "Predictive AI"],
+        specs: [
+          "Talent CRM automations",
+          "Referral tracking",
+          "Event landing pages",
+        ],
       },
     ],
     []
@@ -94,10 +110,15 @@ const Products = () => {
                 <div className="mt-auto">
                   <Button
                     variant="ghost"
-                    className="group/btn w-full justify-between text-primary hover:bg-accent/10 hover:text-accent transition-all duration-300"
+                    className="group/btn w-full justify-between text-primary transition-all duration-300 hover:bg-accent/10 hover:text-accent"
+                    asChild
                   >
-                    {t("products.learnMore")}
-                    <ArrowRight className="h-4 w-4 transition-transform group-hover/btn:translate-x-2" />
+                    <a href="#contact">
+                      <span className="flex items-center gap-2">
+                        {t("products.learnMore")}
+                        <ArrowRight className="h-4 w-4 transition-transform group-hover/btn:translate-x-2" />
+                      </span>
+                    </a>
                   </Button>
                 </div>
               </div>

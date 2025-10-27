@@ -1,6 +1,5 @@
 import { type CSSProperties, useEffect, useMemo, useRef } from "react";
 
-import sustainabilityImage from "@/assets/sustainability.jpg";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useIsMobile } from "@/hooks/use-mobile";
 import usePrefersReducedMotion from "@/hooks/use-prefers-reduced-motion";
@@ -16,9 +15,9 @@ const Sustainability = () => {
 
   const metrics = useMemo(
     () => [
-      { value: "60%", label: t("sustain.energy") },
-      { value: "100%", label: t("sustain.recyclable") },
-      { value: "25+", label: t("sustain.lifespan") },
+      { value: "7 days", label: t("sustain.energy") },
+      { value: "92%", label: t("sustain.recyclable") },
+      { value: "+45", label: t("sustain.lifespan") },
       { value: t("sustain.emissionsValue"), label: t("sustain.emissions") },
     ],
     [t]
@@ -84,16 +83,30 @@ const Sustainability = () => {
           </div>
 
           <div
-            className="group relative mx-auto h-[320px] w-full max-w-[520px] overflow-hidden rounded-3xl shadow-premium sm:h-[420px] lg:h-[520px] lg:max-w-none"
+            className="group relative mx-auto h-[320px] w-full max-w-[520px] overflow-hidden rounded-3xl bg-gradient-to-br from-secondary/20 via-background to-primary/30 shadow-premium sm:h-[420px] lg:h-[520px] lg:max-w-none"
             data-animate="zoom"
             style={{ "--stagger-delay": "160ms" } as CSSProperties}
           >
-            <img
-              src={sustainabilityImage}
-              alt="Sustainable Water Technology"
-              className="sustain-image h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.08]"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-accent/35 via-accent/10 to-transparent" />
+            <div className="sustain-image absolute inset-0 transition-transform duration-700 ease-out group-hover:scale-[1.04]">
+              <div className="absolute inset-0 bg-gradient-to-t from-background/10 via-background/35 to-background/80" />
+              <div className="absolute inset-6 rounded-3xl border border-white/10 bg-background/50 p-6 backdrop-blur">
+                <h3 className="text-lg font-semibold text-foreground">Pipeline snapshot</h3>
+                <div className="mt-4 grid gap-3 text-sm text-muted-foreground">
+                  <div className="flex items-center justify-between rounded-xl bg-background/60 px-4 py-3">
+                    <span>Sourcing</span>
+                    <span className="font-semibold text-accent">{t("sustain.energy")}</span>
+                  </div>
+                  <div className="flex items-center justify-between rounded-xl bg-background/60 px-4 py-3">
+                    <span>Offers</span>
+                    <span className="font-semibold text-accent">{t("sustain.recyclable")}</span>
+                  </div>
+                  <div className="flex items-center justify-between rounded-xl bg-background/60 px-4 py-3">
+                    <span>Experience</span>
+                    <span className="font-semibold text-accent">{t("sustain.lifespan")}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
