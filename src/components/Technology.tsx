@@ -31,26 +31,26 @@ const Technology = () => {
   }, []);
 
   return (
-    <section ref={sectionRef} className="relative overflow-hidden bg-background py-24 md:py-32">
+    <section ref={sectionRef} className="relative overflow-hidden bg-gradient-to-b from-background via-muted/20 to-background py-32 md:py-40">
       <div className="mx-auto max-w-7xl px-6">
-        <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
+        <div className="grid items-center gap-16 lg:grid-cols-2 lg:gap-20">
           {/* Image Side */}
-          <div className="relative h-[500px] overflow-hidden rounded-3xl shadow-premium lg:h-[600px]">
+          <div className="relative h-[520px] overflow-hidden rounded-3xl shadow-premium lg:h-[650px] group">
             <img 
               src={technologyImage}
               alt="Advanced Water Pump Technology"
-              className="tech-image parallax h-full w-full object-cover"
+              className="tech-image parallax h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-primary/30 via-primary/10 to-transparent" />
           </div>
 
           {/* Content Side */}
-          <div className="tech-content space-y-6 opacity-0">
-            <h2 className="font-display text-primary">
+          <div className="tech-content space-y-8 opacity-0">
+            <h2 className="font-display bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
               {t('tech.title')}
             </h2>
             
-            <p className="text-lg text-foreground/80 leading-relaxed">
+            <p className="text-xl text-foreground/80 leading-relaxed">
               {t('tech.intro')}
             </p>
             

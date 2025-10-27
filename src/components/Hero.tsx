@@ -51,28 +51,28 @@ const Hero = () => {
         <img 
           src={logoFull} 
           alt="AquaPump Logo" 
-          className="mb-8 h-auto w-64 animate-fade-in md:w-80"
+          className="mb-12 h-auto w-72 animate-fade-in drop-shadow-2xl md:w-96"
         />
         
-        <h1 className="mb-6 font-display text-primary-foreground animate-fade-up">
+        <h1 className="mb-8 font-display text-primary-foreground animate-fade-up drop-shadow-lg">
           {t('hero.title')}
         </h1>
         
-        <p className="mb-12 max-w-2xl text-xl text-primary-foreground/90 animate-fade-up md:text-2xl" style={{ animationDelay: '0.2s' }}>
+        <p className="mb-12 max-w-3xl text-xl text-primary-foreground/95 animate-fade-up md:text-2xl drop-shadow-md leading-relaxed" style={{ animationDelay: '0.2s' }}>
           {t('hero.subtitle')}
         </p>
         
         <div className="flex flex-col gap-4 animate-fade-up sm:flex-row" style={{ animationDelay: '0.4s' }}>
           <Button 
             size="lg" 
-            className="bg-accent text-accent-foreground hover:bg-accent-light shadow-glow transition-all duration-300 hover:scale-105"
+            className="bg-accent text-accent-foreground hover:bg-accent-light shadow-glow transition-all duration-300 hover:scale-105 hover:shadow-xl px-10 py-7 text-lg"
           >
             {t('hero.explore')}
           </Button>
           <Button 
             size="lg" 
             variant="outline"
-            className="border-primary-foreground/30 bg-primary-foreground/10 text-primary-foreground hover:bg-primary-foreground/20 hover:border-primary-foreground/50 backdrop-blur-sm transition-all duration-300"
+            className="border-2 border-primary-foreground/40 bg-primary-foreground/15 text-primary-foreground hover:bg-primary-foreground/25 hover:border-primary-foreground/60 backdrop-blur-md transition-all duration-300 hover:scale-105 hover:shadow-xl px-10 py-7 text-lg"
           >
             {t('hero.learn')}
           </Button>

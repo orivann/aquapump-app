@@ -58,13 +58,13 @@ const Features = () => {
   }, []);
 
   return (
-    <section ref={sectionRef} className="relative bg-secondary py-24 px-6 md:py-32">
+    <section ref={sectionRef} className="relative bg-gradient-to-b from-background via-secondary to-background py-32 px-6 md:py-40">
       <div className="mx-auto max-w-7xl">
-        <div className="mb-16 text-center">
-          <h2 className="mb-4 font-display text-primary">
+        <div className="mb-20 text-center">
+          <h2 className="mb-6 font-display bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
             {t('features.title')}
           </h2>
-          <p className="mx-auto max-w-2xl text-lg text-muted-foreground md:text-xl">
+          <p className="mx-auto max-w-3xl text-lg text-muted-foreground md:text-xl leading-relaxed">
             {t('features.subtitle')}
           </p>
         </div>
@@ -73,18 +73,18 @@ const Features = () => {
           {features.map((feature, index) => (
             <div
               key={index}
-              className="feature-card group opacity-0 rounded-2xl bg-card p-8 shadow-card transition-all duration-500 hover:shadow-premium hover:-translate-y-2"
+              className="feature-card group opacity-0 rounded-3xl bg-card p-10 shadow-card transition-all duration-500 hover:shadow-premium hover:-translate-y-3 border border-transparent hover:border-accent/30"
               style={{ animationDelay: `${index * 0.1}s` }}
             >
-              <div className="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-xl bg-gradient-accent shadow-glow transition-transform duration-300 group-hover:scale-110">
-                <feature.icon className="h-8 w-8 text-accent-foreground" />
+              <div className="mb-8 inline-flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-accent shadow-glow transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl">
+                <feature.icon className="h-10 w-10 text-accent-foreground" />
               </div>
               
-              <h3 className="mb-3 text-2xl font-bold text-card-foreground">
+              <h3 className="mb-4 text-2xl font-bold text-card-foreground group-hover:text-accent transition-colors duration-300">
                 {t(feature.titleKey)}
               </h3>
               
-              <p className="text-muted-foreground leading-relaxed">
+              <p className="text-muted-foreground leading-relaxed text-base">
                 {t(feature.descKey)}
               </p>
             </div>

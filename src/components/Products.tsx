@@ -53,13 +53,13 @@ const Products = () => {
   }, []);
 
   return (
-    <section ref={sectionRef} className="relative bg-secondary py-24 px-6 md:py-32">
+    <section ref={sectionRef} className="relative bg-gradient-to-b from-background via-secondary to-background py-32 px-6 md:py-40">
       <div className="mx-auto max-w-7xl">
-        <div className="mb-16 text-center">
-          <h2 className="mb-4 font-display text-primary">
+        <div className="mb-20 text-center">
+          <h2 className="mb-6 font-display bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
             {t('products.title')}
           </h2>
-          <p className="mx-auto max-w-2xl text-lg text-muted-foreground md:text-xl">
+          <p className="mx-auto max-w-3xl text-lg text-muted-foreground md:text-xl leading-relaxed">
             {t('products.subtitle')}
           </p>
         </div>
@@ -68,30 +68,30 @@ const Products = () => {
           {products.map((product, index) => (
             <div
               key={index}
-              className="product-card group opacity-0 relative overflow-hidden rounded-2xl bg-card shadow-card transition-all duration-500 hover:shadow-premium hover:-translate-y-2"
+              className="product-card group opacity-0 relative overflow-hidden rounded-3xl bg-card shadow-card transition-all duration-500 hover:shadow-premium hover:-translate-y-3 border border-transparent hover:border-accent/30"
               style={{ animationDelay: `${index * 0.1}s` }}
             >
               {/* Gradient Accent Bar */}
-              <div className="h-2 bg-gradient-accent" />
+              <div className="h-2 bg-gradient-accent transition-all duration-300 group-hover:h-3" />
               
-              <div className="p-6">
-                <div className="mb-4">
-                  <div className="mb-2 text-sm font-medium text-accent">
+              <div className="p-8">
+                <div className="mb-6">
+                  <div className="mb-3 text-sm font-semibold text-accent uppercase tracking-wider">
                     {t(product.categoryKey)}
                   </div>
-                  <h3 className="text-2xl font-bold text-card-foreground">
+                  <h3 className="text-2xl font-bold text-card-foreground group-hover:text-accent transition-colors duration-300">
                     {t(product.nameKey)}
                   </h3>
                 </div>
                 
-                <p className="mb-6 text-muted-foreground">
+                <p className="mb-8 text-muted-foreground leading-relaxed">
                   {t(product.descKey)}
                 </p>
                 
-                <div className="mb-6 space-y-2">
+                <div className="mb-8 space-y-3">
                   {product.specs.map((spec, i) => (
-                    <div key={i} className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <div className="h-1.5 w-1.5 rounded-full bg-accent flex-shrink-0" />
+                    <div key={i} className="flex items-center gap-3 text-sm text-muted-foreground">
+                      <div className="h-2 w-2 rounded-full bg-accent flex-shrink-0" />
                       {spec}
                     </div>
                   ))}
@@ -99,10 +99,10 @@ const Products = () => {
                 
                 <Button 
                   variant="ghost" 
-                  className="group/btn w-full justify-between text-primary hover:text-accent hover:bg-accent/5"
+                  className="group/btn w-full justify-between text-primary hover:text-accent hover:bg-accent/10 transition-all duration-300"
                 >
                   {t('products.learnMore')}
-                  <ArrowRight className="h-4 w-4 transition-transform group-hover/btn:translate-x-1" />
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover/btn:translate-x-2" />
                 </Button>
               </div>
             </div>
