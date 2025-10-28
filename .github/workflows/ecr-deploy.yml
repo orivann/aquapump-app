@@ -182,6 +182,20 @@ jobs:
       - name: Configure Argo CD context
         run: |
           set -euo pipefail
+          if [[ -z "${ARGOCD_SERVER:-}" ]]; then
+            echo "ARGOCD_SERVER is not set" >&2
+            exit 1
+          fi
+          SERVER="${ARGOCD_SERVER#tcp://}"
+          SERVER="${SERVER#grpc://}"
+          SERVER="${SERVER#https://}"
+          SERVER="${SERVER#http://}"
+          SERVER="${SERVER#//}"
+          SERVER="${SERVER%%/*}"
+          if [[ -z "$SERVER" ]]; then
+            echo "Failed to normalize ARGOCD_SERVER value: '$ARGOCD_SERVER'" >&2
+            exit 1
+          fi
           FLAGS=(--grpc-web)
           if [[ "${ARGOCD_INSECURE,,}" == "true" ]]; then
             FLAGS+=(--insecure)
@@ -189,16 +203,23 @@ jobs:
             echo "${ARGOCD_CA_CERT}" | base64 -d > argocd-ca.crt
             FLAGS+=(--certificate ./argocd-ca.crt)
           fi
-          echo "ARGOCD_EXTRA_FLAGS=${FLAGS[*]}" >> "$GITHUB_ENV"
-          argocd login "$ARGOCD_SERVER" "${FLAGS[@]}" --auth-token "$ARGOCD_AUTH_TOKEN"
+          {
+            printf 'ARGOCD_EXTRA_FLAGS=%s\n' "${FLAGS[*]}"
+            printf 'ARGOCD_SERVER_HOST=%s\n' "$SERVER"
+          } >> "$GITHUB_ENV"
+          argocd login "$SERVER" "${FLAGS[@]}" --auth-token "$ARGOCD_AUTH_TOKEN"
 
       - name: Update image tags
         run: |
           set -euo pipefail
           IFS=' ' read -r -a ARGO_FLAGS <<< "${ARGOCD_EXTRA_FLAGS:-}"
+          if [[ -z "${ARGOCD_SERVER_HOST:-}" ]]; then
+            echo "ARGOCD_SERVER_HOST is not set" >&2
+            exit 1
+          fi
           for app in aquapump-dev aquapump-staging aquapump-prod; do
             argocd app set "$app" \
-              --server "$ARGOCD_SERVER" \
+              --server "$ARGOCD_SERVER_HOST" \
               "${ARGO_FLAGS[@]}" \
               --helm-set-string imageDefaults.registry="$IMAGE_REGISTRY" \
               --helm-set-string imageDefaults.tag="$IMAGE_TAG" \
@@ -210,18 +231,26 @@ jobs:
         run: |
           set -euo pipefail
           IFS=' ' read -r -a ARGO_FLAGS <<< "${ARGOCD_EXTRA_FLAGS:-}"
+          if [[ -z "${ARGOCD_SERVER_HOST:-}" ]]; then
+            echo "ARGOCD_SERVER_HOST is not set" >&2
+            exit 1
+          fi
           for app in aquapump-dev aquapump-staging aquapump-prod; do
-            argocd app sync "$app" --server "$ARGOCD_SERVER" "${ARGO_FLAGS[@]}"
+            argocd app sync "$app" --server "$ARGOCD_SERVER_HOST" "${ARGO_FLAGS[@]}"
           done
 
       - name: Wait for healthy status
         run: |
           set -euo pipefail
           IFS=' ' read -r -a ARGO_FLAGS <<< "${ARGOCD_EXTRA_FLAGS:-}"
+          if [[ -z "${ARGOCD_SERVER_HOST:-}" ]]; then
+            echo "ARGOCD_SERVER_HOST is not set" >&2
+            exit 1
+          fi
           for app in aquapump-dev aquapump-staging aquapump-prod; do
             echo "Waiting for $app to become Healthy/Synced"
             argocd app wait "$app" \
-              --server "$ARGOCD_SERVER" \
+              --server "$ARGOCD_SERVER_HOST" \
               "${ARGO_FLAGS[@]}" \
               --health \
               --sync \
