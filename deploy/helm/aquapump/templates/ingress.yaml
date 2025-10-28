@@ -24,9 +24,9 @@ spec:
             pathType: {{ .pathType }}
             backend:
               service:
-                name: {{ include "aquapump.frontendFullname" $ }}
+                name: {{ include (printf "aquapump.%sFullname" .service.name) $ }}
                 port:
-                  number: {{ $.Values.frontend.service.port }}
+                  number: {{ .service.port }}
           {{- end }}
     {{- end }}
   {{- if .Values.ingress.tls }}

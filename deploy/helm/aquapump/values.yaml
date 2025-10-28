@@ -1,19 +1,27 @@
 global:
   imagePullSecrets:
     - name: ecr-creds
+
+image:
+  registry: 043309328819.dkr.ecr.eu-central-1.amazonaws.com
+  tag: ""
+  backend:
+    repository: aquapump/backend
+    tag: ""
+  frontend:
+    repository: aquapump/frontend
+    tag: ""
+
 backend:
-  replicaCount: 1
+  replicaCount: 2
   image:
-    repository: 043309328819.dkr.ecr.eu-central-1.amazonaws.com/aquapump/backend
-    tag: latest
     pullPolicy: IfNotPresent
   service:
     type: ClusterIP
     port: 8000
-  env:
-    SUPABASE_URL: "https://your-supabase-url.supabase.co"
-    SUPABASE_SERVICE_ROLE_KEY: "your-service-role-key"
-    AI_API_KEY: "your-ai-api-key"
+  secretName: aquapump-backend
+  env: {}
+  envFrom: []
   resources:
     requests:
       cpu: 100m
@@ -21,17 +29,19 @@ backend:
     limits:
       cpu: 500m
       memory: 512Mi
+
 frontend:
-  replicaCount: 1
+  replicaCount: 2
   image:
-    repository: 043309328819.dkr.ecr.eu-central-1.amazonaws.com/aquapump/frontend
-    tag: latest
     pullPolicy: IfNotPresent
   service:
     type: ClusterIP
     port: 80
+  secretName: aquapump-frontend
   env:
     VITE_REACT_APP_API_BASE: "https://aqua-pump.net/api"
+    VITE_PUBLIC_SITE_ORIGIN: "https://aqua-pump.net"
+  envFrom: []
   resources:
     requests:
       cpu: 50m
@@ -39,19 +49,43 @@ frontend:
     limits:
       cpu: 200m
       memory: 256Mi
+
 ingress:
   enabled: true
   className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-production
+    nginx.ingress.kubernetes.io/backend-protocol: HTTP
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "120"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "120"
   hosts:
     - host: aqua-pump.net
       paths:
         - path: /
           pathType: Prefix
-  tls: []
+          service:
+            name: frontend
+            port: 80
+        - path: /api
+          pathType: Prefix
+          service:
+            name: backend
+            port: 8000
+  tls:
+    - hosts:
+        - aqua-pump.net
+      secretName: aquapump-tls
+
 externalSecrets:
-  enabled: false
-image:
+  enabled: true
+  secretStoreRef:
+    name: aws-secrets
+    kind: ClusterSecretStore
   backend:
-    tag: 788afadfedebbb5208615d3487be9fe1a1722121
+    name: aquapump-backend
+    refreshInterval: 1h
+    data: []
   frontend:
-    tag: 788afadfedebbb5208615d3487be9fe1a1722121
+    name: aquapump-frontend
+    refreshInterval: 1h
+    data: []

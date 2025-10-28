@@ -28,3 +28,12 @@ backend/app/__pycache__/
 argocd-linux-amd64
 argocd-linux-amd64
 argocd-linux-amd64
+
+# Terraform artifacts
+.terraform/
+*.tfstate
+*.tfstate.*
+terraform/.terraform/
+terraform/terraform.tfstate
+terraform/terraform.tfstate.*
+__pycache__/

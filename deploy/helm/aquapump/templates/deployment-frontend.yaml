@@ -25,16 +25,28 @@ spec:
       {{- end }}
       containers:
         - name: frontend
-          image: "{{ .Values.frontend.image.repository }}:{{ .Values.frontend.image.tag }}"
+          image: "{{ include \"aquapump.frontendImage\" . }}"
           imagePullPolicy: {{ .Values.frontend.image.pullPolicy }}
           ports:
-            - containerPort: 80
+            - containerPort: {{ .Values.frontend.service.port }}
               name: http
+          {{- if or .Values.frontend.secretName (gt (len .Values.frontend.envFrom) 0) }}
+          envFrom:
+            {{- if .Values.frontend.secretName }}
+            - secretRef:
+                name: {{ .Values.frontend.secretName }}
+            {{- end }}
+            {{- range .Values.frontend.envFrom }}
+            {{- toYaml (list .) | nindent 12 }}
+            {{- end }}
+          {{- end }}
+          {{- if .Values.frontend.env }}
           env:
             {{- range $key, $value := .Values.frontend.env }}
             - name: {{ $key }}
               value: {{ $value | quote }}
             {{- end }}
+          {{- end }}
           readinessProbe:
             httpGet:
               path: /
@@ -47,10 +59,8 @@ spec:
               port: http
             initialDelaySeconds: 20
             periodSeconds: 30
-          {{- with .Values.frontend.resources }}
           resources:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
+            {{- toYaml .Values.frontend.resources | nindent 12 }}
       {{- with .Values.frontend.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

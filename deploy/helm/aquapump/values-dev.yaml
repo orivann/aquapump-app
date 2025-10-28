@@ -1,44 +1,51 @@
 image:
-  tag: ""
+  tag: dev
 
-backend:
-  env:
-    CORS_ALLOW_ORIGINS: "https://aqua-pump.net"
+ingress:
+  hosts:
+    - host: dev.aqua-pump.net
+      paths:
+        - path: /
+          pathType: Prefix
+          service:
+            name: frontend
+            port: 80
+        - path: /api
+          pathType: Prefix
+          service:
+            name: backend
+            port: 8000
+  tls:
+    - hosts:
+        - dev.aqua-pump.net
+      secretName: aquapump-dev-tls
 
 externalSecrets:
   backend:
     data:
       - secretKey: SUPABASE_URL
         remoteRef:
-          key: prod/aquapump/backend
+          key: dev/aquapump/backend
           property: SUPABASE_URL
       - secretKey: SUPABASE_SERVICE_ROLE_KEY
         remoteRef:
-          key: prod/aquapump/backend
+          key: dev/aquapump/backend
           property: SUPABASE_SERVICE_ROLE_KEY
       - secretKey: SUPABASE_CHAT_TABLE
         remoteRef:
-          key: prod/aquapump/backend
+          key: dev/aquapump/backend
           property: SUPABASE_CHAT_TABLE
       - secretKey: AI_API_KEY
         remoteRef:
-          key: prod/aquapump/backend
+          key: dev/aquapump/backend
           property: AI_API_KEY
-      - secretKey: AI_MODEL
-        remoteRef:
-          key: prod/aquapump/backend
-          property: AI_MODEL
-      - secretKey: AI_API_BASE_URL
-        remoteRef:
-          key: prod/aquapump/backend
-          property: AI_API_BASE_URL
   frontend:
     data:
       - secretKey: VITE_REACT_APP_API_BASE
         remoteRef:
-          key: prod/aquapump/frontend
+          key: dev/aquapump/frontend
           property: API_BASE_URL
       - secretKey: VITE_PUBLIC_SITE_ORIGIN
         remoteRef:
-          key: prod/aquapump/frontend
+          key: dev/aquapump/frontend
           property: SITE_ORIGIN
