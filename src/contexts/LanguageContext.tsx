@@ -109,6 +109,25 @@ const translations = {
     'chatbot.highlight.available.title': 'Always available',
     'chatbot.highlight.available.desc': 'Engage prospects 24/7 and capture context for seamless human follow-up.',
     'chatbot.highlights.ariaLabel': 'Aqua AI advantages',
+
+    // Chat widget
+    'chatwidget.launcher.tooltip': 'Chat with Aqua AI',
+    'chatwidget.launcher.srLabel': 'Open Aqua AI assistant',
+    'chatwidget.title': 'Aqua AI Assistant',
+    'chatwidget.subtitle': 'Ask anything about AquaPump products and sustainability practices.',
+    'chatwidget.persist': 'Conversations persist automatically',
+    'chatwidget.reset': 'Reset',
+    'chatwidget.loading': 'Loading previous messages…',
+    'chatwidget.empty': 'Welcome! Ask about pump specifications, energy efficiency, or installation guidance.',
+    'chatwidget.role.assistant': 'Aqua AI',
+    'chatwidget.role.user': 'You',
+    'chatwidget.role.system': 'System',
+    'chatwidget.placeholder': 'Ask Aqua AI anything about our pumps…',
+    'chatwidget.helper': 'Press Enter to send, Shift + Enter for a new line',
+    'chatwidget.sending': 'Sending',
+    'chatwidget.send': 'Send',
+    'chatwidget.error.loadHistory': 'Unable to load chat history',
+    'chatwidget.error.send': 'Unable to send message',
     
     // Contact
     'contact.badge': 'Let’s talk',
@@ -232,6 +251,25 @@ const translations = {
     'chatbot.highlight.available.title': 'זמין תמיד',
     'chatbot.highlight.available.desc': 'העוזר זמין 24/7 ושומר הקשר להמשך טיפול אנושי חסר מאמץ.',
     'chatbot.highlights.ariaLabel': 'היתרונות של Aqua AI',
+
+    // Chat widget
+    'chatwidget.launcher.tooltip': 'דברו עם Aqua AI',
+    'chatwidget.launcher.srLabel': 'פתחו את עוזר Aqua AI',
+    'chatwidget.title': 'עוזר Aqua AI',
+    'chatwidget.subtitle': 'שאלו כל דבר על מוצרי AquaPump ועל יוזמות הקיימות שלנו.',
+    'chatwidget.persist': 'השיחות נשמרות אוטומטית',
+    'chatwidget.reset': 'איפוס',
+    'chatwidget.loading': 'טוען שיחות קודמות…',
+    'chatwidget.empty': 'ברוכים הבאים! שאלו על מפרטי משאבות, יעילות אנרגטית או הנחיות התקנה.',
+    'chatwidget.role.assistant': 'Aqua AI',
+    'chatwidget.role.user': 'אתם',
+    'chatwidget.role.system': 'מערכת',
+    'chatwidget.placeholder': 'שאלו את Aqua AI כל דבר על המשאבות שלנו…',
+    'chatwidget.helper': 'לחצו Enter לשליחה, Shift + Enter לשורה חדשה',
+    'chatwidget.sending': 'שולח',
+    'chatwidget.send': 'שלח',
+    'chatwidget.error.loadHistory': 'לא ניתן לטעון את היסטוריית השיחות',
+    'chatwidget.error.send': 'לא ניתן לשלוח את ההודעה',
     
     // Contact
     'contact.badge': 'נדבר?',

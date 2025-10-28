@@ -66,9 +66,12 @@ async def create_chat_completion(payload: ChatRequest) -> ChatResponse:
     raw_history = await run_in_threadpool(fetch_history, client, str(session_id), settings.history_limit)
     history = [Message(**row) for row in raw_history]
 
-    logger.info("Generating assistant response", extra={"session_id": str(session_id), "history": len(history)})
+    logger.info(
+        "Generating assistant response",
+        extra={"session_id": str(session_id), "history": len(history), "language": payload.language},
+    )
 
-    reply = await generate_response(history, payload.message)
+    reply = await generate_response(history, payload.message, payload.language)
 
     timestamp = datetime.now(timezone.utc)
 

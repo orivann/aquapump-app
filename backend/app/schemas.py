@@ -18,6 +18,7 @@ class Message(BaseModel):
 class ChatRequest(BaseModel):
     message: str = Field(..., min_length=1)
     session_id: UUID | None = None
+    language: Literal["en", "he"] = Field(default="en")
 
     @field_validator("message")
     @classmethod

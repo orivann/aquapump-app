@@ -8,6 +8,17 @@ from .config import get_settings
 from .logging import get_logger
 from .schemas import Message
 
+LANGUAGE_SYSTEM_MESSAGES: dict[str, str] = {
+    "en": (
+        "You are Aqua AI, a helpful AquaPump product specialist. Respond in fluent English with a friendly, professional tone."
+        " Provide concise, accurate answers grounded in AquaPump knowledge."
+    ),
+    "he": (
+        "אתה Aqua AI, מומחה מוצרים של AquaPump. ענה בעברית רהוטה בטון מקצועי ונעים."
+        " ספק תשובות מדויקות ומבוססות ידע של AquaPump."
+    ),
+}
+
 logger = get_logger("ai_client")
 
 
@@ -16,21 +27,26 @@ def _client() -> OpenAI:
     return OpenAI(api_key=settings.ai_api_key, base_url=settings.ai_api_base_url, timeout=settings.ai_request_timeout)
 
 
-def _build_messages(history: list[Message], prompt: str) -> list[dict[str, Any]]:
+def _build_messages(history: list[Message], prompt: str, language: str) -> list[dict[str, Any]]:
     """Convert stored chat history into OpenAI compatible message payloads."""
 
+    system_prompt = LANGUAGE_SYSTEM_MESSAGES.get(language, LANGUAGE_SYSTEM_MESSAGES["en"])
+
     sanitized_history = [
+        {"role": "system", "content": system_prompt}
+    ]
+    sanitized_history.extend(
         {"role": message.role, "content": message.content}
         for message in history
         if message.content and message.role
-    ]
+    )
     sanitized_history.append({"role": "user", "content": prompt})
     return sanitized_history
 
 
-async def generate_response(history: list[Message], prompt: str) -> str:
+async def generate_response(history: list[Message], prompt: str, language: str) -> str:
     settings = get_settings()
-    messages = _build_messages(history, prompt)
+    messages = _build_messages(history, prompt, language)
 
     try:
         response = await run_in_threadpool(
