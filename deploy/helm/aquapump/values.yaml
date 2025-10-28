@@ -1,10 +1,7 @@
-
 global:
   imagePullSecrets:
     - name: ecr-creds
-# ---------------------------
-# ⚙️ Backend Configuration
-# ---------------------------
+
 backend:
   replicaCount: 1
   image:
@@ -15,13 +12,9 @@ backend:
     type: ClusterIP
     port: 8000
   env:
-    SUPABASE_URL: ""
-    SUPABASE_SERVICE_ROLE_KEY: ""
-    SUPABASE_CHAT_TABLE: "chat_messages"
-    AI_API_KEY: ""
-    AI_MODEL: "gpt-4o-mini"
-    AI_API_BASE_URL: ""
-    CORS_ALLOW_ORIGINS: "https://aquapump.example.com"
+    SUPABASE_URL: "https://your-supabase-url.supabase.co"
+    SUPABASE_SERVICE_ROLE_KEY: "your-service-role-key"
+    AI_API_KEY: "your-ai-api-key"
   resources:
     requests:
       cpu: 100m
@@ -29,12 +22,7 @@ backend:
     limits:
       cpu: 500m
       memory: 512Mi
-  nodeSelector: {}
-  affinity: {}
-  tolerations: []
-# ---------------------------
-# 🖥️ Frontend Configuration
-# ---------------------------
+
 frontend:
   replicaCount: 1
   image:
@@ -45,7 +33,7 @@ frontend:
     type: ClusterIP
     port: 80
   env:
-    VITE_REACT_APP_API_BASE: "https://aquapump.example.com/api"
+    VITE_REACT_APP_API_BASE: "https://aqua-pump.net/api"
   resources:
     requests:
       cpu: 50m
@@ -53,27 +41,15 @@ frontend:
     limits:
       cpu: 200m
       memory: 256Mi
-  nodeSelector: {}
-  affinity: {}
-  tolerations: []
-# ---------------------------
-# 🌐 Ingress Configuration
-# ---------------------------
+
 ingress:
   enabled: true
   className: nginx
-  annotations: {}
   hosts:
-    - host: aquapump.example.com
+    - host: aqua-pump.net
       paths:
         - path: /
           pathType: Prefix
-  tls:
-    - hosts:
-        - aquapump.example.com
-      secretName: aquapump-tls
-image:
-  backend:
-    tag: ae35b1b0082a52a3b99d7c9462bcc932ebe540d6
-  frontend:
-    tag: ae35b1b0082a52a3b99d7c9462bcc932ebe540d6
+  tls: []
+externalSecrets:
+  enabled: false
