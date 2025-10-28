@@ -31,6 +31,12 @@ This project delivers the AquaPump marketing experience with a modern React fron
 - Python 3.12+
 - Docker (optional but recommended for parity with production)
 
+## Documentation
+
+- [Quickstart guide](docs/quickstart.md) – fastest path from clone to local demo, CI checks, and infrastructure bootstrap.
+- [Project walkthrough](project_structure.md) – high-level tour of folders and responsibilities for non-engineers.
+- [Helm chart values](deploy/helm/aquapump/values.yaml) – in-line documentation for every Kubernetes toggle.
+
 ## Architecture
 
 - **Frontend** – React 18 + Vite with a bespoke Apple/Tesla-inspired marketing experience. Tailwind CSS drives theming while reusable sections (`SectionHeading`, animated metrics, responsive product grid) keep the markup declarative.
@@ -60,6 +66,13 @@ Copy `backend/.env.example` to `backend/.env` and provide your credentials:
 - `AI_API_BASE_URL` – optional custom base URL
 - `AI_REQUEST_TIMEOUT` – AI request timeout in seconds (defaults to `60`)
 - `CORS_ALLOW_ORIGINS` – comma-separated origins allowed to call the API (defaults to `http://localhost:5173,http://127.0.0.1:5173`)
+- `CORS_ALLOW_METHODS` / `CORS_ALLOW_HEADERS` – whitelist HTTP verbs and headers if you need to deviate from the permissive default (`*`).
+- `CORS_ALLOW_CREDENTIALS` – toggle whether cookies/auth headers are accepted (defaults to `true`).
+- `TRUSTED_HOSTS` – restrict `Host` headers that reach the app (accepts CSV or JSON array; defaults to `*`).
+- `ENABLE_HTTPS_REDIRECT` – set to `true` in production to enforce HTTPS.
+- `GZIP_MINIMUM_SIZE` – minimum response size (in bytes) before compression kicks in.
+- `SECURITY_REFERRER_POLICY` / `SECURITY_PERMISSIONS_POLICY` / `SECURITY_CONTENT_SECURITY_POLICY` – tune outbound security headers as required by your deployment.
+- `SECURITY_HSTS_MAX_AGE` – max-age (in seconds) for the Strict-Transport-Security header when HTTPS enforcement is enabled.
 
 The backend expects a Supabase table with the following columns:
 
@@ -81,9 +94,13 @@ The [`terraform/`](terraform) directory provisions a single Ubuntu-based EC2 ins
    export AWS_PROFILE=aquapump-infra   # or rely on access keys
    export TF_VAR_key_name=aquapump-europe   # existing EC2 key pair name
    ```
-2. (Optional) Override defaults by setting Terraform variables, for example to point MetalLB at an address range that is routable in your VPC or to track a non-`main` branch (by default MetalLB advertises the instance public IP):
+2. (Optional) Override defaults by setting Terraform variables, for example to point MetalLB at an address range that is routable in your VPC, to tighten security group ingress, or to pin the bootstrap tooling versions (by default MetalLB advertises the instance public IP):
    ```bash
    export TF_VAR_metallb_address_pool=10.0.1.240-10.0.1.250
+   export TF_VAR_http_ingress_cidrs='["203.0.113.0/24"]'
+   export TF_VAR_https_ingress_cidrs='["203.0.113.0/24"]'
+   export TF_VAR_enable_ssm=true
+   export TF_VAR_ingress_nginx_chart_version=4.11.2
    export TF_VAR_repository_branch=main
    ```
 3. Initialise and apply the stack:
@@ -91,7 +108,7 @@ The [`terraform/`](terraform) directory provisions a single Ubuntu-based EC2 ins
    terraform -chdir=terraform init
    terraform -chdir=terraform apply
    ```
-4. After `apply` finishes, use the reported `public_ip` output to connect and verify the cluster. The bootstrap script stores the Argo CD admin password on the node at `/root/argocd-initial-admin-password` once the control plane is healthy:
+4. After `apply` finishes, use the reported `public_ip`, `iam_instance_profile`, and `security_group_id` outputs to connect and verify the cluster. The bootstrap script stores the Argo CD admin password on the node at `/root/argocd-initial-admin-password` once the control plane is healthy:
    ```bash
    ssh -i ~/.ssh/aquapump-europe.pem ubuntu@<EC2_IP>
    kubectl get pods -n aquapump-prod
@@ -103,6 +120,34 @@ The [`terraform/`](terraform) directory provisions a single Ubuntu-based EC2 ins
    cd terraform
    EC2_IP=<EC2_IP> SSH_KEY_PATH=~/.ssh/aquapump-europe.pem ./cleanup.sh
    ```
+
+### Helm chart highlights
+
+The consolidated Helm chart in [`deploy/helm/aquapump`](deploy/helm/aquapump) now exposes production-ready toggles:
+
+- `global.*` knobs let you set shared environment variables, volumes, pod labels/annotations, security contexts, scheduling hints, and default resource requests once for all components.
+- Per-component `serviceAccount` blocks can create isolated service accounts with custom annotations and image pull secrets while keeping the global default disabled for backwards compatibility.
+- Optional `autoscaling` and `pdb` sections produce HorizontalPodAutoscalers and PodDisruptionBudgets without changing the existing replica counts unless explicitly enabled.
+- Services accept annotations, custom ports, session affinity, and traffic policies so you can integrate with ingress controllers or service meshes without forking the chart.
+- Ingress resources support multiple hosts, path overrides, and extra rules to map new endpoints alongside the default `/api` and `/` routes.
+
+Review [`values.yaml`](deploy/helm/aquapump/values.yaml) for a fully documented baseline and copy overrides into the environment-specific value files as needed.
+
+### Argo CD configuration
+
+The Argo CD project and applications under [`deploy/argocd`](deploy/argocd) gain:
+
+- Stricter project scopes that only allow namespace-scoped resources plus managed `Namespace` objects, with orphaned resource warnings enabled by default.
+- Finalizers on each `Application` to prevent accidental dangling resources, automated retries with exponential backoff, and server-side apply to reduce drift.
+- Explicit release names per environment so Helm history remains clean even when multiple clusters track the same repository.
+
+### CI/CD hardening
+
+The GitHub Actions workflow now:
+
+- Adds optimistic concurrency control to prevent overlapping pushes from fighting over ECR tags.
+- Caches Python dependencies, runs a Trivy filesystem scan after tests, and only publishes images if both quality gates succeed.
+- Logs in to Argo CD with either secure CA pinning or the previous `--insecure` flow depending on the available secrets, reusing the negotiated flags for sync and wait operations.
 ## Running locally
 
 
@@ -176,7 +221,8 @@ The build artifacts are generated in `dist/` and served via Nginx in the provide
 
 - **Sleek UI/UX** – refined navigation, hero, and section layouts provide consistent spacing, motion, and responsive behavior while highlighting the chatbot call-to-action across breakpoints.
 - **Lean dependencies** – removed unused React Query provider and trimmed bundle surfacing by consolidating section heading logic.
-- **Backend resilience** – structured logging, stricter request validation, and tunable AI request timeouts improve operability and debugging.
+- **Backend resilience** – structured logging, stricter request validation, tunable AI request timeouts, reusable OpenAI clients, and safety nets around host validation/HSTS improve operability and security posture.
+- **API hardening** – gzip compression, configurable security headers, and host validation reduce attack surface without sacrificing compatibility.
 - **Accessibility & performance** – scroll-triggered reveals respect reduced-motion preferences and parallax effects throttle smoothly on mobile.
 
 

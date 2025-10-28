@@ -8,15 +8,45 @@ metadata:
   labels:
     app.kubernetes.io/name: {{ printf "%s-%s" $.Release.Name $name }}
     app.kubernetes.io/component: {{ $name }}
+{{- with $component.service.labels }}
+{{ toYaml . | nindent 4 }}
+{{- end }}
+{{- with $component.service.annotations }}
+  annotations:
+{{ toYaml . | nindent 4 }}
+{{- end }}
 spec:
   selector:
     app.kubernetes.io/name: {{ printf "%s-%s" $.Release.Name $name }}
   type: {{ $component.service.type | default "ClusterIP" }}
+{{- with $component.service.clusterIP }}
+  clusterIP: {{ . }}
+{{- end }}
+{{- with $component.service.externalTrafficPolicy }}
+  externalTrafficPolicy: {{ . }}
+{{- end }}
+{{- with $component.service.internalTrafficPolicy }}
+  internalTrafficPolicy: {{ . }}
+{{- end }}
+{{- with $component.service.loadBalancerIP }}
+  loadBalancerIP: {{ . }}
+{{- end }}
+{{- with $component.service.loadBalancerSourceRanges }}
+  loadBalancerSourceRanges:
+{{ toYaml . | nindent 4 }}
+{{- end }}
+{{- with $component.service.sessionAffinity }}
+  sessionAffinity: {{ . }}
+{{- end }}
+{{- with $component.service.sessionAffinityConfig }}
+  sessionAffinityConfig:
+{{ toYaml . | nindent 4 }}
+{{- end }}
   ports:
     - port: {{ $component.service.port | default $component.containerPort }}
       targetPort: {{ $component.service.targetPort | default $component.containerPort }}
-      protocol: TCP
-      name: http
+      protocol: {{ $component.service.protocol | default "TCP" }}
+      name: {{ $component.service.portName | default "http" }}
 {{- if $component.service.additionalPorts }}
 {{ toYaml $component.service.additionalPorts | nindent 4 }}
 {{- end }}

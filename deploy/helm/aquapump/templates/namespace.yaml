@@ -1,6 +1,15 @@
+{{- if .Values.namespaceCreate | default true }}
 apiVersion: v1
 kind: Namespace
 metadata:
   name: {{ .Values.namespace }}
   labels:
     app.kubernetes.io/name: aquapump
+{{- with .Values.namespaceLabels }}
+{{ toYaml . | nindent 4 }}
+{{- end }}
+{{- with .Values.namespaceAnnotations }}
+  annotations:
+{{ toYaml . | nindent 4 }}
+{{- end }}
+{{- end }}

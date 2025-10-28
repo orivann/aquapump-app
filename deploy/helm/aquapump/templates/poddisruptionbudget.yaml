@@ -1,0 +1,36 @@
+{{- $global := .Values.global | default dict }}
+{{- range $name, $component := .Values.components }}
+{{- $componentPdb := $component.pdb | default dict }}
+{{- $globalPdb := $global.pdb | default dict }}
+{{- $pdbConfig := dict "enabled" ($globalPdb.enabled | default false) -}}
+{{- if hasKey $componentPdb "enabled" }}{{- $_ := set $pdbConfig "enabled" ($componentPdb.enabled | default false) -}}{{- end }}
+{{- $enabled := $pdbConfig.enabled }}
+{{- if $enabled }}
+{{- $fullname := include "aquapump.componentFullname" (dict "Release" $.Release "componentName" $name) -}}
+{{- $labels := dict "app.kubernetes.io/name" $fullname "app.kubernetes.io/instance" $.Release.Name "app.kubernetes.io/component" $name -}}
+{{- range $k, $v := ($componentPdb.labels | default dict) }}{{- $_ := set $labels $k $v }}{{- end }}
+{{- $annotations := dict -}}
+{{- range $k, $v := ($componentPdb.annotations | default dict) }}{{- $_ := set $annotations $k $v }}{{- end }}
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ $fullname }}
+  namespace: {{ $.Values.namespace }}
+  labels:
+{{ toYaml $labels | nindent 4 }}
+{{- if gt (len $annotations) 0 }}
+  annotations:
+{{ toYaml $annotations | nindent 4 }}
+{{- end }}
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ $fullname }}
+{{- if $componentPdb.minAvailable | default $globalPdb.minAvailable }}
+  minAvailable: {{ $componentPdb.minAvailable | default $globalPdb.minAvailable }}
+{{- else if $componentPdb.maxUnavailable | default $globalPdb.maxUnavailable }}
+  maxUnavailable: {{ $componentPdb.maxUnavailable | default $globalPdb.maxUnavailable }}
+{{- end }}
+{{- end }}
+{{- end }}

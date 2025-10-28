@@ -1,55 +1,201 @@
+{{- $global := .Values.global | default dict }}
 {{- $defaults := .Values.imageDefaults | default dict }}
 {{- range $name, $component := .Values.components }}
+{{- $fullname := include "aquapump.componentFullname" (dict "Release" $.Release "componentName" $name) -}}
+{{- $workloadLabels := dict "app.kubernetes.io/name" $fullname "app.kubernetes.io/instance" $.Release.Name "app.kubernetes.io/component" $name -}}
+{{- range $k, $v := ($global.workloadLabels | default dict) }}{{- $_ := set $workloadLabels $k $v }}{{- end }}
+{{- range $k, $v := ($component.workloadLabels | default dict) }}{{- $_ := set $workloadLabels $k $v }}{{- end }}
+{{- $podLabels := dict "app.kubernetes.io/name" $fullname "app.kubernetes.io/instance" $.Release.Name "app.kubernetes.io/component" $name -}}
+{{- range $k, $v := ($global.podLabels | default dict) }}{{- $_ := set $podLabels $k $v }}{{- end }}
+{{- range $k, $v := ($component.podLabels | default dict) }}{{- $_ := set $podLabels $k $v }}{{- end }}
+{{- $podAnnotations := dict -}}
+{{- range $k, $v := ($global.podAnnotations | default dict) }}{{- $_ := set $podAnnotations $k $v }}{{- end }}
+{{- range $k, $v := ($component.podAnnotations | default dict) }}{{- $_ := set $podAnnotations $k $v }}{{- end }}
+{{- $env := concat ($global.env | default (list)) ($component.env | default (list)) -}}
+{{- $envFrom := concat ($global.envFrom | default (list)) ($component.envFrom | default (list)) -}}
+{{- $volumeMounts := concat ($global.volumeMounts | default (list)) ($component.volumeMounts | default (list)) -}}
+{{- $volumes := concat ($global.volumes | default (list)) ($component.volumes | default (list)) -}}
+{{- $imagePullSecrets := concat ($global.imagePullSecrets | default (list)) ($component.imagePullSecrets | default (list)) -}}
+{{- $initContainers := concat ($global.initContainers | default (list)) ($component.initContainers | default (list)) -}}
+{{- $sidecars := concat ($global.sidecars | default (list)) ($component.sidecars | default (list)) -}}
+{{- $nodeSelector := dict -}}
+{{- range $k, $v := ($global.nodeSelector | default dict) }}{{- $_ := set $nodeSelector $k $v }}{{- end }}
+{{- range $k, $v := ($component.nodeSelector | default dict) }}{{- $_ := set $nodeSelector $k $v }}{{- end }}
+{{- $tolerations := concat ($global.tolerations | default (list)) ($component.tolerations | default (list)) -}}
+{{- $affinity := mustMerge (dict) ($global.affinity | default dict) ($component.affinity | default dict) -}}
+{{- $topologySpread := concat ($global.topologySpreadConstraints | default (list)) ($component.topologySpreadConstraints | default (list)) -}}
+{{- $podSecurityContext := mustMerge (dict) ($global.podSecurityContext | default dict) ($component.podSecurityContext | default dict) -}}
+{{- $containerSecurityContext := mustMerge (dict) ($global.containerSecurityContext | default dict) ($component.containerSecurityContext | default dict) -}}
+{{- $resources := mustMerge (dict) ($global.resources | default dict) ($component.resources | default dict) -}}
+{{- $dnsConfig := mustMerge (dict) ($global.dnsConfig | default dict) ($component.dnsConfig | default dict) -}}
+{{- $hostAliases := concat ($global.hostAliases | default (list)) ($component.hostAliases | default (list)) -}}
+{{- $terminationGrace := coalesce $component.terminationGracePeriodSeconds $global.terminationGracePeriodSeconds -}}
+{{- $dnsPolicy := coalesce $component.dnsPolicy $global.dnsPolicy -}}
+{{- $hostNetwork := coalesce $component.hostNetwork $global.hostNetwork -}}
+{{- $schedulerName := coalesce $component.schedulerName $global.schedulerName -}}
+{{- $priorityClass := coalesce $component.priorityClassName $global.priorityClassName -}}
+{{- $serviceAccountName := include "aquapump.serviceAccountName" (dict "component" $component "global" $global "componentName" $name "Release" $.Release) -}}
+{{- $automount := coalesce ($component.serviceAccount.automount | default nil) ($global.serviceAccount.automount | default nil) -}}
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ printf "%s-%s" $.Release.Name $name }}
+  name: {{ $fullname }}
   namespace: {{ $.Values.namespace }}
   labels:
-    app.kubernetes.io/name: {{ printf "%s-%s" $.Release.Name $name }}
-    app.kubernetes.io/instance: {{ $.Release.Name }}
-    app.kubernetes.io/component: {{ $name }}
+{{ toYaml $workloadLabels | nindent 4 }}
+{{- with $component.annotations }}
+  annotations:
+{{ toYaml . | nindent 4 }}
+{{- end }}
 spec:
-  replicas: {{ $component.replicaCount }}
+{{- if not (and $component.autoscaling (eq (toString $component.autoscaling.enabled) "true")) }}
+  replicas: {{ $component.replicaCount | default 1 }}
+{{- end }}
+  revisionHistoryLimit: {{ $component.revisionHistoryLimit | default 5 }}
   selector:
     matchLabels:
-      app.kubernetes.io/name: {{ printf "%s-%s" $.Release.Name $name }}
+      app.kubernetes.io/name: {{ $fullname }}
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: {{ printf "%s-%s" $.Release.Name $name }}
-        app.kubernetes.io/instance: {{ $.Release.Name }}
-        app.kubernetes.io/component: {{ $name }}
+{{ toYaml $podLabels | nindent 8 }}
+{{- if gt (len $podAnnotations) 0 }}
+      annotations:
+{{ toYaml $podAnnotations | nindent 8 }}
+{{- end }}
     spec:
+      serviceAccountName: {{ $serviceAccountName }}
+      enableServiceLinks: {{ $component.enableServiceLinks | default ($global.enableServiceLinks | default false) }}
+{{- if ne $automount nil }}
+      automountServiceAccountToken: {{ $automount }}
+{{- end }}
+{{- if $priorityClass }}
+      priorityClassName: {{ $priorityClass }}
+{{- end }}
+{{- if $imagePullSecrets }}
+      imagePullSecrets:
+{{- range $imagePullSecrets }}
+        - name: {{ . }}
+{{- end }}
+{{- end }}
+{{- if gt (len $podSecurityContext) 0 }}
+      securityContext:
+{{ toYaml $podSecurityContext | nindent 8 }}
+{{- end }}
+{{- if $terminationGrace }}
+      terminationGracePeriodSeconds: {{ $terminationGrace }}
+{{- end }}
+{{- if gt (len $nodeSelector) 0 }}
+      nodeSelector:
+{{ toYaml $nodeSelector | nindent 8 }}
+{{- end }}
+{{- if $tolerations }}
+      tolerations:
+{{ toYaml $tolerations | nindent 8 }}
+{{- end }}
+{{- if gt (len $affinity) 0 }}
+      affinity:
+{{ toYaml $affinity | nindent 8 }}
+{{- end }}
+{{- if $topologySpread }}
+      topologySpreadConstraints:
+{{ toYaml $topologySpread | nindent 8 }}
+{{- end }}
+{{- if $dnsPolicy }}
+      dnsPolicy: {{ $dnsPolicy }}
+{{- end }}
+{{- if gt (len $dnsConfig) 0 }}
+      dnsConfig:
+{{ toYaml $dnsConfig | nindent 8 }}
+{{- end }}
+{{- if $hostAliases }}
+      hostAliases:
+{{ toYaml $hostAliases | nindent 8 }}
+{{- end }}
+{{- if $hostNetwork }}
+      hostNetwork: {{ $hostNetwork }}
+{{- end }}
+{{- if $schedulerName }}
+      schedulerName: {{ $schedulerName }}
+{{- end }}
+{{- if $initContainers }}
+      initContainers:
+{{ toYaml $initContainers | nindent 8 }}
+{{- end }}
       containers:
         - name: {{ $name }}
           image: {{ include "aquapump.image" (dict "component" $component "defaults" $defaults) }}:{{ include "aquapump.imageTag" (dict "component" $component "defaults" $defaults) }}
           imagePullPolicy: {{ $component.image.pullPolicy | default $defaults.pullPolicy | default "IfNotPresent" }}
-{{- if $component.command }}
+{{- with $component.command }}
           command:
-{{ toYaml $component.command | nindent 12 }}
+{{ toYaml . | nindent 12 }}
 {{- end }}
-{{- if $component.args }}
+{{- with $component.args }}
           args:
-{{ toYaml $component.args | nindent 12 }}
+{{ toYaml . | nindent 12 }}
 {{- end }}
+{{- if or $component.containerPort $component.ports }}
           ports:
+{{- if $component.containerPort }}
             - containerPort: {{ $component.containerPort }}
-{{- if $component.env }}
+              name: {{ $component.containerPortName | default "http" }}
+{{- end }}
+{{- with $component.ports }}
+{{ toYaml . | nindent 12 }}
+{{- end }}
+{{- end }}
+{{- if $env }}
           env:
-{{ toYaml $component.env | nindent 12 }}
+{{ toYaml $env | nindent 12 }}
 {{- end }}
-{{- if $component.resources }}
-          resources:
-{{ toYaml $component.resources | nindent 12 }}
+{{- if $envFrom }}
+          envFrom:
+{{ toYaml $envFrom | nindent 12 }}
 {{- end }}
-{{- if $component.livenessProbe }}
-          livenessProbe:
-{{ toYaml $component.livenessProbe | nindent 12 }}
+{{- with $component.lifecycle }}
+          lifecycle:
+{{ toYaml . | nindent 12 }}
 {{- end }}
-{{- if $component.readinessProbe }}
+{{- $effectiveContainerSecurityContext := mustMerge (dict) $containerSecurityContext ($component.securityContext | default dict) -}}
+{{- if gt (len $effectiveContainerSecurityContext) 0 }}
+          securityContext:
+{{ toYaml $effectiveContainerSecurityContext | nindent 12 }}
+{{- end }}
+{{- with $component.readinessProbe }}
           readinessProbe:
-{{ toYaml $component.readinessProbe | nindent 12 }}
+{{ toYaml . | nindent 12 }}
+{{- end }}
+{{- with $component.livenessProbe }}
+          livenessProbe:
+{{ toYaml . | nindent 12 }}
+{{- end }}
+{{- with $component.startupProbe }}
+          startupProbe:
+{{ toYaml . | nindent 12 }}
+{{- end }}
+{{- if gt (len $resources) 0 }}
+          resources:
+{{ toYaml $resources | nindent 12 }}
+{{- end }}
+{{- if $volumeMounts }}
+          volumeMounts:
+{{ toYaml $volumeMounts | nindent 12 }}
+{{- end }}
+{{- with $component.extraContainerSpec }}
+{{ toYaml . | nindent 10 }}
+{{- end }}
+{{- if $sidecars }}
+{{ toYaml $sidecars | nindent 8 }}
+{{- end }}
+{{- if $volumes }}
+      volumes:
+{{ toYaml $volumes | nindent 8 }}
+{{- end }}
+{{- with $component.extraPodSpec }}
+{{ toYaml . | nindent 6 }}
+{{- end }}
+{{- with $global.extraPodSpec }}
+{{ toYaml . | nindent 6 }}
 {{- end }}
 {{- end }}
