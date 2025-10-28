@@ -1,36 +1,55 @@
 {{- if .Values.ingress.enabled }}
+{{- $backendService := printf "%s-backend" .Release.Name }}
+{{- $frontendService := printf "%s-frontend" .Release.Name }}
+{{- $hosts := .Values.ingress.hosts | default (list .Values.ingress.host) | compact -}}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ include "aquapump.frontendFullname" . }}
+  name: {{ printf "%s-web" .Release.Name }}
+  namespace: {{ .Values.namespace }}
   labels:
-    app.kubernetes.io/name: {{ include "aquapump.frontendName" . }}
-    app.kubernetes.io/instance: {{ .Release.Name }}
-  {{- with .Values.ingress.annotations }}
+    app.kubernetes.io/name: {{ .Release.Name }}
+    app.kubernetes.io/component: ingress
+{{- if .Values.ingress.annotations }}
   annotations:
-    {{- toYaml . | nindent 4 }}
-  {{- end }}
+{{ toYaml .Values.ingress.annotations | nindent 4 }}
+{{- end }}
 spec:
-  {{- if .Values.ingress.className }}
+{{- if .Values.ingress.className }}
   ingressClassName: {{ .Values.ingress.className }}
-  {{- end }}
+{{- end }}
+{{- if .Values.ingress.tls }}
+  tls:
+{{ toYaml .Values.ingress.tls | nindent 4 }}
+{{- end }}
   rules:
-    {{- range .Values.ingress.hosts }}
-    - host: {{ .host }}
+{{- range $hosts }}
+    - host: {{ . }}
       http:
         paths:
-          {{- range .paths }}
-          - path: {{ .path }}
-            pathType: {{ .pathType }}
+          - path: {{ $.Values.ingress.backendPath | default "/api" }}
+            pathType: {{ $.Values.ingress.backendPathType | default "Prefix" }}
             backend:
               service:
-                name: {{ include "aquapump.frontendFullname" $ }}
+                name: {{ $backendService }}
                 port:
-                  number: {{ $.Values.frontend.service.port }}
-          {{- end }}
-    {{- end }}
-  {{- if .Values.ingress.tls }}
-  tls:
-    {{- toYaml .Values.ingress.tls | nindent 4 }}
-  {{- end }}
+                  number: {{ $.Values.components.backend.service.port | default $.Values.components.backend.containerPort }}
+          - path: {{ $.Values.ingress.frontendPath | default "/" }}
+            pathType: {{ $.Values.ingress.frontendPathType | default "Prefix" }}
+            backend:
+              service:
+                name: {{ $frontendService }}
+                port:
+                  number: {{ $.Values.components.frontend.service.port | default $.Values.components.frontend.containerPort }}
+{{- with $.Values.ingress.extraPaths }}
+{{ toYaml . | nindent 10 }}
+{{- end }}
+{{- end }}
+{{- with .Values.ingress.extraRules }}
+{{ toYaml . | nindent 2 }}
+{{- end }}
+{{- with .Values.ingress.defaultBackend }}
+  defaultBackend:
+{{ toYaml . | nindent 4 }}
+{{- end }}
 {{- end }}

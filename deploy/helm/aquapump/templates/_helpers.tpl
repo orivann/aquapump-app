@@ -1,34 +1,39 @@
-{{/*
-Expand the name of the chart.
-*/}}
-{{- define "aquapump.name" -}}
-{{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" -}}
+{{- define "aquapump.componentFullname" -}}
+{{- printf "%s-%s" .Release.Name .componentName -}}
 {{- end -}}
 
-{{/*
-Create a default fully qualified app name.
-*/}}
-{{- define "aquapump.fullname" -}}
-{{- $name := default .Chart.Name .Values.fullnameOverride -}}
-{{- if contains $name .Release.Name -}}
-{{- printf "%s" .Release.Name | trunc 63 | trimSuffix "-" -}}
+{{- define "aquapump.imageRegistry" -}}
+{{- $registry := .component.image.registry | default .defaults.registry -}}
+{{- trimSuffix "/" $registry -}}
+{{- end -}}
+
+{{- define "aquapump.image" -}}
+{{- $repository := required "Component image.repository is required" .component.image.repository -}}
+{{- $registry := include "aquapump.imageRegistry" . -}}
+{{- if $registry }}
+{{- printf "%s/%s" $registry $repository -}}
 {{- else -}}
-{{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
+{{- $repository -}}
 {{- end -}}
 {{- end -}}
 
-{{- define "aquapump.backendName" -}}
-{{- printf "%s-backend" (include "aquapump.name" .) | trunc 63 | trimSuffix "-" -}}
+{{- define "aquapump.imageTag" -}}
+{{- $tag := .component.image.tag | default .defaults.tag | default "latest" -}}
+{{- $tag -}}
 {{- end -}}
 
-{{- define "aquapump.frontendName" -}}
-{{- printf "%s-frontend" (include "aquapump.name" .) | trunc 63 | trimSuffix "-" -}}
+{{- define "aquapump.serviceAccountName" -}}
+{{- $component := .component -}}
+{{- $global := .global | default (dict) -}}
+{{- $componentName := .componentName -}}
+{{- $release := .Release -}}
+{{- $componentSA := $component.serviceAccount | default (dict) -}}
+{{- $globalSA := $global.serviceAccount | default (dict) -}}
+{{- if $componentSA.name }}
+{{- $componentSA.name -}}
+{{- else if $globalSA.name }}
+{{- $globalSA.name -}}
+{{- else -}}
+{{- printf "%s-%s" $release.Name $componentName -}}
 {{- end -}}
-
-{{- define "aquapump.backendFullname" -}}
-{{- printf "%s-backend" (include "aquapump.fullname" .) | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
-
-{{- define "aquapump.frontendFullname" -}}
-{{- printf "%s-frontend" (include "aquapump.fullname" .) | trunc 63 | trimSuffix "-" -}}
 {{- end -}}

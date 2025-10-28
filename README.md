@@ -6,20 +6,23 @@ This project delivers the AquaPump marketing experience with a modern React fron
 
 ```
 .
-├── backend/                   # FastAPI service
+├── backend/                   # FastAPI service + pytest smoke tests
 │   ├── app/                   # Application code
+│   ├── tests/                 # Pytest smoke suite
+│   ├── Dockerfile             # Backend production image
 │   ├── requirements.txt       # Python dependencies
 │   └── .env.example           # Backend environment template
-├── src/                       # React application source
-├── public/                    # Static assets
-├── scripts/health_check.py    # Composite health verification script
-├── deploy/
-│   ├── helm/                  # Helm chart scaffold
-│   ├── kubernetes/            # Kustomize-ready base manifests
-│   ├── argocd/                # Argo CD Application definition
-│   └── ci/github-actions/     # CI/CD workflow examples
+├── frontend/                  # Vite + React SPA
+│   ├── Dockerfile             # Frontend production image (Nginx)
+│   └── .env.example           # Frontend environment template
+├── scripts/                   # Operational helper scripts
+│   └── health_check.py        # Composite health verification script
+├── deploy/                    # Kubernetes + Argo CD manifests
+│   ├── helm/                  # Single chart for backend + frontend
+│   └── argocd/                # Argo CD project + environment apps
+├── terraform/                 # Single-node EC2 + k3s bootstrap
 ├── docker-compose.yml         # Local orchestration for frontend + backend
-└── frontend/Dockerfile        # Production frontend image (Nginx)
+└── README.md                  # Project overview and runbooks
 ```
 
 ## Requirements
@@ -27,6 +30,12 @@ This project delivers the AquaPump marketing experience with a modern React fron
 - Node.js 20+
 - Python 3.12+
 - Docker (optional but recommended for parity with production)
+
+## Documentation
+
+- [Quickstart guide](docs/quickstart.md) – fastest path from clone to local demo, CI checks, and infrastructure bootstrap.
+- [Project walkthrough](project_structure.md) – high-level tour of folders and responsibilities for non-engineers.
+- [Helm chart values](deploy/helm/aquapump/values.yaml) – in-line documentation for every Kubernetes toggle.
 
 ## Architecture
 
@@ -57,6 +66,13 @@ Copy `backend/.env.example` to `backend/.env` and provide your credentials:
 - `AI_API_BASE_URL` – optional custom base URL
 - `AI_REQUEST_TIMEOUT` – AI request timeout in seconds (defaults to `60`)
 - `CORS_ALLOW_ORIGINS` – comma-separated origins allowed to call the API (defaults to `http://localhost:5173,http://127.0.0.1:5173`)
+- `CORS_ALLOW_METHODS` / `CORS_ALLOW_HEADERS` – whitelist HTTP verbs and headers if you need to deviate from the permissive default (`*`).
+- `CORS_ALLOW_CREDENTIALS` – toggle whether cookies/auth headers are accepted (defaults to `true`).
+- `TRUSTED_HOSTS` – restrict `Host` headers that reach the app (accepts CSV or JSON array; defaults to `*`).
+- `ENABLE_HTTPS_REDIRECT` – set to `true` in production to enforce HTTPS.
+- `GZIP_MINIMUM_SIZE` – minimum response size (in bytes) before compression kicks in.
+- `SECURITY_REFERRER_POLICY` / `SECURITY_PERMISSIONS_POLICY` / `SECURITY_CONTENT_SECURITY_POLICY` – tune outbound security headers as required by your deployment.
+- `SECURITY_HSTS_MAX_AGE` – max-age (in seconds) for the Strict-Transport-Security header when HTTPS enforcement is enabled.
 
 The backend expects a Supabase table with the following columns:
 
@@ -68,11 +84,81 @@ The backend expects a Supabase table with the following columns:
 | `content`    | text    | Message body                 |
 | `created_at` | timestamptz | Defaults to `now()`      |
 
+## Terraform provisioning
+
+The [`terraform/`](terraform) directory provisions a single Ubuntu-based EC2 instance in `eu-central-1`, installs K3s, and bootstraps MetalLB, ingress-nginx, and Argo CD. Once cloud-init completes, Argo CD syncs the Helm chart in `deploy/helm/aquapump` across the `aquapump-dev`, `aquapump-staging`, and `aquapump-prod` namespaces using the images published to Amazon ECR.
+
+1. Export AWS credentials (or select an AWS profile) and choose the SSH key pair that should be injected into the instance:
+   ```bash
+   export AWS_REGION=eu-central-1
+   export AWS_PROFILE=aquapump-infra   # or rely on access keys
+   export TF_VAR_key_name=aquapump-europe   # existing EC2 key pair name
+   ```
+2. (Optional) Override defaults by setting Terraform variables, for example to point MetalLB at an address range that is routable in your VPC, to tighten security group ingress, or to pin the bootstrap tooling versions (by default MetalLB advertises the instance public IP):
+   ```bash
+   export TF_VAR_metallb_address_pool=10.0.1.240-10.0.1.250
+   export TF_VAR_http_ingress_cidrs='["203.0.113.0/24"]'
+   export TF_VAR_https_ingress_cidrs='["203.0.113.0/24"]'
+   export TF_VAR_enable_ssm=true
+   export TF_VAR_ingress_nginx_chart_version=4.11.2
+   export TF_VAR_repository_branch=main
+   ```
+3. Initialise and apply the stack:
+   ```bash
+   terraform -chdir=terraform init
+   terraform -chdir=terraform apply
+   ```
+4. After `apply` finishes, use the reported `public_ip`, `iam_instance_profile`, and `security_group_id` outputs to connect and verify the cluster. The bootstrap script stores the Argo CD admin password on the node at `/root/argocd-initial-admin-password` once the control plane is healthy:
+   ```bash
+   ssh -i ~/.ssh/aquapump-europe.pem ubuntu@<EC2_IP>
+   kubectl get pods -n aquapump-prod
+   kubectl get ingress -n aquapump-prod
+   sudo cat /root/argocd-initial-admin-password
+   ```
+5. When you are done, tear everything down with the helper script. The script first removes k3s data over SSH (if the key is available) and then destroys the Terraform resources. Provide the instance IP and (optionally) the path to your SSH key:
+   ```bash
+   cd terraform
+   EC2_IP=<EC2_IP> SSH_KEY_PATH=~/.ssh/aquapump-europe.pem ./cleanup.sh
+   ```
+
+### Helm chart highlights
+
+The consolidated Helm chart in [`deploy/helm/aquapump`](deploy/helm/aquapump) now exposes production-ready toggles:
+
+- `global.*` knobs let you set shared environment variables, volumes, pod labels/annotations, security contexts, scheduling hints, and default resource requests once for all components.
+- Per-component `serviceAccount` blocks can create isolated service accounts with custom annotations and image pull secrets while keeping the global default disabled for backwards compatibility.
+- Optional `autoscaling` and `pdb` sections produce HorizontalPodAutoscalers and PodDisruptionBudgets without changing the existing replica counts unless explicitly enabled.
+- Services accept annotations, custom ports, session affinity, and traffic policies so you can integrate with ingress controllers or service meshes without forking the chart.
+- Ingress resources support multiple hosts, path overrides, and extra rules to map new endpoints alongside the default `/api` and `/` routes.
+
+Review [`values.yaml`](deploy/helm/aquapump/values.yaml) for a fully documented baseline and copy overrides into the environment-specific value files as needed.
+
+### Argo CD configuration
+
+The Argo CD project and applications under [`deploy/argocd`](deploy/argocd) gain:
+
+- Stricter project scopes that only allow namespace-scoped resources plus managed `Namespace` objects, with orphaned resource warnings enabled by default.
+- Finalizers on each `Application` to prevent accidental dangling resources, automated retries with exponential backoff, and server-side apply to reduce drift.
+- Explicit release names per environment so Helm history remains clean even when multiple clusters track the same repository.
+
+### CI/CD hardening
+
+The GitHub Actions workflow now:
+
+- Adds optimistic concurrency control to prevent overlapping pushes from fighting over ECR tags.
+- Caches Python dependencies, runs a Trivy filesystem scan after tests, and only publishes images if both quality gates succeed.
+- Logs in to Argo CD with either secure CA pinning or the previous `--insecure` flow depending on the available secrets, reusing the negotiated flags for sync and wait operations.
 ## Running locally
+
+
 
 ### With Docker Compose (recommended)
 
+Copy `.env.example` files to provide Supabase/AI credentials before starting the stack:
+
 ```sh
+cp backend/.env.example backend/.env
+cp frontend/.env.example frontend/.env
 docker compose up --build
 ```
 
@@ -122,6 +208,7 @@ The frontend keeps the chat session ID in local storage so visitors can resume c
 
   Environment variables `BACKEND_BASE_URL`, `FRONTEND_URL`, and `HEALTH_CHECK_TIMEOUT` can be used instead of command-line flags.
 
+
 ## Production build
 
 ```sh
@@ -134,24 +221,20 @@ The build artifacts are generated in `dist/` and served via Nginx in the provide
 
 - **Sleek UI/UX** – refined navigation, hero, and section layouts provide consistent spacing, motion, and responsive behavior while highlighting the chatbot call-to-action across breakpoints.
 - **Lean dependencies** – removed unused React Query provider and trimmed bundle surfacing by consolidating section heading logic.
-- **Backend resilience** – structured logging, stricter request validation, and tunable AI request timeouts improve operability and debugging.
+- **Backend resilience** – structured logging, stricter request validation, tunable AI request timeouts, reusable OpenAI clients, and safety nets around host validation/HSTS improve operability and security posture.
+- **API hardening** – gzip compression, configurable security headers, and host validation reduce attack surface without sacrificing compatibility.
 - **Accessibility & performance** – scroll-triggered reveals respect reduced-motion preferences and parallax effects throttle smoothly on mobile.
+
+
+## Verification strategy
+
+- **Terraform** – `terraform -chdir=terraform plan` before applying changes to confirm the diff.
+- **Kubernetes** – `kubectl get pods -n aquapump-prod` and `kubectl get ingress -n aquapump-prod` after bootstrap to confirm workloads are scheduled and ingress is published.
+- **Argo CD** – `kubectl get applications -n argocd` to review sync status across dev/staging/prod.
+- **Docker Compose** – `docker compose up --build` remains the quickest local validation loop.
 
 ## DevOps scaffolding
 
-- **Helm** – `deploy/helm/aquapump` contains a chart that templates both services, ingress configuration, and environment variables.
-- **Kubernetes** – `deploy/kubernetes/base` offers Kustomize-ready manifests for direct cluster application or as a basis for overlays.
-- **Argo CD** – `deploy/argocd/application.yaml` defines how to sync the Helm chart from this repository using GitOps.
-- **GitHub Actions** – `deploy/ci/github-actions/ecr-deploy.yml` builds and pushes images to Amazon ECR, updates Helm values, and triggers Argo CD.
-
-## Next steps
-
-1. **Container image caching** – Pre-configure build cache mounts (e.g., `--mount=type=cache` for `pip`/`npm`) in Dockerfiles to accelerate CI builds.
-2. **Kubernetes readiness** – Add liveness/readiness probes that call `/health?include=dependencies` for the backend and `/` for the frontend. Consider horizontal pod autoscaling driven by latency metrics.
-3. **Secrets management** – Externalize Supabase/AI credentials with External Secrets Operator or SSM Parameter Store instead of embedding them in Helm values.
-4. **Observability** – Ship FastAPI logs to a centralized sink (CloudWatch, Loki) and instrument request traces (OpenTelemetry) for chatbot interactions.
-5. **CI/CD** – Introduce branch protection gating on `npm run build`, `npm run lint`, and Python test suites, followed by progressive rollout via Argo CD with manual approval hooks.
-
-## License
-
-This project is provided as-is for demonstration purposes. Update the license to match your organization’s requirements.
+- **Terraform** – [`terraform/`](terraform) provisions a single EC2 instance, installs K3s, and bootstraps the cluster add-ons.
+- **Helm** – [`deploy/helm/aquapump`](deploy/helm/aquapump) renders both services with shared values files for dev/staging/prod namespaces. Global image settings live under `imageDefaults`, so Argo CD and Terraform only need to override the registry and tag once per sync.
+- **Argo CD** – [`deploy/argocd`](deploy/argocd) defines one project and three applications pointing back to this repository.

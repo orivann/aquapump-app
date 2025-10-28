@@ -1,0 +1,46 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: aquapump-prod
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: aquapump-prod
+    app.kubernetes.io/part-of: aquapump
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: aquapump
+  revisionHistoryLimit: 10
+  source:
+    repoURL: https://github.com/orivann/aquapump.git
+    targetRevision: main
+    path: deploy/helm/aquapump
+    helm:
+      valueFiles:
+        - values.yaml
+        - values-prod.yaml
+      releaseName: aquapump-prod
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: aquapump-prod
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+      - PruneLast=true
+      - ApplyOutOfSyncOnly=true
+      - RespectIgnoreDifferences=true
+    retry:
+      limit: 7
+      backoff:
+        duration: 20s
+        factor: 2
+        maxDuration: 5m
+  info:
+    - name: owner
+      value: platform-team
+    - name: environment
+      value: production

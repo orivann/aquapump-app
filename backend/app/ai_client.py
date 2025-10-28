@@ -1,3 +1,4 @@
+from functools import lru_cache
 from typing import Any
 
 from fastapi import HTTPException
@@ -22,6 +23,7 @@ LANGUAGE_SYSTEM_MESSAGES: dict[str, str] = {
 logger = get_logger("ai_client")
 
 
+@lru_cache
 def _client() -> OpenAI:
     settings = get_settings()
     return OpenAI(api_key=settings.ai_api_key, base_url=settings.ai_api_base_url, timeout=settings.ai_request_timeout)
