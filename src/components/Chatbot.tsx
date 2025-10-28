@@ -75,14 +75,17 @@ const Chatbot = () => {
         </div>
 
         <div
-          className="grid flex-1 gap-5 md:grid-cols-3"
+          role="list"
+          aria-label={t("chatbot.highlights.ariaLabel")}
+          className="flex flex-1 snap-x snap-mandatory gap-5 overflow-x-auto pb-3 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden md:grid md:grid-cols-3 md:overflow-visible md:pb-0 md:snap-none md:[-ms-overflow-style:auto] md:[scrollbar-width:auto]"
           data-animate="slide-left"
           style={{ "--stagger-delay": "140ms" } as CSSProperties}
         >
           {highlights.map((item) => (
             <div
               key={item.title}
-              className="flex flex-col gap-3 rounded-3xl border border-primary-foreground/20 bg-primary-foreground/5 p-6 text-primary-foreground"
+              role="listitem"
+              className="flex min-w-[240px] flex-shrink-0 flex-col gap-3 rounded-3xl border border-primary-foreground/20 bg-primary-foreground/5 p-6 text-primary-foreground md:min-w-0"
             >
               <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary-foreground/20 text-primary">
                 <item.icon className="h-6 w-6" />

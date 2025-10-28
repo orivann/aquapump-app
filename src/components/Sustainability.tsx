@@ -77,11 +77,16 @@ const Sustainability = () => {
             align="left"
           />
 
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div
+            role="list"
+            aria-label={t("sustain.metrics.ariaLabel")}
+            className="flex gap-4 overflow-x-auto pb-3 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden sm:grid sm:grid-cols-2 sm:overflow-visible sm:pb-0 sm:[-ms-overflow-style:auto] sm:[scrollbar-width:auto]"
+          >
             {metrics.map((metric, index) => (
               <div
                 key={metric.label}
-                className="rounded-3xl border border-border/60 bg-muted/40 p-6 transition hover:-translate-y-1 hover:border-accent/40"
+                role="listitem"
+                className="min-w-[220px] flex-shrink-0 rounded-3xl border border-border/60 bg-muted/40 p-6 transition hover:-translate-y-1 hover:border-accent/40 sm:min-w-0"
                 data-animate
                 style={{ "--stagger-delay": `${220 + index * 70}ms` } as CSSProperties}
               >
