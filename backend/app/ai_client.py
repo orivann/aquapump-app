@@ -17,9 +17,15 @@ def _client() -> OpenAI:
 
 
 def _build_messages(history: list[Message], prompt: str) -> list[dict[str, Any]]:
-    messages = [message.model_dump(mode="json", exclude_none=True) for message in history]
-    messages.append({"role": "user", "content": prompt})
-    return messages
+    """Convert stored chat history into OpenAI compatible message payloads."""
+
+    sanitized_history = [
+        {"role": message.role, "content": message.content}
+        for message in history
+        if message.content and message.role
+    ]
+    sanitized_history.append({"role": "user", "content": prompt})
+    return sanitized_history
 
 
 async def generate_response(history: list[Message], prompt: str) -> str:
