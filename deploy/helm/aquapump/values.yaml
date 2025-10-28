@@ -1,7 +1,6 @@
 global:
   imagePullSecrets:
     - name: ecr-creds
-
 backend:
   replicaCount: 1
   image:
@@ -22,7 +21,6 @@ backend:
     limits:
       cpu: 500m
       memory: 512Mi
-
 frontend:
   replicaCount: 1
   image:
@@ -41,7 +39,6 @@ frontend:
     limits:
       cpu: 200m
       memory: 256Mi
-
 ingress:
   enabled: true
   className: nginx
@@ -53,3 +50,8 @@ ingress:
   tls: []
 externalSecrets:
   enabled: false
+image:
+  backend:
+    tag: f6de91d8a0a8a0a8c2a70495b50a6d0a671aa62b
+  frontend:
+    tag: f6de91d8a0a8a0a8c2a70495b50a6d0a671aa62b
