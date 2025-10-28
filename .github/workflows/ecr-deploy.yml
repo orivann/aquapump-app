@@ -105,15 +105,21 @@ jobs:
           echo "IMAGE_TAG=${GITHUB_SHA}" >> "$GITHUB_ENV"
           echo "image_tag=${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
 
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
       - name: Derive image URIs
         id: derive-image
         env:
-          AWS_REGION: ${{ secrets.AWS_REGION }}
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         run: |
           set -euo pipefail
-          REGION="${AWS_REGION:-${AWS_DEFAULT_REGION:-us-east-1}}"
-          ACCOUNT_ID="$(aws sts get-caller-identity --query Account --output text)"
-          REGISTRY="${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com"
+          if [[ -z "${ECR_REGISTRY:-}" ]]; then
+            echo "Failed to determine ECR registry" >&2
+            exit 1
+          fi
+          REGISTRY="${ECR_REGISTRY}"
           BACKEND_IMAGE="${REGISTRY}/${ECR_REPOSITORY_BACKEND}"
           FRONTEND_IMAGE="${REGISTRY}/${ECR_REPOSITORY_FRONTEND}"
           {
@@ -128,9 +134,6 @@ jobs:
             printf 'backend_repository=%s\n' "$ECR_REPOSITORY_BACKEND"
             printf 'frontend_repository=%s\n' "$ECR_REPOSITORY_FRONTEND"
           } >> "$GITHUB_OUTPUT"
-
-      - name: Login to Amazon ECR
-        uses: aws-actions/amazon-ecr-login@v2
 
       - name: Build backend image
         run: |
