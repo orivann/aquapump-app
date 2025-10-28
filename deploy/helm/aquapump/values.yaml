@@ -52,6 +52,6 @@ externalSecrets:
   enabled: false
 image:
   backend:
-    tag: f6de91d8a0a8a0a8c2a70495b50a6d0a671aa62b
+    tag: 9896e212ab10b87bd4331fc25e91c31962e2c1b2
   frontend:
-    tag: f6de91d8a0a8a0a8c2a70495b50a6d0a671aa62b
+    tag: 9896e212ab10b87bd4331fc25e91c31962e2c1b2
