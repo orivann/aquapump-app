@@ -26,6 +26,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { useIsMobile } from "@/hooks/use-mobile";
 import { ChatMessage, fetchChatHistory, sendChatMessage } from "@/lib/chatApi";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 type ChatWidgetContextValue = {
   open: () => void;
@@ -66,9 +67,13 @@ const useSessionId = () => {
 const FloatingLauncher = ({
   onClick,
   isBusy,
+  srLabel,
+  tooltip,
 }: {
   onClick: () => void;
   isBusy: boolean;
+  srLabel: string;
+  tooltip: string;
 }) => (
   <Tooltip>
     <TooltipTrigger asChild>
@@ -79,18 +84,12 @@ const FloatingLauncher = ({
         className="fixed bottom-6 right-6 z-40 h-16 w-16 rounded-full border-0 bg-gradient-to-br from-primary via-primary to-accent text-primary-foreground shadow-[0_25px_45px_rgba(9,29,78,0.35)] transition hover:-translate-y-1 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-accent/40"
       >
         {isBusy ? <Loader2 className="h-6 w-6 animate-spin" /> : <MessageCircle className="h-6 w-6" />}
-        <span className="sr-only">Open Aqua AI assistant</span>
+        <span className="sr-only">{srLabel}</span>
       </Button>
     </TooltipTrigger>
-    <TooltipContent className="text-xs">Chat with Aqua AI</TooltipContent>
+    <TooltipContent className="text-xs">{tooltip}</TooltipContent>
   </Tooltip>
 );
-
-const roleLabels: Record<ChatMessage["role"], string> = {
-  assistant: "Aqua AI",
-  user: "You",
-  system: "System",
-};
 
 export const ChatWidgetProvider = ({ children }: { children: ReactNode }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -103,6 +102,16 @@ export const ChatWidgetProvider = ({ children }: { children: ReactNode }) => {
   const [error, setError] = useState<string | null>(null);
   const isMobile = useIsMobile();
   const bottomRef = useRef<HTMLDivElement | null>(null);
+  const { language, t } = useLanguage();
+
+  const roleLabels = useMemo(
+    () => ({
+      assistant: t("chatwidget.role.assistant"),
+      user: t("chatwidget.role.user"),
+      system: t("chatwidget.role.system"),
+    }),
+    [t],
+  );
 
   useEffect(() => {
     if (!isOpen || !sessionId || hasAttemptedRestore || isLoadingHistory || messages.length > 0) {
@@ -120,13 +129,13 @@ export const ChatWidgetProvider = ({ children }: { children: ReactNode }) => {
         setMessages(response.messages);
       })
       .catch((err: unknown) => {
-        const message = err instanceof Error ? err.message : "Unable to load chat history";
-        setError(message);
+        const message = err instanceof Error ? err.message : t("chatwidget.error.loadHistory");
+        setError(message || t("chatwidget.error.loadHistory"));
       })
       .finally(() => {
         setIsLoadingHistory(false);
       });
-  }, [hasAttemptedRestore, isLoadingHistory, isOpen, messages.length, sessionId]);
+  }, [hasAttemptedRestore, isLoadingHistory, isOpen, language, messages.length, sessionId, t]);
 
   useEffect(() => {
     if (!sessionId) {
@@ -163,18 +172,18 @@ export const ChatWidgetProvider = ({ children }: { children: ReactNode }) => {
     setError(null);
 
     try {
-      const response = await sendChatMessage(sessionId, trimmed);
+      const response = await sendChatMessage(sessionId, trimmed, language);
       setSessionId(response.session_id);
       setMessages(response.messages);
       setHasAttemptedRestore(true);
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Unable to send message";
-      setError(message);
+      const message = err instanceof Error ? err.message : t("chatwidget.error.send");
+      setError(message || t("chatwidget.error.send"));
       setMessages((prev) => prev.filter((message) => message !== optimistic));
     } finally {
       setIsSending(false);
     }
-  }, [draft, isSending, sessionId, setSessionId]);
+  }, [draft, isSending, language, sessionId, setSessionId, t]);
 
   const handleSubmit = useCallback(
     (event: FormEvent<HTMLFormElement>) => {
@@ -208,7 +217,14 @@ export const ChatWidgetProvider = ({ children }: { children: ReactNode }) => {
   return (
     <ChatWidgetContext.Provider value={contextValue}>
       {children}
-      {!isOpen && <FloatingLauncher onClick={() => setIsOpen(true)} isBusy={isSending} />}
+      {!isOpen && (
+        <FloatingLauncher
+          onClick={() => setIsOpen(true)}
+          isBusy={isSending}
+          srLabel={t("chatwidget.launcher.srLabel")}
+          tooltip={t("chatwidget.launcher.tooltip")}
+        />
+      )}
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
         <SheetContent
           side={isMobile ? "bottom" : "right"}
@@ -223,10 +239,8 @@ export const ChatWidgetProvider = ({ children }: { children: ReactNode }) => {
                 <MessageCircle className="h-5 w-5" />
               </span>
               <div>
-                <SheetTitle className="text-xl">Aqua AI Assistant</SheetTitle>
-                <SheetDescription className="text-sm">
-                  Ask anything about AquaPump products and sustainability practices.
-                </SheetDescription>
+                <SheetTitle className="text-xl">{t("chatwidget.title")}</SheetTitle>
+                <SheetDescription className="text-sm">{t("chatwidget.subtitle")}</SheetDescription>
               </div>
             </div>
           </SheetHeader>
@@ -234,22 +248,22 @@ export const ChatWidgetProvider = ({ children }: { children: ReactNode }) => {
           <div className="flex flex-1 flex-col gap-4 px-6 pb-6">
             <div className="flex items-center justify-between">
               <span className="text-xs uppercase tracking-wide text-muted-foreground">
-                Conversations persist automatically
+                {t("chatwidget.persist")}
               </span>
               <Button type="button" variant="outline" size="sm" onClick={resetChat} disabled={isResetDisabled}>
                 <RotateCcw className="mr-2 h-4 w-4" />
-                Reset
+                {t("chatwidget.reset")}
               </Button>
             </div>
 
             <div className="flex flex-1 flex-col overflow-hidden rounded-xl border border-border bg-muted/40">
               <ScrollArea className="flex-1 px-4 py-5">
                 <div className="space-y-4">
-                  {isLoadingHistory ? <p className="text-sm text-muted-foreground">Loading previous messages…</p> : null}
+                  {isLoadingHistory ? (
+                    <p className="text-sm text-muted-foreground">{t("chatwidget.loading")}</p>
+                  ) : null}
                   {messages.length === 0 && !isLoadingHistory ? (
-                    <p className="text-sm text-muted-foreground">
-                      Welcome! Ask about pump specifications, energy efficiency, or installation guidance.
-                    </p>
+                    <p className="text-sm text-muted-foreground">{t("chatwidget.empty")}</p>
                   ) : null}
                   {messages.map((message, index) => (
                     <div
@@ -282,7 +296,7 @@ export const ChatWidgetProvider = ({ children }: { children: ReactNode }) => {
                   value={draft}
                   onChange={(event) => setDraft(event.target.value)}
                   onKeyDown={handleTextareaKeyDown}
-                  placeholder="Ask Aqua AI anything about our pumps…"
+                  placeholder={t("chatwidget.placeholder")}
                   rows={isMobile ? 4 : 3}
                   className="resize-none"
                   disabled={isSending}
@@ -291,18 +305,18 @@ export const ChatWidgetProvider = ({ children }: { children: ReactNode }) => {
                   {error ? (
                     <p className="text-sm text-destructive">{error}</p>
                   ) : (
-                    <span className="text-xs text-muted-foreground">Press Enter to send, Shift + Enter for a new line</span>
+                    <span className="text-xs text-muted-foreground">{t("chatwidget.helper")}</span>
                   )}
                   <Button type="submit" disabled={isSending || !draft.trim()}>
                     {isSending ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Sending
+                        {t("chatwidget.sending")}
                       </>
                     ) : (
                       <>
                         <Send className="mr-2 h-4 w-4" />
-                        Send
+                        {t("chatwidget.send")}
                       </>
                     )}
                   </Button>

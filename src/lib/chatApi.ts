@@ -41,7 +41,9 @@ export async function fetchChatHistory(sessionId: string) {
   return handleResponse<ChatHistoryResponse>(response);
 }
 
-export async function sendChatMessage(sessionId: string | null, message: string) {
+export type ChatLanguage = "en" | "he";
+
+export async function sendChatMessage(sessionId: string | null, message: string, language: ChatLanguage) {
   const response = await fetch(withBase("/chat"), {
     method: "POST",
     headers: {
@@ -50,6 +52,7 @@ export async function sendChatMessage(sessionId: string | null, message: string)
     body: JSON.stringify({
       session_id: sessionId,
       message,
+      language,
     }),
   });
 
