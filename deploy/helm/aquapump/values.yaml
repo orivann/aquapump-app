@@ -74,6 +74,6 @@ ingress:
       secretName: aquapump-tls
 image:
   backend:
-    tag: 40b2f342bb8e22f0f58c88aa14a7a9904719ac02
+    tag: 9301efaaad583273893ff2226b75abd5a7d1a947
   frontend:
-    tag: 40b2f342bb8e22f0f58c88aa14a7a9904719ac02
+    tag: 9301efaaad583273893ff2226b75abd5a7d1a947
