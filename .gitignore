@@ -26,5 +26,14 @@ backend/app/__pycache__/
 *.sln
 *.sw?
 argocd-linux-amd64
-argocd-linux-amd64
-argocd-linux-amd64
+
+# Terraform artifacts
+.terraform/
+*.tfstate
+*.tfstate.*
+terraform/.terraform/
+terraform/.terraform.lock.hcl
+terraform/terraform.tfstate
+terraform/terraform.tfstate.*
+terraform.tfvars
+__pycache__/

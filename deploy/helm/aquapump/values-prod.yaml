@@ -1,9 +1,10 @@
-backend:
-  envSecrets:
-    SUPABASE_URL: "secret:prod/aquapump#SUPABASE_URL"
-    SUPABASE_SERVICE_ROLE_KEY: "secret:prod/aquapump#SUPABASE_SERVICE_ROLE_KEY"
-    AI_API_KEY: "secret:prod/aquapump#AI_API_KEY"
+namespace: aquapump-prod
 
-frontend:
-  envSecrets:
-    VITE_REACT_APP_SUPABASE_URL: "secret:prod/aquapump#SUPABASE_URL"
+ingress:
+  host: aqua-pump.net
+
+components:
+  frontend:
+    env:
+      - name: VITE_REACT_APP_API_BASE
+        value: https://aqua-pump.net/api

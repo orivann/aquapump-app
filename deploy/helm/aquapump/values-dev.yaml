@@ -1,0 +1,10 @@
+namespace: aquapump-dev
+
+ingress:
+  host: dev.aqua-pump.net
+
+components:
+  frontend:
+    env:
+      - name: VITE_REACT_APP_API_BASE
+        value: https://dev.aqua-pump.net/api
