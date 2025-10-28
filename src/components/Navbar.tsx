@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import brandLogo from "@/assets/logo-full-trimmed.png";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useChatWidget } from "@/contexts/ChatWidgetContext";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 import LanguageSwitcher from "./LanguageSwitcher";
 
@@ -13,15 +14,53 @@ const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { t } = useLanguage();
   const { open } = useChatWidget();
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
     };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  useEffect(() => {
+    if (!isMobile) {
+      setIsMobileMenuOpen(false);
+      return;
+    }
+
+    if (typeof document === "undefined") {
+      return;
+    }
+
+    const { body } = document;
+    if (isMobileMenuOpen) {
+      body.classList.add("overflow-hidden");
+    } else {
+      body.classList.remove("overflow-hidden");
+    }
+
+    return () => {
+      body.classList.remove("overflow-hidden");
+    };
+  }, [isMobile, isMobileMenuOpen]);
+
+  useEffect(() => {
+    if (!isMobileMenuOpen || typeof document === "undefined") {
+      return;
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setIsMobileMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [isMobileMenuOpen]);
 
   const navLinks = useMemo(
     () => [
@@ -89,6 +128,8 @@ const Navbar = () => {
           type="button"
           onClick={() => setIsMobileMenuOpen((prev) => !prev)}
           className="flex h-11 w-11 items-center justify-center rounded-full border border-border/50 text-foreground transition hover:border-border md:hidden"
+          aria-expanded={isMobileMenuOpen}
+          aria-controls="mobile-navigation"
         >
           {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
           <span className="sr-only">Toggle navigation</span>
@@ -97,7 +138,10 @@ const Navbar = () => {
 
       {isMobileMenuOpen ? (
         <div className="md:hidden">
-          <div className="mx-4 mb-4 rounded-3xl border border-border/60 bg-background/95 p-6 shadow-lg backdrop-blur">
+          <div
+            id="mobile-navigation"
+            className="mx-4 mb-4 max-h-[calc(100vh-6rem)] overflow-y-auto rounded-3xl border border-border/60 bg-background/95 p-6 shadow-lg backdrop-blur"
+          >
             <ul className="space-y-3 text-sm font-medium text-muted-foreground">
               {navLinks.map((link) => (
                 <li key={link.href}>

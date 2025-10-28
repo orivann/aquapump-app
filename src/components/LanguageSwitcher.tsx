@@ -21,7 +21,7 @@ const LanguageSwitcher = () => {
           className="gap-2 rounded-full border border-border/40 bg-muted/40 px-4 text-xs font-semibold uppercase tracking-[0.35em] text-foreground transition hover:border-border hover:bg-background/80"
         >
           <Languages className="h-4 w-4 text-muted-foreground" />
-          <span>{language}</span>
+          <span>{language.toUpperCase()}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent

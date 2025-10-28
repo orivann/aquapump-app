@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 
 type Language = 'en' | 'he';
 
@@ -7,6 +7,8 @@ interface LanguageContextType {
   setLanguage: (lang: Language) => void;
   t: (key: string) => string;
 }
+
+const STORAGE_KEY = 'aquapump.language';
 
 const translations = {
   en: {
@@ -34,6 +36,7 @@ const translations = {
     'hero.metrics.support.label': 'Support',
     'hero.metrics.support.value': '24/7',
     'hero.metrics.support.description': 'Human experts backed by AI',
+    'hero.metrics.ariaLabel': 'Performance highlights',
 
     // Features
     'features.badge': 'Design DNA',
@@ -72,6 +75,7 @@ const translations = {
     'sustain.lifespan': 'Years Lifespan',
     'sustain.emissions': 'Harmful Emissions',
     'sustain.emissionsValue': 'Net Zero',
+    'sustain.metrics.ariaLabel': 'Sustainability highlights',
     
     // Products
     'products.badge': 'Product lineup',
@@ -90,6 +94,7 @@ const translations = {
     'products.smart.name': 'AquaPump Smart',
     'products.smart.desc': 'Connected pumps with AI-powered optimization',
     'products.learnMore': 'Learn More',
+    'products.listAriaLabel': 'Product cards',
 
     // Chatbot
     'chatbot.badge': 'Conversational AI',
@@ -103,6 +108,7 @@ const translations = {
     'chatbot.highlight.reliable.desc': 'Responses are grounded in curated AquaPump knowledge and best practices.',
     'chatbot.highlight.available.title': 'Always available',
     'chatbot.highlight.available.desc': 'Engage prospects 24/7 and capture context for seamless human follow-up.',
+    'chatbot.highlights.ariaLabel': 'Aqua AI advantages',
     
     // Contact
     'contact.badge': 'Let’s talk',
@@ -153,6 +159,7 @@ const translations = {
     'hero.metrics.support.label': 'תמיכה',
     'hero.metrics.support.value': '24/7',
     'hero.metrics.support.description': 'מומחים אנושיים עם גב AI',
+    'hero.metrics.ariaLabel': 'מדדי ביצועים מובילים',
 
     // Features
     'features.badge': 'DNA הנדסי',
@@ -191,6 +198,7 @@ const translations = {
     'sustain.lifespan': 'שנות חיים',
     'sustain.emissions': 'פליטות מזיקות',
     'sustain.emissionsValue': 'אפס פליטות',
+    'sustain.metrics.ariaLabel': 'עיקרי הקיימות',
     
     // Products
     'products.badge': 'סדרת המוצרים',
@@ -209,6 +217,7 @@ const translations = {
     'products.smart.name': 'AquaPump Smart',
     'products.smart.desc': 'משאבות מחוברות עם אופטימיזציה מבוססת AI',
     'products.learnMore': 'למד עוד',
+    'products.listAriaLabel': 'כרטיסי מוצרים',
 
     // Chatbot
     'chatbot.badge': 'בינה מלאכותית שיחתית',
@@ -222,6 +231,7 @@ const translations = {
     'chatbot.highlight.reliable.desc': 'התשובות מבוססות על הידע המסונן של AquaPump ועל שיטות עבודה מומלצות.',
     'chatbot.highlight.available.title': 'זמין תמיד',
     'chatbot.highlight.available.desc': 'העוזר זמין 24/7 ושומר הקשר להמשך טיפול אנושי חסר מאמץ.',
+    'chatbot.highlights.ariaLabel': 'היתרונות של Aqua AI',
     
     // Contact
     'contact.badge': 'נדבר?',
@@ -251,18 +261,58 @@ const translations = {
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
+const resolveInitialLanguage = (): Language => {
+  if (typeof window === 'undefined') {
+    return 'en';
+  }
+
+  try {
+    const stored = window.localStorage.getItem(STORAGE_KEY);
+    if (stored === 'en' || stored === 'he') {
+      return stored;
+    }
+  } catch (error) {
+    // Access to storage can fail in private browsing modes; ignore and fall back.
+  }
+
+  const navigatorLanguage = window.navigator.language?.toLowerCase() ?? '';
+  if (navigatorLanguage.startsWith('he')) {
+    return 'he';
+  }
+
+  return 'en';
+};
+
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [language, setLanguage] = useState<Language>('en');
+  const [language, setLanguageState] = useState<Language>(() => resolveInitialLanguage());
 
   useEffect(() => {
-    // Update document direction and lang attribute
-    document.documentElement.dir = language === 'he' ? 'rtl' : 'ltr';
-    document.documentElement.lang = language;
+    const direction = language === 'he' ? 'rtl' : 'ltr';
+
+    if (typeof document !== 'undefined') {
+      document.documentElement.dir = direction;
+      document.documentElement.lang = language;
+      if (document.body) {
+        document.body.dir = direction;
+      }
+    }
+
+    if (typeof window !== 'undefined') {
+      try {
+        window.localStorage.setItem(STORAGE_KEY, language);
+      } catch (error) {
+        // Ignore storage write errors (e.g. private browsing).
+      }
+    }
   }, [language]);
 
-  const t = (key: string): string => {
+  const setLanguage = useCallback((lang: Language) => {
+    setLanguageState(lang);
+  }, []);
+
+  const t = useCallback((key: string): string => {
     return translations[language][key as keyof typeof translations['en']] || key;
-  };
+  }, [language]);
 
   return (
     <LanguageContext.Provider value={{ language, setLanguage, t }}>

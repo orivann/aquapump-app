@@ -62,7 +62,7 @@ const Hero = () => {
   return (
     <section
       ref={heroRef}
-      className="relative flex min-h-[95vh] flex-col justify-center overflow-hidden bg-background pt-32 text-primary-foreground md:pt-40"
+      className="relative flex min-h-[95vh] flex-col justify-center overflow-hidden bg-background pt-24 text-primary-foreground sm:pt-32 md:pt-40"
     >
       <div className="absolute inset-0">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.25)_0%,_transparent_55%)]" />
@@ -128,11 +128,16 @@ const Hero = () => {
           </Button>
         </div>
 
-        <div className="grid gap-4 text-left sm:grid-cols-3">
+        <div
+          role="list"
+          aria-label={t("hero.metrics.ariaLabel")}
+          className="flex w-full snap-x snap-mandatory gap-4 overflow-x-auto pb-4 text-left [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden sm:grid sm:grid-cols-3 sm:snap-none sm:overflow-visible sm:pb-0 sm:[-ms-overflow-style:auto] sm:[scrollbar-width:auto]"
+        >
           {metrics.map((metric, index) => (
             <div
               key={metric.label}
-              className="rounded-3xl border border-primary-foreground/20 bg-primary-foreground/5 p-6 backdrop-blur"
+              role="listitem"
+              className="min-w-[220px] flex-shrink-0 rounded-3xl border border-primary-foreground/20 bg-primary-foreground/5 p-6 backdrop-blur sm:min-w-0"
               data-animate
               style={{ "--stagger-delay": `${420 + index * 80}ms` } as CSSProperties}
             >

@@ -49,24 +49,31 @@ const Products = () => {
   return (
     <section
       ref={sectionRef}
-      className="relative overflow-hidden bg-gradient-to-b from-background via-secondary/20 to-background pt-56 pb-40 sm:pt-72 sm:pb-44 lg:pt-80"
+      className="relative overflow-hidden bg-gradient-to-b from-background via-secondary/20 to-background pt-40 pb-32 sm:pt-64 sm:pb-40 lg:pt-80"
     >
       <div className="pointer-events-none absolute inset-x-0 -top-20 h-[420px] bg-[radial-gradient(circle_at_top,_rgba(0,63,123,0.16)_0%,_transparent_82%)]" />
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-48 bg-[radial-gradient(circle_at_bottom,_rgba(0,63,123,0.12)_0%,_transparent_70%)]" />
 
-      <div className="relative mx-auto flex w-full max-w-6xl flex-col gap-16 px-6">
-        <SectionHeading
-          eyebrow={t("products.badge")}
-          title={t("products.title")}
-          description={t("products.subtitle")}
-          className="mx-auto max-w-3xl gap-14 [&>div]:gap-7"
-        />
+        <div className="relative mx-auto flex w-full max-w-6xl flex-col gap-16 px-6">
+          <SectionHeading
+            eyebrow={t("products.badge")}
+            title={t("products.title")}
+            description={t("products.subtitle")}
+            className="mx-auto max-w-3xl gap-14 [&>div]:gap-7"
+          />
 
-        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4" data-animate style={{ "--stagger-delay": "120ms" } as CSSProperties}>
+        <div
+          role="list"
+          aria-label={t("products.listAriaLabel")}
+          className="flex snap-x snap-mandatory gap-6 overflow-x-auto pb-6 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden md:grid md:grid-cols-2 md:overflow-visible md:pb-0 md:snap-none md:[-ms-overflow-style:auto] md:[scrollbar-width:auto] xl:grid-cols-4"
+          data-animate
+          style={{ "--stagger-delay": "120ms" } as CSSProperties}
+        >
           {products.map((product, index) => (
             <article
               key={product.nameKey}
-              className="group relative flex flex-col overflow-hidden rounded-[28px] border border-border/60 bg-card/90 p-8 shadow-[0_22px_45px_rgba(0,63,123,0.12)] backdrop-blur transition hover:-translate-y-2"
+              role="listitem"
+              className="group relative flex min-w-[280px] flex-1 flex-col overflow-hidden rounded-[28px] border border-border/60 bg-card/90 p-8 shadow-[0_22px_45px_rgba(0,63,123,0.12)] backdrop-blur transition hover:-translate-y-2 md:min-w-0"
               data-animate
               style={{ "--stagger-delay": `${index * 80}ms` } as CSSProperties}
             >
