@@ -108,20 +108,26 @@ jobs:
       - name: Derive image URIs
         id: derive-image
         env:
-          AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
         run: |
-          REGISTRY="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+          set -euo pipefail
+          REGION="${AWS_REGION:-${AWS_DEFAULT_REGION:-us-east-1}}"
+          ACCOUNT_ID="$(aws sts get-caller-identity --query Account --output text)"
+          REGISTRY="${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com"
           BACKEND_IMAGE="${REGISTRY}/${ECR_REPOSITORY_BACKEND}"
           FRONTEND_IMAGE="${REGISTRY}/${ECR_REPOSITORY_FRONTEND}"
-          echo "REGISTRY=${REGISTRY}" >> "$GITHUB_ENV"
-          echo "BACKEND_IMAGE=${BACKEND_IMAGE}" >> "$GITHUB_ENV"
-          echo "FRONTEND_IMAGE=${FRONTEND_IMAGE}" >> "$GITHUB_ENV"
-          echo "registry=${REGISTRY}" >> "$GITHUB_OUTPUT"
-          echo "backend_image=${BACKEND_IMAGE}" >> "$GITHUB_OUTPUT"
-          echo "frontend_image=${FRONTEND_IMAGE}" >> "$GITHUB_OUTPUT"
-          echo "backend_repository=${ECR_REPOSITORY_BACKEND}" >> "$GITHUB_OUTPUT"
-          echo "frontend_repository=${ECR_REPOSITORY_FRONTEND}" >> "$GITHUB_OUTPUT"
+          {
+            printf 'REGISTRY=%s\n' "$REGISTRY"
+            printf 'BACKEND_IMAGE=%s\n' "$BACKEND_IMAGE"
+            printf 'FRONTEND_IMAGE=%s\n' "$FRONTEND_IMAGE"
+          } >> "$GITHUB_ENV"
+          {
+            printf 'registry=%s\n' "$REGISTRY"
+            printf 'backend_image=%s\n' "$BACKEND_IMAGE"
+            printf 'frontend_image=%s\n' "$FRONTEND_IMAGE"
+            printf 'backend_repository=%s\n' "$ECR_REPOSITORY_BACKEND"
+            printf 'frontend_repository=%s\n' "$ECR_REPOSITORY_FRONTEND"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v2
