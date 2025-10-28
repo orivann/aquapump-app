@@ -1,4 +1,50 @@
 namespace: aquapump
+namespaceCreate: true
+namespaceLabels: {}
+namespaceAnnotations: {}
+
+global:
+  enableServiceLinks: false
+  workloadLabels: {}
+  podLabels: {}
+  podAnnotations: {}
+  env: []
+  envFrom: []
+  volumeMounts: []
+  volumes: []
+  imagePullSecrets: []
+  podSecurityContext: {}
+  containerSecurityContext: {}
+  resources: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  topologySpreadConstraints: []
+  dnsPolicy: ""
+  dnsConfig: {}
+  hostAliases: []
+  hostNetwork: null
+  schedulerName: ""
+  initContainers: []
+  sidecars: []
+  terminationGracePeriodSeconds: null
+  priorityClassName: ""
+  extraPodSpec: {}
+  serviceAccount:
+    create: false
+    automount: false
+    annotations: {}
+    labels: {}
+    imagePullSecrets: []
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 3
+    targetCPUUtilizationPercentage: 80
+  pdb:
+    enabled: false
+    minAvailable: ""
+    maxUnavailable: ""
 
 imageDefaults:
   registry: 043309328819.dkr.ecr.eu-central-1.amazonaws.com
@@ -11,9 +57,13 @@ components:
     image:
       repository: aquapump/backend
     containerPort: 8000
+    serviceAccount:
+      create: false
     service:
       type: ClusterIP
       port: 8000
+      annotations: {}
+      labels: {}
     env:
       - name: UVICORN_HOST
         value: "0.0.0.0"
@@ -31,6 +81,13 @@ components:
         port: 8000
       initialDelaySeconds: 15
       periodSeconds: 20
+    autoscaling:
+      enabled: false
+      minReplicas: 1
+      maxReplicas: 3
+      targetCPUUtilizationPercentage: 75
+    pdb:
+      enabled: false
   frontend:
     replicaCount: 1
     image:
@@ -39,13 +96,30 @@ components:
     service:
       type: ClusterIP
       port: 80
+      annotations: {}
+      labels: {}
     env:
       - name: VITE_REACT_APP_API_BASE
         value: https://aqua-pump.net/api
+    autoscaling:
+      enabled: false
+      minReplicas: 1
+      maxReplicas: 3
+      targetCPUUtilizationPercentage: 70
+    pdb:
+      enabled: false
 
 ingress:
   enabled: true
   className: nginx
   host: aqua-pump.net
+  hosts: []
   annotations: {}
   tls: []
+  backendPath: /api
+  backendPathType: Prefix
+  frontendPath: /
+  frontendPathType: Prefix
+  extraPaths: []
+  extraRules: []
+  defaultBackend: null

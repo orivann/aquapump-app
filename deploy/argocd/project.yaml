@@ -7,6 +7,9 @@ spec:
   description: Aquapump delivery environments
   sourceRepos:
     - https://github.com/orivann/aquapump.git
+  namespaceResourceWhitelist:
+    - group: '*'
+      kind: '*'
   destinations:
     - namespace: aquapump-dev
       server: https://kubernetes.default.svc
@@ -15,5 +18,8 @@ spec:
     - namespace: aquapump-prod
       server: https://kubernetes.default.svc
   clusterResourceWhitelist:
-    - group: '*'
-      kind: '*'
+    - group: ""
+      kind: Namespace
+  orphanedResources:
+    warn: true
+  syncWindows: []

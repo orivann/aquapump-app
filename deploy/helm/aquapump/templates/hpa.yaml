@@ -1,0 +1,52 @@
+{{- $global := .Values.global | default dict }}
+{{- range $name, $component := .Values.components }}
+{{- $componentHpa := $component.autoscaling | default dict }}
+{{- $globalHpa := $global.autoscaling | default dict }}
+{{- $hpaConfig := dict "enabled" ($globalHpa.enabled | default false) -}}
+{{- if hasKey $componentHpa "enabled" }}{{- $_ := set $hpaConfig "enabled" ($componentHpa.enabled | default false) -}}{{- end }}
+{{- $enabled := $hpaConfig.enabled }}
+{{- if $enabled }}
+{{- $fullname := include "aquapump.componentFullname" (dict "Release" $.Release "componentName" $name) -}}
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ $fullname }}
+  namespace: {{ $.Values.namespace }}
+  labels:
+    app.kubernetes.io/name: {{ $fullname }}
+    app.kubernetes.io/instance: {{ $.Release.Name }}
+    app.kubernetes.io/component: {{ $name }}
+{{- with $componentHpa.labels }}
+{{ toYaml . | nindent 4 }}
+{{- end }}
+{{- with $componentHpa.annotations }}
+  annotations:
+{{ toYaml . | nindent 4 }}
+{{- end }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ $fullname }}
+  minReplicas: {{ $componentHpa.minReplicas | default ($globalHpa.minReplicas | default 1) }}
+  maxReplicas: {{ $componentHpa.maxReplicas | default ($globalHpa.maxReplicas | default 3) }}
+{{- if or ($componentHpa.targetCPUUtilizationPercentage) ($globalHpa.targetCPUUtilizationPercentage) ($componentHpa.metrics) }}
+  metrics:
+{{- if $componentHpa.metrics }}
+{{ toYaml $componentHpa.metrics | nindent 4 }}
+{{- else if or ($componentHpa.targetCPUUtilizationPercentage) ($globalHpa.targetCPUUtilizationPercentage) }}
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ $componentHpa.targetCPUUtilizationPercentage | default $globalHpa.targetCPUUtilizationPercentage | default 80 }}
+{{- end }}
+{{- end }}
+{{- with $componentHpa.behavior | default $globalHpa.behavior }}
+  behavior:
+{{ toYaml . | nindent 4 }}
+{{- end }}
+{{- end }}
+{{- end }}

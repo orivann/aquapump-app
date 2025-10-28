@@ -3,8 +3,14 @@ kind: Application
 metadata:
   name: aquapump-dev
   namespace: argocd
+  labels:
+    app.kubernetes.io/name: aquapump-dev
+    app.kubernetes.io/part-of: aquapump
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
 spec:
   project: aquapump
+  revisionHistoryLimit: 5
   source:
     repoURL: https://github.com/orivann/aquapump.git
     targetRevision: main
@@ -13,6 +19,7 @@ spec:
       valueFiles:
         - values.yaml
         - values-dev.yaml
+      releaseName: aquapump-dev
   destination:
     server: https://kubernetes.default.svc
     namespace: aquapump-dev
@@ -22,3 +29,13 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
+      - ServerSideApply=true
+      - PruneLast=true
+      - ApplyOutOfSyncOnly=true
+      - RespectIgnoreDifferences=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 15s
+        factor: 2
+        maxDuration: 3m

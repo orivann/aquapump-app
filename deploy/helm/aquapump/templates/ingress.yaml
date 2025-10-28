@@ -1,6 +1,7 @@
 {{- if .Values.ingress.enabled }}
 {{- $backendService := printf "%s-backend" .Release.Name }}
 {{- $frontendService := printf "%s-frontend" .Release.Name }}
+{{- $hosts := .Values.ingress.hosts | default (list .Values.ingress.host) | compact -}}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -22,21 +23,33 @@ spec:
 {{ toYaml .Values.ingress.tls | nindent 4 }}
 {{- end }}
   rules:
-    - host: {{ .Values.ingress.host }}
+{{- range $hosts }}
+    - host: {{ . }}
       http:
         paths:
-          - path: /api
-            pathType: Prefix
+          - path: {{ $.Values.ingress.backendPath | default "/api" }}
+            pathType: {{ $.Values.ingress.backendPathType | default "Prefix" }}
             backend:
               service:
                 name: {{ $backendService }}
                 port:
-                  number: {{ .Values.components.backend.service.port | default .Values.components.backend.containerPort }}
-          - path: /
-            pathType: Prefix
+                  number: {{ $.Values.components.backend.service.port | default $.Values.components.backend.containerPort }}
+          - path: {{ $.Values.ingress.frontendPath | default "/" }}
+            pathType: {{ $.Values.ingress.frontendPathType | default "Prefix" }}
             backend:
               service:
                 name: {{ $frontendService }}
                 port:
-                  number: {{ .Values.components.frontend.service.port | default .Values.components.frontend.containerPort }}
+                  number: {{ $.Values.components.frontend.service.port | default $.Values.components.frontend.containerPort }}
+{{- with $.Values.ingress.extraPaths }}
+{{ toYaml . | nindent 10 }}
+{{- end }}
+{{- end }}
+{{- with .Values.ingress.extraRules }}
+{{ toYaml . | nindent 2 }}
+{{- end }}
+{{- with .Values.ingress.defaultBackend }}
+  defaultBackend:
+{{ toYaml . | nindent 4 }}
+{{- end }}
 {{- end }}
