@@ -1,36 +1,42 @@
 {{- if .Values.ingress.enabled }}
+{{- $backendService := printf "%s-backend" .Release.Name }}
+{{- $frontendService := printf "%s-frontend" .Release.Name }}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ include "aquapump.frontendFullname" . }}
+  name: {{ printf "%s-web" .Release.Name }}
+  namespace: {{ .Values.namespace }}
   labels:
-    app.kubernetes.io/name: {{ include "aquapump.frontendName" . }}
-    app.kubernetes.io/instance: {{ .Release.Name }}
-  {{- with .Values.ingress.annotations }}
+    app.kubernetes.io/name: {{ .Release.Name }}
+    app.kubernetes.io/component: ingress
+{{- if .Values.ingress.annotations }}
   annotations:
-    {{- toYaml . | nindent 4 }}
-  {{- end }}
+{{ toYaml .Values.ingress.annotations | nindent 4 }}
+{{- end }}
 spec:
-  {{- if .Values.ingress.className }}
+{{- if .Values.ingress.className }}
   ingressClassName: {{ .Values.ingress.className }}
-  {{- end }}
+{{- end }}
+{{- if .Values.ingress.tls }}
+  tls:
+{{ toYaml .Values.ingress.tls | nindent 4 }}
+{{- end }}
   rules:
-    {{- range .Values.ingress.hosts }}
-    - host: {{ .host }}
+    - host: {{ .Values.ingress.host }}
       http:
         paths:
-          {{- range .paths }}
-          - path: {{ .path }}
-            pathType: {{ .pathType }}
+          - path: /api
+            pathType: Prefix
             backend:
               service:
-                name: {{ include "aquapump.frontendFullname" $ }}
+                name: {{ $backendService }}
                 port:
-                  number: {{ $.Values.frontend.service.port }}
-          {{- end }}
-    {{- end }}
-  {{- if .Values.ingress.tls }}
-  tls:
-    {{- toYaml .Values.ingress.tls | nindent 4 }}
-  {{- end }}
+                  number: {{ .Values.components.backend.service.port | default .Values.components.backend.containerPort }}
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ $frontendService }}
+                port:
+                  number: {{ .Values.components.frontend.service.port | default .Values.components.frontend.containerPort }}
 {{- end }}

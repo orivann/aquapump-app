@@ -1,0 +1,10 @@
+namespace: aquapump-staging
+
+ingress:
+  host: staging.aqua-pump.net
+
+components:
+  frontend:
+    env:
+      - name: VITE_REACT_APP_API_BASE
+        value: https://staging.aqua-pump.net/api

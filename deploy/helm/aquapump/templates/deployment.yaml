@@ -1,0 +1,55 @@
+{{- $defaults := .Values.imageDefaults | default dict }}
+{{- range $name, $component := .Values.components }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ printf "%s-%s" $.Release.Name $name }}
+  namespace: {{ $.Values.namespace }}
+  labels:
+    app.kubernetes.io/name: {{ printf "%s-%s" $.Release.Name $name }}
+    app.kubernetes.io/instance: {{ $.Release.Name }}
+    app.kubernetes.io/component: {{ $name }}
+spec:
+  replicas: {{ $component.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ printf "%s-%s" $.Release.Name $name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ printf "%s-%s" $.Release.Name $name }}
+        app.kubernetes.io/instance: {{ $.Release.Name }}
+        app.kubernetes.io/component: {{ $name }}
+    spec:
+      containers:
+        - name: {{ $name }}
+          image: {{ include "aquapump.image" (dict "component" $component "defaults" $defaults) }}:{{ include "aquapump.imageTag" (dict "component" $component "defaults" $defaults) }}
+          imagePullPolicy: {{ $component.image.pullPolicy | default $defaults.pullPolicy | default "IfNotPresent" }}
+{{- if $component.command }}
+          command:
+{{ toYaml $component.command | nindent 12 }}
+{{- end }}
+{{- if $component.args }}
+          args:
+{{ toYaml $component.args | nindent 12 }}
+{{- end }}
+          ports:
+            - containerPort: {{ $component.containerPort }}
+{{- if $component.env }}
+          env:
+{{ toYaml $component.env | nindent 12 }}
+{{- end }}
+{{- if $component.resources }}
+          resources:
+{{ toYaml $component.resources | nindent 12 }}
+{{- end }}
+{{- if $component.livenessProbe }}
+          livenessProbe:
+{{ toYaml $component.livenessProbe | nindent 12 }}
+{{- end }}
+{{- if $component.readinessProbe }}
+          readinessProbe:
+{{ toYaml $component.readinessProbe | nindent 12 }}
+{{- end }}
+{{- end }}
