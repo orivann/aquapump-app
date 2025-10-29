@@ -1,37 +1,57 @@
-{{- $frontend := .Values.ingress.frontend -}}
-{{- if $frontend.enabled }}
+{{- $ing := .Values.ingress -}}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ include "aquapump.frontendFullname" . }}
+  name: {{ include "aquapump.fullname" . }}-ingress
   labels:
-    app.kubernetes.io/name: {{ include "aquapump.frontendName" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
-  {{- with $frontend.annotations }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/name: {{ include "aquapump.name" . }}
   annotations:
-    {{- toYaml . | nindent 4 }}
-  {{- end }}
+    {{- if $ing.annotations }}
+{{ toYaml $ing.annotations | indent 4 }}
+    {{- end }}
+    {{- if and $ing.tls.enabled $ing.tls.clusterIssuer }}
+    cert-manager.io/cluster-issuer: {{ $ing.tls.clusterIssuer | quote }}
+    {{- end }}
+
 spec:
-  {{- if $frontend.className }}
-  ingressClassName: {{ $frontend.className }}
-  {{- end }}
+  ingressClassName: {{ $ing.className | default "nginx" }}
   rules:
-    {{- range $frontend.hosts }}
-    - host: {{ .host }}
+    {{- /* frontend hosts (simple list of strings) */}}
+    {{- range $host := $ing.frontend.hosts }}
+    - host: {{ $host | quote }}
       http:
         paths:
-          {{- range .paths }}
-          - path: {{ .path }}
-            pathType: {{ .pathType }}
+          - path: /
+            pathType: Prefix
             backend:
               service:
                 name: {{ include "aquapump.frontendFullname" $ }}
                 port:
                   number: {{ $.Values.frontend.service.port }}
-          {{- end }}
     {{- end }}
-  {{- if $frontend.tls }}
+
+    {{- /* backend host (single string) */}}
+    - host: {{ $ing.backend.host | quote }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "aquapump.backendFullname" . }}
+                port:
+                  number: {{ $.Values.backend.service.port }}
+
+  {{- if $ing.tls.enabled }}
   tls:
-    {{- toYaml $frontend.tls | nindent 4 }}
+    - secretName: {{ $ing.tls.frontendSecretName }}
+      hosts:
+        {{- range $host := $ing.frontend.hosts }}
+        - {{ $host | quote }}
+        {{- end }}
+    - secretName: {{ $ing.tls.backendSecretName }}
+      hosts:
+        - {{ $ing.backend.host | quote }}
   {{- end }}
-{{- end }}

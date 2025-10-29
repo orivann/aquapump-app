@@ -1,4 +1,3 @@
-
 global:
   imagePullSecrets:
     - name: ecr-creds
@@ -32,7 +31,8 @@ backend:
     AI_API_KEY: ""
     AI_MODEL: "gpt-4o-mini"
     AI_API_BASE_URL: ""
-    CORS_ALLOW_ORIGINS: "https://aqua-pump.net"
+    # לאפשר גם apex, גם www וגם לוקאלי (פיתוח)
+    CORS_ALLOW_ORIGINS: "https://www.aqua-pump.net,https://api.aqua-pump.net,http://localhost:5173"
   existingSecret: ""
   envFrom: []
   resources:
@@ -52,11 +52,11 @@ frontend:
     repository: 043309328819.dkr.ecr.eu-central-1.amazonaws.com/aquapump/frontend
     tag: latest
     pullPolicy: IfNotPresent
-  containerPort: 5173
+  containerPort: 80
   service:
     type: ClusterIP
     port: 80
-    targetPort: 5173
+    targetPort: 80
   env:
     VITE_REACT_APP_API_BASE: "https://api.aqua-pump.net"
   existingSecret: ""
@@ -73,24 +73,22 @@ frontend:
   tolerations: []
 
 ingress:
+  className: nginx
+
+  annotations:
+    nginx.ingress.kubernetes.io/from-to-www-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+
   frontend:
-    enabled: true
-    className: nginx
-    annotations: {}
     hosts:
-      - host: aqua-pump.net
-        paths:
-          - path: /
-            pathType: Prefix
-    tls: []
+      - www.aqua-pump.net
+      - aqua-pump.net
+
   backend:
+    host: api.aqua-pump.net
+
+  tls:
     enabled: true
-    className: nginx
-    annotations:
-      nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
-    hosts:
-      - host: api.aqua-pump.net
-        paths:
-          - path: /
-            pathType: Prefix
-    tls: []
+    clusterIssuer: letsencrypt-http
+    frontendSecretName: aquapump-frontend-tls
+    backendSecretName: aquapump-backend-tls
