@@ -86,6 +86,6 @@ ingress:
     tls: []
 image:
   backend:
-    tag: 7f536b18d8a3d470c455dab4da6852dff1c72a31
+    tag: f20f87ae9f8009a164d5bbe0b8276abfdd2387b6
   frontend:
-    tag: 7f536b18d8a3d470c455dab4da6852dff1c72a31
+    tag: f20f87ae9f8009a164d5bbe0b8276abfdd2387b6
