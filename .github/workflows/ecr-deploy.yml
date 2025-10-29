@@ -75,7 +75,13 @@ jobs:
     needs:
       - test
       - security
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/release/'))
+    if: >-
+      github.event_name == 'push'
+      && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/release/'))
+      && secrets.AWS_REGION != ''
+      && secrets.AWS_GITHUB_ROLE_ARN != ''
+      && !contains(secrets.AWS_REGION, '***')
+      && !contains(secrets.AWS_GITHUB_ROLE_ARN, '***')
     permissions:
       id-token: write
       contents: read
@@ -193,7 +199,12 @@ jobs:
     name: Sync Argo CD environments
     runs-on: ubuntu-latest
     needs: build-and-push
-    if: needs.build-and-push.result == 'success'
+    if: >-
+      needs.build-and-push.result == 'success'
+      && secrets.ARGOCD_SERVER != ''
+      && secrets.ARGOCD_AUTH_TOKEN != ''
+      && !contains(secrets.ARGOCD_SERVER, '***')
+      && !contains(secrets.ARGOCD_AUTH_TOKEN, '***')
     permissions:
       contents: read
     env:
