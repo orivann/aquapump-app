@@ -141,14 +141,17 @@ The build artifacts are generated in `dist/` and served via Nginx in the provide
 ## DevOps scaffolding
 
 - **Helm** – `deploy/helm/aquapump` contains a chart that templates both services, ingress configuration, and environment variables.
-- **Kubernetes** – `deploy/kubernetes/base` offers Kustomize-ready manifests for direct cluster application or as a basis for overlays.
 - **Argo CD** – `deploy/argocd/application.yaml` defines how to sync the Helm chart from this repository using GitOps.
-- **GitHub Actions** – `.github/workflows/ecr-deploy.yml` builds and pushes images to Amazon ECR, updates Helm values, and triggers Argo CD.
+- **GitHub Actions** – `.github/workflows/main.yaml` builds and pushes images to Amazon ECR, updates Helm values, and triggers Argo CD.
 
 ## Additional documentation
 
 - `project_structure.md` – Guided tour of the repository layout for teammates and stakeholders.
 - `docs/operations.md` – Operations playbook covering environments, CI/CD, Kubernetes deployment, and recovery procedures.
+- `DEPLOYMENT.md` – Hands-on deployment checklist covering Helm, Argo CD, and GitHub Actions.
+- `backend/README.md` – Backend-specific setup and quality checks.
+- `frontend/README.md` – Frontend development guide and design-system notes.
+- `docs/infra/README.md` – Reference IAM policies that support the CI/CD pipeline.
 
 ## Next steps
 

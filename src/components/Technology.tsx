@@ -48,8 +48,9 @@ const Technology = () => {
 
   return (
     <section
+      id="technology"
       ref={sectionRef}
-      className="relative overflow-hidden bg-background py-28"
+      className="relative scroll-mt-32 overflow-hidden bg-background py-28"
     >
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(0,63,123,0.14)_0%,_transparent_65%)]" />
 

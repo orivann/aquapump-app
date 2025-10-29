@@ -49,8 +49,9 @@ const Sustainability = () => {
 
   return (
     <section
+      id="sustainability"
       ref={sectionRef}
-      className="relative overflow-hidden bg-gradient-to-b from-background via-primary/5 to-background py-28"
+      className="relative scroll-mt-32 overflow-hidden bg-gradient-to-b from-background via-primary/5 to-background py-28"
     >
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom,_rgba(107,203,99,0.16)_0%,_transparent_65%)]" />
 

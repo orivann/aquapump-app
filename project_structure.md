@@ -112,15 +112,11 @@ Use case: marketing or sales teams can launch the full experience locally with D
 
 A Helm chart that describes how to deploy the frontend and backend onto Kubernetes clusters. It defines container images, environment variables, health checks, and optional ingress (public URL) configuration.
 
-### `deploy/kubernetes/base/`
-
-Raw Kubernetes manifests (using Kustomize) for those who want a more traditional approach before embracing Helm. Includes namespace, deployments, and services.
-
 ### `deploy/argocd/application.yaml`
 
 Tells ArgoCD (a GitOps tool) how to continuously deploy the Helm chart from this repo. Keeps the live environment in sync with Git changes.
 
-### `.github/workflows/ecr-deploy.yml`
+### `.github/workflows/main.yaml`
 
 Automation pipeline that:
 
@@ -152,7 +148,7 @@ A: Frontend changes go through `src/contexts/ChatWidgetContext.tsx`. Backend beh
 A: Merge changes into the main branch; the GitHub Actions workflow builds images and ArgoCD rolls them out (once cloud credentials are configured).
 
 **Q: How can I confirm everything is healthy right now?**  
-A: Run `python scripts/health_check.py` after Docker Compose or in a staging environment.
+A: Run `python scripts/health_check.py --backend-base http://localhost:8000 --frontend-url http://localhost:5173` after Docker Compose or against staging.
 
 ---
 

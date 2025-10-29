@@ -42,15 +42,16 @@ const Features = () => {
         descKey: "features.install.desc",
       },
     ],
-    [],
+    [t],
   );
 
   useScrollReveal(sectionRef, { threshold: 0.2 });
 
   return (
     <section
+      id="features"
       ref={sectionRef}
-      className="relative overflow-hidden bg-gradient-to-b from-background via-secondary/40 to-background py-28"
+      className="relative scroll-mt-32 overflow-hidden bg-gradient-to-b from-background via-secondary/40 to-background py-28"
     >
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(16,76,145,0.12)_0%,_transparent_60%)]" />
 

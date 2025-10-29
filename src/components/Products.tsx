@@ -41,26 +41,27 @@ const Products = () => {
         gradient: "from-purple-300/40 via-primary/30 to-accent/20",
       },
     ],
-    [],
+    [t],
   );
 
   useScrollReveal(sectionRef, { threshold: 0.2 });
 
   return (
     <section
+      id="products"
       ref={sectionRef}
-      className="relative overflow-hidden bg-gradient-to-b from-background via-secondary/20 to-background pt-40 pb-32 sm:pt-64 sm:pb-40 lg:pt-80"
+      className="relative scroll-mt-32 overflow-hidden bg-gradient-to-b from-background via-secondary/20 to-background pt-40 pb-32 sm:pt-64 sm:pb-40 lg:pt-80"
     >
       <div className="pointer-events-none absolute inset-x-0 -top-20 h-[420px] bg-[radial-gradient(circle_at_top,_rgba(0,63,123,0.16)_0%,_transparent_82%)]" />
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-48 bg-[radial-gradient(circle_at_bottom,_rgba(0,63,123,0.12)_0%,_transparent_70%)]" />
 
-        <div className="relative mx-auto flex w-full max-w-6xl flex-col gap-16 px-6">
-          <SectionHeading
-            eyebrow={t("products.badge")}
-            title={t("products.title")}
-            description={t("products.subtitle")}
-            className="mx-auto max-w-3xl gap-14 [&>div]:gap-7"
-          />
+      <div className="relative mx-auto flex w-full max-w-6xl flex-col gap-16 px-6">
+        <SectionHeading
+          eyebrow={t("products.badge")}
+          title={t("products.title")}
+          description={t("products.subtitle")}
+          className="mx-auto max-w-3xl gap-14 [&>div]:gap-7"
+        />
 
         <div
           role="list"

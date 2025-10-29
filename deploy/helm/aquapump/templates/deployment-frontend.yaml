@@ -30,11 +30,30 @@ spec:
           ports:
             - containerPort: {{ .Values.frontend.containerPort }}
               name: http
+          {{- $inlineEnv := list }}
+          {{- range $key, $value := .Values.frontend.env }}
+          {{- if ne (default "" $value) "" }}
+          {{- $inlineEnv = append $inlineEnv (dict "name" $key "value" $value) }}
+          {{- end }}
+          {{- end }}
+          {{- if $inlineEnv }}
           env:
-            {{- range $key, $value := .Values.frontend.env }}
-            - name: {{ $key }}
-              value: {{ $value | quote }}
+            {{- range $inlineEnv }}
+            - name: {{ index . "name" }}
+              value: {{ index . "value" | quote }}
             {{- end }}
+          {{- end }}
+          {{- $envFrom := list }}
+          {{- if .Values.frontend.existingSecret }}
+          {{- $envFrom = append $envFrom (dict "secretRef" (dict "name" .Values.frontend.existingSecret)) }}
+          {{- end }}
+          {{- range .Values.frontend.envFrom }}
+          {{- $envFrom = append $envFrom . }}
+          {{- end }}
+          {{- if $envFrom }}
+          envFrom:
+            {{- toYaml $envFrom | nindent 12 }}
+          {{- end }}
           readinessProbe:
             httpGet:
               path: /

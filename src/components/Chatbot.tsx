@@ -29,7 +29,7 @@ const Chatbot = () => {
         icon: Timer,
       },
     ],
-    [],
+    [t],
   ).map(({ key, icon }) => ({
     icon,
     title: t(`chatbot.highlight.${key}.title`),
@@ -38,8 +38,9 @@ const Chatbot = () => {
 
   return (
     <section
+      id="assistant"
       ref={sectionRef}
-      className="relative overflow-hidden bg-gradient-to-br from-primary via-primary/95 to-primary-dark text-primary-foreground"
+      className="relative scroll-mt-32 overflow-hidden bg-gradient-to-br from-primary via-primary/95 to-primary-dark text-primary-foreground"
     >
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.18)_0%,_transparent_65%)]" />
 

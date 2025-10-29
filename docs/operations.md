@@ -52,14 +52,13 @@ GitHub Actions ──► Amazon ECR ──► Argo CD ──► Kubernetes (K3s)
 
 ## 4. CI/CD Pipeline (GitHub Actions → ECR → Argo CD)
 
-Workflow: `.github/workflows/ecr-deploy.yml`
+Workflow: `.github/workflows/main.yaml`
 
-1. **Build** – Uses Docker to build `backend/Dockerfile` and `frontend/Dockerfile`.
-2. **Push** – Publishes images to the configured Amazon ECR repositories.
-3. **Tag management** – On `main`, retags the digest as `latest` for quick rollbacks.
-4. **Helm values update** – Writes the new image tag into `deploy/helm/aquapump/values.yaml` so manifests reference the freshly built images.
-5. **GitOps sync** – Invokes Argo CD to sync the `aquapump` Application with the repository state.
-6. **Health guard** – Polls Argo CD status and rolls back automatically if the app fails to become `Healthy` and `Synced` within the timeout window.
+1. **Quality gates** – Runs `npm run lint`/`npm run build` for the frontend and compiles the FastAPI sources to catch Python syntax issues.
+2. **Image build & push** – Uses Docker Buildx with GitHub Actions cache to build and push backend and frontend images in parallel (tagged with the commit SHA and, on `main`, `latest`).
+3. **Helm values update** – Patches `deploy/helm/aquapump/values.yaml` with the new image tag so Kubernetes pulls the correct version.
+4. **GitOps sync** – Invokes Argo CD to sync the `aquapump` Application with the repository state.
+5. **Health guard** – Polls Argo CD status and rolls back automatically if the app fails to become `Healthy` and `Synced` within the timeout window.
 
 ### Required secrets
 
@@ -83,10 +82,13 @@ Override values per environment through Helm values files or Argo CD Application
 helm upgrade --install aquapump deploy/helm/aquapump \
   --namespace aquapump \
   --create-namespace \
-  --set backend.env.SUPABASE_URL=... \
-  --set backend.env.SUPABASE_SERVICE_ROLE_KEY=... \
-  --set frontend.env.VITE_REACT_APP_API_BASE=https://aquapump.example.com/api
+  --set backend.existingSecret=aquapump-secrets \
+  --set frontend.existingSecret=aquapump-secrets
 ```
+
+Create the `aquapump-secrets` secret once with the required keys (e.g. `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `AI_API_KEY`, `VITE_REACT_APP_API_BASE`) before running the Helm command. If you prefer inline variables, omit `existingSecret` and set `backend.env.*`/`frontend.env.*` instead.
+
+For production you can turn on the bundled ExternalSecret (`externalSecret.enabled=true`) and point it at your preferred `SecretStore` so the cluster syncs credentials automatically.
 
 ## 6. Terraform & Cluster Bootstrap
 
