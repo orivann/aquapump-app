@@ -107,9 +107,16 @@ jobs:
         id: health
         run: |
           echo "Waiting for ArgoCD application to be healthy..."
+          SERVER_RAW="${{ secrets.ARGOCD_SERVER }}"
+          SERVER_SANITIZED=$(python scripts/ci/normalize_argocd_server.py "$SERVER_RAW")
+          printf '::add-mask::%s\n' "$SERVER_SANITIZED"
+          ARGOCD_ARGS=("--server" "$SERVER_SANITIZED" "--auth-token" "${{ secrets.ARGOCD_AUTH_TOKEN }}" "--insecure")
+          if [[ "$SERVER_RAW" == http://* || "$SERVER_RAW" == https://* ]]; then
+            ARGOCD_ARGS+=("--grpc-web")
+          fi
           for i in {1..20}; do
-            STATUS=$(argocd app get aquapump --server ${{ secrets.ARGOCD_SERVER }} --auth-token ${{ secrets.ARGOCD_AUTH_TOKEN }} --insecure -o json | jq -r '.status.health.status')
-            SYNC=$(argocd app get aquapump --server ${{ secrets.ARGOCD_SERVER }} --auth-token ${{ secrets.ARGOCD_AUTH_TOKEN }} --insecure -o json | jq -r '.status.sync.status')
+            STATUS=$(argocd app get aquapump "${ARGOCD_ARGS[@]}" -o json | jq -r '.status.health.status')
+            SYNC=$(argocd app get aquapump "${ARGOCD_ARGS[@]}" -o json | jq -r '.status.sync.status')
             echo "Sync: $SYNC | Health: $STATUS"
             if [[ "$STATUS" == "Healthy" && "$SYNC" == "Synced" ]]; then
               echo "✅ ArgoCD app is Healthy and Synced"
@@ -125,4 +132,12 @@ jobs:
         if: failure()
         run: |
           echo "Rolling back ArgoCD application..."
-          argocd app rollback aquapump --server ${{ secrets.ARGOCD_SERVER }} --auth-token ${{ secrets.ARGOCD_AUTH_TOKEN }} --insecure
+          SERVER_RAW="${{ secrets.ARGOCD_SERVER }}"
+          SERVER_SANITIZED=$(python scripts/ci/normalize_argocd_server.py "$SERVER_RAW")
+          printf '::add-mask::%s\n' "$SERVER_SANITIZED"
+          ROLLBACK_ARGS=("--server" "$SERVER_SANITIZED" "--auth-token" "${{ secrets.ARGOCD_AUTH_TOKEN }}" "--insecure")
+          if [[ "$SERVER_RAW" == http://* || "$SERVER_RAW" == https://* ]]; then
+            ROLLBACK_ARGS+=("--grpc-web")
+          fi
+          argocd app rollback aquapump "${ROLLBACK_ARGS[@]}"
+        shell: bash

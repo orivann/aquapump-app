@@ -11,6 +11,7 @@ backend:
     repository: 043309328819.dkr.ecr.eu-central-1.amazonaws.com/aquapump/backend
     tag: latest
     pullPolicy: IfNotPresent
+  containerPort: 8000
   service:
     type: ClusterIP
     port: 8000
@@ -21,7 +22,7 @@ backend:
     AI_API_KEY: ""
     AI_MODEL: "gpt-4o-mini"
     AI_API_BASE_URL: ""
-    CORS_ALLOW_ORIGINS: "https://aquapump.example.com"
+    CORS_ALLOW_ORIGINS: "https://aqua-pump.net"
   resources:
     requests:
       cpu: 100m
@@ -41,11 +42,13 @@ frontend:
     repository: 043309328819.dkr.ecr.eu-central-1.amazonaws.com/aquapump/frontend
     tag: latest
     pullPolicy: IfNotPresent
+  containerPort: 5173
   service:
     type: ClusterIP
     port: 80
+    targetPort: 5173
   env:
-    VITE_REACT_APP_API_BASE: "https://aquapump.example.com/api"
+    VITE_REACT_APP_API_BASE: "https://api.aqua-pump.net"
   resources:
     requests:
       cpu: 50m
@@ -60,18 +63,27 @@ frontend:
 # 🌐 Ingress Configuration
 # ---------------------------
 ingress:
-  enabled: true
-  className: nginx
-  annotations: {}
-  hosts:
-    - host: aquapump.example.com
-      paths:
-        - path: /
-          pathType: Prefix
-  tls:
-    - hosts:
-        - aquapump.example.com
-      secretName: aquapump-tls
+  frontend:
+    enabled: true
+    className: nginx
+    annotations: {}
+    hosts:
+      - host: aqua-pump.net
+        paths:
+          - path: /
+            pathType: Prefix
+    tls: []
+  backend:
+    enabled: true
+    className: nginx
+    annotations:
+      nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+    hosts:
+      - host: api.aqua-pump.net
+        paths:
+          - path: /
+            pathType: Prefix
+    tls: []
 image:
   backend:
     tag: 7f536b18d8a3d470c455dab4da6852dff1c72a31
