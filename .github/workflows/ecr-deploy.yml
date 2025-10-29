@@ -113,41 +113,7 @@ jobs:
 
       - name: Login to Amazon ECR
         id: login-ecr
-        env:
-          AWS_REGION: ${{ secrets.AWS_REGION }}
-        run: |
-          set -euo pipefail
-          if [[ -z "${AWS_REGION:-}" ]]; then
-            echo "AWS_REGION secret is not configured" >&2
-            exit 1
-          fi
-
-          ACCOUNT_ID=$(aws sts get-caller-identity --query 'Account' --output text)
-          if [[ -z "${ACCOUNT_ID:-}" ]]; then
-            echo "Failed to determine AWS account ID" >&2
-            exit 1
-          fi
-
-          REGISTRY="${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
-          echo "Attempting to log in to ${REGISTRY}"
-
-          MAX_ATTEMPTS=5
-          for attempt in $(seq 1 $MAX_ATTEMPTS); do
-            if aws ecr get-login-password --region "$AWS_REGION" \
-              | docker login --username AWS --password-stdin "$REGISTRY"; then
-              echo "Logged in to ${REGISTRY} on attempt ${attempt}"
-              break
-            fi
-
-            if [[ $attempt -eq $MAX_ATTEMPTS ]]; then
-              echo "Failed to log in to ${REGISTRY} after ${MAX_ATTEMPTS} attempts" >&2
-              exit 1
-            fi
-
-            sleep $((attempt * 5))
-          done
-
-          printf 'registry=%s\n' "$REGISTRY" >> "$GITHUB_OUTPUT"
+        uses: aws-actions/amazon-ecr-login@v2
 
       - name: Derive image URIs
         id: derive-image
