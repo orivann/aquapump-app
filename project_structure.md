@@ -120,14 +120,14 @@ Raw Kubernetes manifests (using Kustomize) for those who want a more traditional
 
 Tells ArgoCD (a GitOps tool) how to continuously deploy the Helm chart from this repo. Keeps the live environment in sync with Git changes.
 
-### `deploy/ci/github-actions/ecr-deploy.yml`
+### `.github/workflows/ecr-deploy.yml`
 
 Automation pipeline that:
 
 1. Builds Docker images for frontend and backend.
 2. Pushes them to Amazon ECR.
-3. Optionally updates the Helm chart with the new image tags.
-4. Triggers ArgoCD to deploy the update.
+3. Updates the Helm chart with the new image tags so Kubernetes pulls the fresh builds.
+4. Triggers ArgoCD to deploy the update and checks health.
 
 This is the “factory assembly line” for turning code changes into running features in the cloud.
 
