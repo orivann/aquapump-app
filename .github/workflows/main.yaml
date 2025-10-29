@@ -76,10 +76,10 @@ jobs:
         include:
           - service: backend
             dockerfile: backend/Dockerfile
-            repository: ${{ env.BACKEND_REPOSITORY }}
+            repository_env: BACKEND_REPOSITORY
           - service: frontend
             dockerfile: frontend/Dockerfile
-            repository: ${{ env.FRONTEND_REPOSITORY }}
+            repository_env: FRONTEND_REPOSITORY
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -99,7 +99,7 @@ jobs:
 
       - name: Set image tags
         run: |
-          REPOSITORY="${{ matrix.repository }}"
+          REPOSITORY="${{ env[matrix.repository_env] }}"
           if [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then
             echo "IMAGE_TAGS=${REGISTRY}/${REPOSITORY}:${IMAGE_TAG},${REGISTRY}/${REPOSITORY}:latest" >> $GITHUB_ENV
           else
