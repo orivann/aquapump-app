@@ -1,7 +1,6 @@
 global:
   imagePullSecrets:
     - name: ecr-creds
-
 externalSecret:
   enabled: false
   name: aquapump-secrets
@@ -13,12 +12,11 @@ externalSecret:
     name: aquapump-secrets
     creationPolicy: Owner
   data: []
-
 backend:
   replicaCount: 1
   image:
     repository: 043309328819.dkr.ecr.eu-central-1.amazonaws.com/aquapump/backend
-    tag: latest
+    tag: 7b22838d6ab7fc80c3d3b15dbc1997472c90f658
     pullPolicy: IfNotPresent
   containerPort: 8000
   service:
@@ -45,12 +43,11 @@ backend:
   nodeSelector: {}
   affinity: {}
   tolerations: []
-
 frontend:
   replicaCount: 1
   image:
     repository: 043309328819.dkr.ecr.eu-central-1.amazonaws.com/aquapump/frontend
-    tag: latest
+    tag: 7b22838d6ab7fc80c3d3b15dbc1997472c90f658
     pullPolicy: IfNotPresent
   containerPort: 80
   service:
@@ -71,22 +68,17 @@ frontend:
   nodeSelector: {}
   affinity: {}
   tolerations: []
-
 ingress:
   className: nginx
-
   annotations:
     nginx.ingress.kubernetes.io/from-to-www-redirect: "true"
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-
   frontend:
     hosts:
       - www.aqua-pump.net
       - aqua-pump.net
-
   backend:
     host: api.aqua-pump.net
-
   tls:
     enabled: true
     clusterIssuer: letsencrypt-http
