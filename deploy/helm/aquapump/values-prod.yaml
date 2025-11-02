@@ -26,3 +26,6 @@ backend:
 
 frontend:
   existingSecret: aquapump-secrets
+
+global:
+  imagePullSecrets: []

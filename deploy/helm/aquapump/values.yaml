@@ -1,6 +1,6 @@
 global:
-  imagePullSecrets:
-    - name: ecr-creds
+  imagePullSecrets: []
+
 externalSecret:
   enabled: false
   name: aquapump-secrets
