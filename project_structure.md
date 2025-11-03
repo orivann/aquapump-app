@@ -17,16 +17,16 @@ Supporting these two areas is a set of deployment, testing, and automation tools
 
 ## Top-level Items (Root Folder)
 
-| Item | Plain-English Description |
-|------|---------------------------|
-| `src/` | The source code for the React website (what people see). |
-| `backend/` | The FastAPI application that processes chat messages and integrates with Supabase and AI services. |
-| `docker-compose.yml` | A recipe that launches the website and the API together using Docker; one command to start both services for demos or testing. |
-| `scripts/health_check.py` | A quick diagnostic tool that confirms all parts are alive (website, backend, database connection). |
-| `deploy/` | Blueprints for deploying AquaPump to cloud platforms (Kubernetes, ArgoCD, CI/CD pipelines). |
-| `project_structure.md` | This explanation file. |
-| `README.md` | The technical setup guide for engineers (install instructions, environment variables, etc.). |
-| `.gitignore` | Tells Git which files to ignore (log files, local secrets, temporary folders). |
+| Item                      | Plain-English Description                                                                                                      |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| `src/`                    | The source code for the React website (what people see).                                                                       |
+| `backend/`                | The FastAPI application that processes chat messages and integrates with Supabase and AI services.                             |
+| `docker-compose.yml`      | A recipe that launches the website and the API together using Docker; one command to start both services for demos or testing. |
+| `scripts/health_check.py` | A quick diagnostic tool that confirms all parts are alive (website, backend, database connection).                             |
+| `deploy/`                 | Blueprints for deploying AquaPump to cloud platforms (Kubernetes, ArgoCD, CI/CD pipelines).                                    |
+| `project_structure.md`    | This explanation file.                                                                                                         |
+| `README.md`               | The technical setup guide for engineers (install instructions, environment variables, etc.).                                   |
+| `.gitignore`              | Tells Git which files to ignore (log files, local secrets, temporary folders).                                                 |
 
 There are also configuration files for the React project (`tailwind.config.ts`, `tsconfig.json`, `vite.config.ts`, etc.). You rarely need to touch them unless you are coding.
 
@@ -160,4 +160,4 @@ A: Run `python scripts/health_check.py --backend-base http://localhost:8000 --fr
 - **Health script** = quick status check.
 - **Deploy folder** = manuals for launching on cloud platforms and automating releases.
 
-With these pieces, teams can confidently demonstrate AquaPump, customize messaging, and scale the experience from laptops to enterprise infrastructure.***
+With these pieces, teams can confidently demonstrate AquaPump, customize messaging, and scale the experience from laptops to enterprise infrastructure.\*\*\*

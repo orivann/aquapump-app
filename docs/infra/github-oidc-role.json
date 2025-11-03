@@ -1,31 +1,31 @@
 {
-    "Role": {
-        "Path": "/",
-        "RoleName": "GitHubActionsECRRole",
-        "RoleId": "AROAQUFLP5GZRZHSGSU3G",
-        "Arn": "arn:aws:iam::043309328819:role/GitHubActionsECRRole",
-        "CreateDate": "2025-10-27T12:05:52+00:00",
-        "AssumeRolePolicyDocument": {
-            "Version": "2012-10-17",
-            "Statement": [
-                {
-                    "Effect": "Allow",
-                    "Principal": {
-                        "Federated": "arn:aws:iam::043309328819:oidc-provider/token.actions.githubusercontent.com"
-                    },
-                    "Action": "sts:AssumeRoleWithWebIdentity",
-                    "Condition": {
-                        "StringEquals": {
-                            "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
-                        },
-                        "StringLike": {
-                            "token.actions.githubusercontent.com:sub": "repo:orivann/aquapump:ref:refs/heads/main"
-                        }
-                    }
-                }
-            ]
-        },
-        "MaxSessionDuration": 3600,
-        "RoleLastUsed": {}
-    }
+  "Role": {
+    "Path": "/",
+    "RoleName": "GitHubActionsECRRole",
+    "RoleId": "AROAQUFLP5GZRZHSGSU3G",
+    "Arn": "arn:aws:iam::043309328819:role/GitHubActionsECRRole",
+    "CreateDate": "2025-10-27T12:05:52+00:00",
+    "AssumeRolePolicyDocument": {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Effect": "Allow",
+          "Principal": {
+            "Federated": "arn:aws:iam::043309328819:oidc-provider/token.actions.githubusercontent.com"
+          },
+          "Action": "sts:AssumeRoleWithWebIdentity",
+          "Condition": {
+            "StringEquals": {
+              "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
+            },
+            "StringLike": {
+              "token.actions.githubusercontent.com:sub": "repo:orivann/aquapump:ref:refs/heads/main"
+            }
+          }
+        }
+      ]
+    },
+    "MaxSessionDuration": 3600,
+    "RoleLastUsed": {}
+  }
 }

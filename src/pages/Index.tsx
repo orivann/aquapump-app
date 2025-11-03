@@ -1,14 +1,14 @@
-import Navbar from '@/components/Navbar';
-import Hero from '@/components/Hero';
-import Features from '@/components/Features';
-import Technology from '@/components/Technology';
-import Sustainability from '@/components/Sustainability';
-import BrandShowcase from '@/components/BrandShowcase';
-import Products from '@/components/Products';
-import Chatbot from '@/components/Chatbot';
-import Contact from '@/components/Contact';
-import Footer from '@/components/Footer';
-import AmbientBackground from '@/components/AmbientBackground';
+import Navbar from "@/components/Navbar";
+import Hero from "@/components/Hero";
+import Features from "@/components/Features";
+import Technology from "@/components/Technology";
+import Sustainability from "@/components/Sustainability";
+import BrandShowcase from "@/components/BrandShowcase";
+import Products from "@/components/Products";
+import Chatbot from "@/components/Chatbot";
+import Contact from "@/components/Contact";
+import Footer from "@/components/Footer";
+import AmbientBackground from "@/components/AmbientBackground";
 
 const Index = () => {
   return (

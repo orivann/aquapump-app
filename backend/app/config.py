@@ -38,7 +38,9 @@ class Settings(BaseSettings):
             try:
                 parsed = json.loads(raw)
             except json.JSONDecodeError as exc:
-                raise ValueError("Invalid JSON array provided for CORS_ALLOW_ORIGINS") from exc
+                raise ValueError(
+                    "Invalid JSON array provided for CORS_ALLOW_ORIGINS"
+                ) from exc
             if isinstance(parsed, list):
                 return [str(origin).strip() for origin in parsed if str(origin).strip()]
             raise ValueError("CORS_ALLOW_ORIGINS JSON must decode to a list of origins")

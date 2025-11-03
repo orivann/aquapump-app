@@ -4,7 +4,10 @@ export interface NewsletterResponse {
   status: "subscribed";
 }
 
-export async function subscribeToNewsletter(email: string, options?: { source?: string; metadata?: Record<string, unknown> }) {
+export async function subscribeToNewsletter(
+  email: string,
+  options?: { source?: string; metadata?: Record<string, unknown> },
+) {
   return apiRequest<NewsletterResponse>("/newsletter", {
     method: "POST",
     headers: {

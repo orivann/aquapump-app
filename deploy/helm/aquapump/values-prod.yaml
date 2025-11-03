@@ -1,3 +1,4 @@
+---
 externalSecret:
   enabled: true
   secretStoreRef:

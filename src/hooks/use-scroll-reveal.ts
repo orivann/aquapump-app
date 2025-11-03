@@ -11,7 +11,12 @@ export type ScrollRevealOptions = IntersectionObserverInit & {
  */
 export const useScrollReveal = (
   containerRef: RefObject<HTMLElement>,
-  { threshold = 0.2, rootMargin = "0px 0px -10% 0px", once = true, root }: ScrollRevealOptions = {}
+  {
+    threshold = 0.2,
+    rootMargin = "0px 0px -10% 0px",
+    once = true,
+    root,
+  }: ScrollRevealOptions = {},
 ) => {
   const prefersReducedMotion = usePrefersReducedMotion();
 
@@ -20,7 +25,9 @@ export const useScrollReveal = (
     if (!container || prefersReducedMotion) return;
 
     const animatedElements = Array.from(
-      container.querySelectorAll<HTMLElement>('[data-animate]:not([data-animate="static"])')
+      container.querySelectorAll<HTMLElement>(
+        '[data-animate]:not([data-animate="static"])',
+      ),
     );
 
     if (animatedElements.length === 0) return;
@@ -36,7 +43,7 @@ export const useScrollReveal = (
           }
         });
       },
-      { root, rootMargin, threshold }
+      { root, rootMargin, threshold },
     );
 
     animatedElements.forEach((element) => {

@@ -15,7 +15,10 @@ const Technology = () => {
 
   const highlights = useMemo(
     () => [
-      { title: t("tech.materials.title"), description: t("tech.materials.desc") },
+      {
+        title: t("tech.materials.title"),
+        description: t("tech.materials.desc"),
+      },
       { title: t("tech.controls.title"), description: t("tech.controls.desc") },
       { title: t("tech.tested.title"), description: t("tech.tested.desc") },
     ],
@@ -55,7 +58,10 @@ const Technology = () => {
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(0,63,123,0.14)_0%,_transparent_65%)]" />
 
       <div className="relative mx-auto grid w-full max-w-6xl items-center gap-12 px-6 lg:grid-cols-[minmax(0,_1.1fr)_minmax(0,_1fr)] lg:gap-20">
-        <div className="relative order-2 h-full lg:order-1" data-animate="slide-left">
+        <div
+          className="relative order-2 h-full lg:order-1"
+          data-animate="slide-left"
+        >
           <div className="relative overflow-hidden rounded-[32px] border border-border/60 bg-muted/40 p-10 backdrop-blur">
             <SectionHeading
               eyebrow={t("tech.badge")}
@@ -71,11 +77,21 @@ const Technology = () => {
                   key={item.title}
                   className="rounded-3xl border border-border/50 bg-background/60 p-6 shadow-[0_18px_32px_rgba(0,0,0,0.06)] backdrop-blur"
                   data-animate
-                  style={{ "--stagger-delay": `${180 + index * 90}ms` } as CSSProperties}
+                  style={
+                    {
+                      "--stagger-delay": `${180 + index * 90}ms`,
+                    } as CSSProperties
+                  }
                 >
-                  <p className="text-xs uppercase tracking-[0.4em] text-muted-foreground/70">{String(index + 1).padStart(2, "0")}</p>
-                  <h3 className="mt-3 text-xl font-semibold text-foreground">{item.title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{item.description}</p>
+                  <p className="text-xs uppercase tracking-[0.4em] text-muted-foreground/70">
+                    {String(index + 1).padStart(2, "0")}
+                  </p>
+                  <h3 className="mt-3 text-xl font-semibold text-foreground">
+                    {item.title}
+                  </h3>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                    {item.description}
+                  </p>
                 </div>
               ))}
             </div>

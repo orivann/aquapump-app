@@ -70,7 +70,11 @@ const Sustainability = () => {
           </div>
         </div>
 
-        <div className="flex flex-col gap-8" data-animate="slide-right" style={{ "--stagger-delay": "120ms" } as CSSProperties}>
+        <div
+          className="flex flex-col gap-8"
+          data-animate="slide-right"
+          style={{ "--stagger-delay": "120ms" } as CSSProperties}
+        >
           <SectionHeading
             eyebrow={t("sustain.badge")}
             title={t("sustain.title")}
@@ -89,10 +93,18 @@ const Sustainability = () => {
                 role="listitem"
                 className="min-w-[220px] flex-shrink-0 rounded-3xl border border-border/60 bg-muted/40 p-6 transition hover:-translate-y-1 hover:border-accent/40 sm:min-w-0"
                 data-animate
-                style={{ "--stagger-delay": `${220 + index * 70}ms` } as CSSProperties}
+                style={
+                  {
+                    "--stagger-delay": `${220 + index * 70}ms`,
+                  } as CSSProperties
+                }
               >
-                <p className="text-3xl font-semibold text-foreground md:text-4xl">{metric.value}</p>
-                <p className="mt-1 text-sm text-muted-foreground">{metric.label}</p>
+                <p className="text-3xl font-semibold text-foreground md:text-4xl">
+                  {metric.value}
+                </p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {metric.label}
+                </p>
               </div>
             ))}
           </div>

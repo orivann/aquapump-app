@@ -92,7 +92,9 @@ const Chatbot = () => {
                 <item.icon className="h-6 w-6" />
               </span>
               <h3 className="text-lg font-semibold">{item.title}</h3>
-              <p className="text-sm text-primary-foreground/80">{item.description}</p>
+              <p className="text-sm text-primary-foreground/80">
+                {item.description}
+              </p>
             </div>
           ))}
         </div>

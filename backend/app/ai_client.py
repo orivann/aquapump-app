@@ -24,7 +24,9 @@ def _client() -> OpenAI:
 
 
 def _build_messages(history: list[Message], prompt: str) -> list[dict[str, Any]]:
-    messages = [message.model_dump(mode="json", exclude_none=True) for message in history]
+    messages = [
+        message.model_dump(mode="json", exclude_none=True) for message in history
+    ]
     messages.append({"role": "user", "content": prompt})
     return messages
 
@@ -46,8 +48,13 @@ async def generate_response(history: list[Message], prompt: str) -> str:
     choice = response.choices[0]
     content = choice.message.content
     if not content:
-        logger.error("Empty response from AI provider", extra={"model": settings.ai_model})
+        logger.error(
+            "Empty response from AI provider", extra={"model": settings.ai_model}
+        )
         raise HTTPException(status_code=502, detail="Empty response from AI service")
 
-    logger.debug("AI response generated", extra={"tokens": getattr(response.usage, "total_tokens", None)})
+    logger.debug(
+        "AI response generated",
+        extra={"tokens": getattr(response.usage, "total_tokens", None)},
+    )
     return content

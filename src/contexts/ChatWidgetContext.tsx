@@ -22,7 +22,11 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { ChatMessage, fetchChatHistory, sendChatMessage } from "@/lib/chatApi";
 import { cn } from "@/lib/utils";
@@ -78,7 +82,11 @@ const FloatingLauncher = ({
         size="icon"
         className="fixed bottom-6 right-6 z-40 h-16 w-16 rounded-full border-0 bg-gradient-to-br from-primary via-primary to-accent text-primary-foreground shadow-[0_25px_45px_rgba(9,29,78,0.35)] transition hover:-translate-y-1 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-accent/40"
       >
-        {isBusy ? <Loader2 className="h-6 w-6 animate-spin" /> : <MessageCircle className="h-6 w-6" />}
+        {isBusy ? (
+          <Loader2 className="h-6 w-6 animate-spin" />
+        ) : (
+          <MessageCircle className="h-6 w-6" />
+        )}
         <span className="sr-only">Open Aqua AI assistant</span>
       </Button>
     </TooltipTrigger>
@@ -105,7 +113,13 @@ export const ChatWidgetProvider = ({ children }: { children: ReactNode }) => {
   const bottomRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    if (!isOpen || !sessionId || hasAttemptedRestore || isLoadingHistory || messages.length > 0) {
+    if (
+      !isOpen ||
+      !sessionId ||
+      hasAttemptedRestore ||
+      isLoadingHistory ||
+      messages.length > 0
+    ) {
       if (!sessionId) {
         setHasAttemptedRestore(false);
       }
@@ -120,13 +134,20 @@ export const ChatWidgetProvider = ({ children }: { children: ReactNode }) => {
         setMessages(response.messages);
       })
       .catch((err: unknown) => {
-        const message = err instanceof Error ? err.message : "Unable to load chat history";
+        const message =
+          err instanceof Error ? err.message : "Unable to load chat history";
         setError(message);
       })
       .finally(() => {
         setIsLoadingHistory(false);
       });
-  }, [hasAttemptedRestore, isLoadingHistory, isOpen, messages.length, sessionId]);
+  }, [
+    hasAttemptedRestore,
+    isLoadingHistory,
+    isOpen,
+    messages.length,
+    sessionId,
+  ]);
 
   useEffect(() => {
     if (!sessionId) {
@@ -136,7 +157,9 @@ export const ChatWidgetProvider = ({ children }: { children: ReactNode }) => {
   }, [sessionId]);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: isSending ? "smooth" : "auto" });
+    bottomRef.current?.scrollIntoView({
+      behavior: isSending ? "smooth" : "auto",
+    });
   }, [isOpen, isSending, messages]);
 
   const resetChat = useCallback(() => {
@@ -168,7 +191,8 @@ export const ChatWidgetProvider = ({ children }: { children: ReactNode }) => {
       setMessages(response.messages);
       setHasAttemptedRestore(true);
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Unable to send message";
+      const message =
+        err instanceof Error ? err.message : "Unable to send message";
       setError(message);
       setMessages((prev) => prev.filter((message) => message !== optimistic));
     } finally {
@@ -208,7 +232,9 @@ export const ChatWidgetProvider = ({ children }: { children: ReactNode }) => {
   return (
     <ChatWidgetContext.Provider value={contextValue}>
       {children}
-      {!isOpen && <FloatingLauncher onClick={() => setIsOpen(true)} isBusy={isSending} />}
+      {!isOpen && (
+        <FloatingLauncher onClick={() => setIsOpen(true)} isBusy={isSending} />
+      )}
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
         <SheetContent
           side={isMobile ? "bottom" : "right"}
@@ -225,7 +251,8 @@ export const ChatWidgetProvider = ({ children }: { children: ReactNode }) => {
               <div>
                 <SheetTitle className="text-xl">Aqua AI Assistant</SheetTitle>
                 <SheetDescription className="text-sm">
-                  Ask anything about AquaPump products and sustainability practices.
+                  Ask anything about AquaPump products and sustainability
+                  practices.
                 </SheetDescription>
               </div>
             </div>
@@ -236,7 +263,13 @@ export const ChatWidgetProvider = ({ children }: { children: ReactNode }) => {
               <span className="text-xs uppercase tracking-wide text-muted-foreground">
                 Conversations persist automatically
               </span>
-              <Button type="button" variant="outline" size="sm" onClick={resetChat} disabled={isResetDisabled}>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={resetChat}
+                disabled={isResetDisabled}
+              >
                 <RotateCcw className="mr-2 h-4 w-4" />
                 Reset
               </Button>
@@ -245,16 +278,26 @@ export const ChatWidgetProvider = ({ children }: { children: ReactNode }) => {
             <div className="flex flex-1 flex-col overflow-hidden rounded-xl border border-border bg-muted/40">
               <ScrollArea className="flex-1 px-4 py-5">
                 <div className="space-y-4">
-                  {isLoadingHistory ? <p className="text-sm text-muted-foreground">Loading previous messages…</p> : null}
+                  {isLoadingHistory ? (
+                    <p className="text-sm text-muted-foreground">
+                      Loading previous messages…
+                    </p>
+                  ) : null}
                   {messages.length === 0 && !isLoadingHistory ? (
                     <p className="text-sm text-muted-foreground">
-                      Welcome! Ask about pump specifications, energy efficiency, or installation guidance.
+                      Welcome! Ask about pump specifications, energy efficiency,
+                      or installation guidance.
                     </p>
                   ) : null}
                   {messages.map((message, index) => (
                     <div
                       key={`${message.role}-${index}-${message.created_at ?? "na"}`}
-                      className={cn("flex", message.role === "user" ? "justify-end" : "justify-start")}
+                      className={cn(
+                        "flex",
+                        message.role === "user"
+                          ? "justify-end"
+                          : "justify-start",
+                      )}
                     >
                       <div
                         className={cn(
@@ -267,7 +310,9 @@ export const ChatWidgetProvider = ({ children }: { children: ReactNode }) => {
                         <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground/70">
                           {roleLabels[message.role]}
                         </p>
-                        <p className="whitespace-pre-line leading-relaxed">{message.content}</p>
+                        <p className="whitespace-pre-line leading-relaxed">
+                          {message.content}
+                        </p>
                       </div>
                     </div>
                   ))}
@@ -291,7 +336,9 @@ export const ChatWidgetProvider = ({ children }: { children: ReactNode }) => {
                   {error ? (
                     <p className="text-sm text-destructive">{error}</p>
                   ) : (
-                    <span className="text-xs text-muted-foreground">Press Enter to send, Shift + Enter for a new line</span>
+                    <span className="text-xs text-muted-foreground">
+                      Press Enter to send, Shift + Enter for a new line
+                    </span>
                   )}
                   <Button type="submit" disabled={isSending || !draft.trim()}>
                     {isSending ? (

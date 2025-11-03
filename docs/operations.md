@@ -24,11 +24,11 @@ GitHub Actions ──► Amazon ECR ──► Argo CD ──► Kubernetes (K3s)
 
 ## 2. Environment Matrix
 
-| Environment | Purpose | How it is deployed |
-|-------------|---------|--------------------|
-| **Local**   | Developer workstation, demos | `docker compose up --build` (or manual `npm run dev` / `uvicorn`) |
-| **Staging** | Integration testing, stakeholder previews | Trigger GitHub Action from the `release/*` branch; Argo CD syncs the staging namespace |
-| **Production** | Customer-facing site | Merge to `main` so the GitHub Action builds tagged images and Argo CD deploys to the production namespace |
+| Environment    | Purpose                                   | How it is deployed                                                                                        |
+| -------------- | ----------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| **Local**      | Developer workstation, demos              | `docker compose up --build` (or manual `npm run dev` / `uvicorn`)                                         |
+| **Staging**    | Integration testing, stakeholder previews | Trigger GitHub Action from the `release/*` branch; Argo CD syncs the staging namespace                    |
+| **Production** | Customer-facing site                      | Merge to `main` so the GitHub Action builds tagged images and Argo CD deploys to the production namespace |
 
 ## 3. Local Operations
 
@@ -42,6 +42,7 @@ GitHub Actions ──► Amazon ECR ──► Argo CD ──► Kubernetes (K3s)
 
    - Frontend → http://localhost:5173
    - Backend → http://localhost:8000
+
 4. Validate with the bundled script:
 
    ```bash

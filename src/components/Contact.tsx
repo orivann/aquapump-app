@@ -15,7 +15,11 @@ const Contact = () => {
   useScrollReveal(sectionRef, { threshold: 0.15 });
 
   const contactItems = [
-    { icon: Phone, title: t("contact.phone"), description: "+1 (555) 123-4567" },
+    {
+      icon: Phone,
+      title: t("contact.phone"),
+      description: "+1 (555) 123-4567",
+    },
     { icon: Mail, title: t("contact.email"), description: "info@aquapump.com" },
     {
       icon: MapPin,
@@ -48,14 +52,20 @@ const Contact = () => {
                   key={item.title}
                   className="flex items-start gap-4"
                   data-animate
-                  style={{ "--stagger-delay": `${index * 90}ms` } as CSSProperties}
+                  style={
+                    { "--stagger-delay": `${index * 90}ms` } as CSSProperties
+                  }
                 >
                   <span className="flex h-12 w-12 items-center justify-center rounded-2xl border border-border/60 bg-background/80 text-primary">
                     <item.icon className="h-5 w-5" />
                   </span>
                   <div>
-                    <p className="text-sm font-semibold uppercase tracking-[0.3em] text-muted-foreground/80">{item.title}</p>
-                    <p className="mt-1 whitespace-pre-line text-base text-foreground">{item.description}</p>
+                    <p className="text-sm font-semibold uppercase tracking-[0.3em] text-muted-foreground/80">
+                      {item.title}
+                    </p>
+                    <p className="mt-1 whitespace-pre-line text-base text-foreground">
+                      {item.description}
+                    </p>
                   </div>
                 </li>
               ))}
@@ -71,13 +81,23 @@ const Contact = () => {
           <form className="space-y-6">
             <div className="grid gap-6 sm:grid-cols-2">
               <div className="space-y-3">
-                <label htmlFor="name" className="text-sm font-semibold text-muted-foreground/90">
+                <label
+                  htmlFor="name"
+                  className="text-sm font-semibold text-muted-foreground/90"
+                >
                   {t("contact.form.name")}
                 </label>
-                <Input id="name" placeholder={t("contact.form.namePlaceholder") ?? ""} className="h-12 rounded-xl border-border" />
+                <Input
+                  id="name"
+                  placeholder={t("contact.form.namePlaceholder") ?? ""}
+                  className="h-12 rounded-xl border-border"
+                />
               </div>
               <div className="space-y-3">
-                <label htmlFor="email" className="text-sm font-semibold text-muted-foreground/90">
+                <label
+                  htmlFor="email"
+                  className="text-sm font-semibold text-muted-foreground/90"
+                >
                   {t("contact.form.email")}
                 </label>
                 <Input
@@ -90,7 +110,10 @@ const Contact = () => {
             </div>
 
             <div className="space-y-3">
-              <label htmlFor="subject" className="text-sm font-semibold text-muted-foreground/90">
+              <label
+                htmlFor="subject"
+                className="text-sm font-semibold text-muted-foreground/90"
+              >
                 {t("contact.form.subject")}
               </label>
               <Input
@@ -101,7 +124,10 @@ const Contact = () => {
             </div>
 
             <div className="space-y-3">
-              <label htmlFor="message" className="text-sm font-semibold text-muted-foreground/90">
+              <label
+                htmlFor="message"
+                className="text-sm font-semibold text-muted-foreground/90"
+              >
                 {t("contact.form.message")}
               </label>
               <Textarea

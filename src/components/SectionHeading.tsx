@@ -20,7 +20,11 @@ const SectionHeading = ({
   actions,
 }: SectionHeadingProps) => {
   const alignment =
-    align === "center" ? "items-center text-center" : align === "right" ? "items-end text-right" : "items-start text-left";
+    align === "center"
+      ? "items-center text-center"
+      : align === "right"
+        ? "items-end text-right"
+        : "items-start text-left";
 
   return (
     <div className={cn("flex w-full flex-col gap-4", alignment, className)}>
@@ -30,12 +34,18 @@ const SectionHeading = ({
             {eyebrow}
           </span>
         ) : null}
-        <h2 className="font-display text-3xl tracking-tight text-foreground md:text-4xl lg:text-5xl">{title}</h2>
+        <h2 className="font-display text-3xl tracking-tight text-foreground md:text-4xl lg:text-5xl">
+          {title}
+        </h2>
         {description ? (
-          <p className="max-w-2xl text-balance text-sm text-muted-foreground/90 md:text-base lg:text-lg">{description}</p>
+          <p className="max-w-2xl text-balance text-sm text-muted-foreground/90 md:text-base lg:text-lg">
+            {description}
+          </p>
         ) : null}
       </div>
-      {actions ? <div className="flex flex-wrap items-center gap-3">{actions}</div> : null}
+      {actions ? (
+        <div className="flex flex-wrap items-center gap-3">{actions}</div>
+      ) : null}
     </div>
   );
 };

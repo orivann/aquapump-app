@@ -1,0 +1,9 @@
+---
+extends: default
+
+ignore: |
+  node_modules/
+  dist/
+  frontend/dist/
+  backend/.mypy_cache/
+  deploy/helm/aquapump/templates/

@@ -1,5 +1,11 @@
 import { type CSSProperties, useEffect, useMemo, useRef } from "react";
-import { ArrowRight, ChevronDown, Globe, Headphones, Sparkles } from "lucide-react";
+import {
+  ArrowRight,
+  ChevronDown,
+  Globe,
+  Headphones,
+  Sparkles,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import heroImage from "@/assets/hero-pump.jpg";
@@ -19,9 +25,21 @@ const Hero = () => {
 
   const metrics = useMemo(
     () => [
-      { label: t("hero.metrics.energy.label"), value: t("hero.metrics.energy.value"), description: t("hero.metrics.energy.description") },
-      { label: t("hero.metrics.roi.label"), value: t("hero.metrics.roi.value"), description: t("hero.metrics.roi.description") },
-      { label: t("hero.metrics.support.label"), value: t("hero.metrics.support.value"), description: t("hero.metrics.support.description") },
+      {
+        label: t("hero.metrics.energy.label"),
+        value: t("hero.metrics.energy.value"),
+        description: t("hero.metrics.energy.description"),
+      },
+      {
+        label: t("hero.metrics.roi.label"),
+        value: t("hero.metrics.roi.value"),
+        description: t("hero.metrics.roi.description"),
+      },
+      {
+        label: t("hero.metrics.support.label"),
+        value: t("hero.metrics.support.value"),
+        description: t("hero.metrics.support.description"),
+      },
     ],
     [t],
   );
@@ -53,7 +71,8 @@ const Hero = () => {
 
     const heroElement = heroRef.current;
     const imageElement = heroElement.querySelector<HTMLElement>(".hero-image");
-    const overlayElement = heroElement.querySelector<HTMLElement>(".hero-overlay");
+    const overlayElement =
+      heroElement.querySelector<HTMLElement>(".hero-overlay");
     const contentElement = contentRef.current;
 
     const handleScroll = () => {
@@ -159,11 +178,19 @@ const Hero = () => {
               role="listitem"
               className="min-w-[220px] flex-shrink-0 rounded-3xl border border-primary-foreground/20 bg-primary-foreground/5 p-6 backdrop-blur sm:min-w-0"
               data-animate
-              style={{ "--stagger-delay": `${420 + index * 80}ms` } as CSSProperties}
+              style={
+                { "--stagger-delay": `${420 + index * 80}ms` } as CSSProperties
+              }
             >
-              <p className="text-xs uppercase tracking-[0.35em] text-primary-foreground/60">{metric.label}</p>
-              <p className="mt-3 text-3xl font-semibold text-primary-foreground">{metric.value}</p>
-              <p className="mt-2 text-sm text-primary-foreground/75">{metric.description}</p>
+              <p className="text-xs uppercase tracking-[0.35em] text-primary-foreground/60">
+                {metric.label}
+              </p>
+              <p className="mt-3 text-3xl font-semibold text-primary-foreground">
+                {metric.value}
+              </p>
+              <p className="mt-2 text-sm text-primary-foreground/75">
+                {metric.description}
+              </p>
             </div>
           ))}
         </div>
@@ -174,14 +201,20 @@ const Hero = () => {
               key={pill.title}
               className="group relative flex items-start gap-3 rounded-2xl border border-primary-foreground/30 bg-primary-foreground/10 p-4 text-primary-foreground/90 backdrop-blur"
               data-animate
-              style={{ "--stagger-delay": `${540 + index * 90}ms` } as CSSProperties}
+              style={
+                { "--stagger-delay": `${540 + index * 90}ms` } as CSSProperties
+              }
             >
               <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary-foreground/20 text-primary">
                 <pill.icon className="h-5 w-5" />
               </span>
               <div>
-                <p className="text-sm font-semibold text-primary-foreground">{pill.title}</p>
-                <p className="mt-1 text-xs text-primary-foreground/80">{pill.description}</p>
+                <p className="text-sm font-semibold text-primary-foreground">
+                  {pill.title}
+                </p>
+                <p className="mt-1 text-xs text-primary-foreground/80">
+                  {pill.description}
+                </p>
               </div>
             </div>
           ))}

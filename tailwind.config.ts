@@ -3,7 +3,12 @@ import tailwindcssAnimate from "tailwindcss-animate";
 
 export default {
   darkMode: ["class"],
-  content: ["./pages/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}", "./app/**/*.{ts,tsx}", "./src/**/*.{ts,tsx}"],
+  content: [
+    "./pages/**/*.{ts,tsx}",
+    "./components/**/*.{ts,tsx}",
+    "./app/**/*.{ts,tsx}",
+    "./src/**/*.{ts,tsx}",
+  ],
   prefix: "",
   theme: {
     container: {
@@ -15,8 +20,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
-        display: ['Space Grotesk', 'Inter', 'sans-serif'],
+        sans: ["Inter", "system-ui", "sans-serif"],
+        display: ["Space Grotesk", "Inter", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -58,14 +63,14 @@ export default {
         },
       },
       backgroundImage: {
-        'gradient-hero': 'var(--gradient-hero)',
-        'gradient-accent': 'var(--gradient-accent)',
-        'gradient-overlay': 'var(--gradient-overlay)',
+        "gradient-hero": "var(--gradient-hero)",
+        "gradient-accent": "var(--gradient-accent)",
+        "gradient-overlay": "var(--gradient-overlay)",
       },
       boxShadow: {
-        'premium': 'var(--shadow-premium)',
-        'glow': 'var(--shadow-glow)',
-        'card': 'var(--shadow-card)',
+        premium: "var(--shadow-premium)",
+        glow: "var(--shadow-glow)",
+        card: "var(--shadow-card)",
       },
       borderRadius: {
         lg: "var(--radius)",

@@ -57,7 +57,7 @@ This document explains how AquaPump moves from source code to production using H
 Use this path to exercise the Helm chart against a local cluster instead of Docker Compose or AWS.
 
 1. **Install tools** – `kubectl`, `helm`, and either [kind](https://kind.sigs.k8s.io/) (recommended) or [minikube](https://minikube.sigs.k8s.io/). Docker Desktop/Engine must be running because the cluster nodes run as containers/VMs.
-2. **Create a cluster with ingress support (kind example)**  
+2. **Create a cluster with ingress support (kind example)**
    ```bash
    cat <<'EOF' > kind-aquapump.yaml
    kind: Cluster
@@ -74,6 +74,7 @@ Use this path to exercise the Helm chart against a local cluster instead of Dock
    ```
    This exposes the in-cluster ingress controller on `http://localhost:8080` / `https://localhost:8443`. For minikube you can simply run `minikube start` and enable ingress with `minikube addons enable ingress`.
 3. **Install ingress-nginx and cert-manager**
+
    ```bash
    helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
    helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx \
@@ -85,15 +86,16 @@ Use this path to exercise the Helm chart against a local cluster instead of Dock
      --namespace cert-manager --create-namespace \
      --set installCRDs=true
    ```
+
 4. **Load local container images (optional)** – If you build images locally, tag them (e.g., `aquapump-frontend:dev`, `aquapump-backend:dev`) and run `kind load docker-image aquapump-frontend:dev aquapump-backend:dev --name aquapump`. Otherwise point the Helm values at images hosted in a pullable registry and configure `global.imagePullSecrets`.
 5. **Create secrets and install the chart**
+
    ```bash
    kubectl create namespace aquapump
    kubectl create secret generic aquapump-secrets -n aquapump \
      --from-literal=SUPABASE_URL=... \
      --from-literal=SUPABASE_SERVICE_ROLE_KEY=... \
-     --from-literal=AI_API_KEY=... \
-     --from-literal=VITE_REACT_APP_API_BASE=http://aquapump-backend.aquapump.svc.cluster.local:8000
+     --from-literal=AI_API_KEY=...
 
    helm upgrade --install aquapump deploy/helm/aquapump \
      --namespace aquapump \
@@ -104,7 +106,9 @@ Use this path to exercise the Helm chart against a local cluster instead of Dock
      --set frontend.image.repository=aquapump-frontend \
      --set frontend.image.tag=dev
    ```
-   Adjust the image repository/tag overrides to match whatever you loaded into the cluster (or remove them if you use the default ECR images).
+
+   Adjust the image repository/tag overrides to match whatever you loaded into the cluster (or remove them if you use the default ECR images). The frontend container proxies `/api/*` requests to the in-cluster backend service, so browsers just call `/api/chat` on the same origin—no special DNS entries or Kubernetes-only hostnames are required.
+
 6. **Access the app** – With the kind config above, browse to `http://localhost:8080` for the frontend and `http://localhost:8080/api` for backend routes. Alternatively, port-forward: `kubectl port-forward svc/aquapump-frontend 8081:80 -n aquapump`.
 7. **Cleanup** – `kind delete cluster --name aquapump && rm kind-aquapump.yaml`. For minikube run `minikube delete`.
 
@@ -136,8 +140,10 @@ Use this path to exercise the Helm chart against a local cluster instead of Dock
      --from-literal=SUPABASE_URL=... \
      --from-literal=SUPABASE_SERVICE_ROLE_KEY=... \
      --from-literal=AI_API_KEY=... \
-     --from-literal=VITE_REACT_APP_API_BASE=https://api.aquapump.net
+     --from-literal=VITE_REACT_APP_API_BASE=/api
    ```
+
+   The `/api` default keeps requests on the same origin and lets the frontend pod proxy traffic to the backend service internally. Override it with a full URL (e.g., `https://api.aqua-pump.net`) only if you have public DNS set up for the API host.
 
 2. (Optional) Enable the bundled ExternalSecret by setting `externalSecret.enabled=true` and pointing `secretStoreRef` at your provider. The Kubernetes secret above is still created, but now gets populated automatically.
 

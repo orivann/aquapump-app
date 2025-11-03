@@ -1,4 +1,5 @@
-const apiBase = (import.meta.env.VITE_REACT_APP_API_BASE as string | undefined) || "";
+const apiBase =
+  (import.meta.env.VITE_REACT_APP_API_BASE as string | undefined) || "";
 
 export const buildApiUrl = (path: string) => {
   if (!apiBase) {
@@ -8,14 +9,20 @@ export const buildApiUrl = (path: string) => {
   return `${apiBase.replace(/\/$/, "")}${path}`;
 };
 
-export async function apiRequest<T>(path: string, options?: RequestInit): Promise<T> {
+export async function apiRequest<T>(
+  path: string,
+  options?: RequestInit,
+): Promise<T> {
   const response = await fetch(buildApiUrl(path), options);
 
   if (!response.ok) {
     let message = "Request failed";
     try {
       const body = await response.json();
-      message = (body as { detail?: string; message?: string }).detail ?? body.message ?? message;
+      message =
+        (body as { detail?: string; message?: string }).detail ??
+        body.message ??
+        message;
     } catch {
       const text = await response.text().catch(() => "");
       if (text) {

@@ -1,3 +1,17 @@
+{{- $inlineEnv := list }}
+{{- range $key, $value := .Values.backend.env }}
+  {{- if ne (default "" $value) "" }}
+    {{- $inlineEnv = append $inlineEnv (dict "name" $key "value" $value) }}
+  {{- end }}
+{{- end }}
+{{- $envFrom := list }}
+{{- if .Values.backend.existingSecret }}
+  {{- $envFrom = append $envFrom (dict "secretRef" (dict "name" .Values.backend.existingSecret)) }}
+{{- end }}
+{{- range .Values.backend.envFrom }}
+  {{- $envFrom = append $envFrom . }}
+{{- end }}
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -19,10 +33,10 @@ spec:
         app.kubernetes.io/name: {{ include "aquapump.backendName" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
-      {{- if .Values.global.imagePullSecrets }}
+{{- if .Values.global.imagePullSecrets }}
       imagePullSecrets:
-        {{- toYaml .Values.global.imagePullSecrets | nindent 8 }}
-      {{- end }}
+{{ toYaml .Values.global.imagePullSecrets | indent 8 }}
+{{- end }}
       containers:
         - name: backend
           image: "{{ .Values.backend.image.repository }}:{{ .Values.backend.image.tag }}"
@@ -30,30 +44,17 @@ spec:
           ports:
             - containerPort: {{ .Values.backend.containerPort }}
               name: http
-          {{- $inlineEnv := list }}
-          {{- range $key, $value := .Values.backend.env }}
-          {{- if ne (default "" $value) "" }}
-          {{- $inlineEnv = append $inlineEnv (dict "name" $key "value" $value) }}
-          {{- end }}
-          {{- end }}
-          {{- if $inlineEnv }}
+{{- if $inlineEnv }}
           env:
-            {{- range $inlineEnv }}
+{{- range $inlineEnv }}
             - name: {{ index . "name" }}
               value: {{ index . "value" | quote }}
-            {{- end }}
-          {{- end }}
-          {{- $envFrom := list }}
-          {{- if .Values.backend.existingSecret }}
-          {{- $envFrom = append $envFrom (dict "secretRef" (dict "name" .Values.backend.existingSecret)) }}
-          {{- end }}
-          {{- range .Values.backend.envFrom }}
-          {{- $envFrom = append $envFrom . }}
-          {{- end }}
-          {{- if $envFrom }}
+{{- end }}
+{{- end }}
+{{- if $envFrom }}
           envFrom:
-            {{- toYaml $envFrom | nindent 12 }}
-          {{- end }}
+{{ toYaml $envFrom | indent 12 }}
+{{- end }}
           readinessProbe:
             httpGet:
               path: /health
@@ -66,19 +67,19 @@ spec:
               port: http
             initialDelaySeconds: 20
             periodSeconds: 30
-          {{- with .Values.backend.resources }}
+{{- with .Values.backend.resources }}
           resources:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-      {{- with .Values.backend.nodeSelector }}
+{{ toYaml . | indent 12 }}
+{{- end }}
+{{- with .Values.backend.nodeSelector }}
       nodeSelector:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.backend.affinity }}
+{{ toYaml . | indent 8 }}
+{{- end }}
+{{- with .Values.backend.affinity }}
       affinity:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.backend.tolerations }}
+{{ toYaml . | indent 8 }}
+{{- end }}
+{{- with .Values.backend.tolerations }}
       tolerations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
+{{ toYaml . | indent 8 }}
+{{- end }}

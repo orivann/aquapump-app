@@ -23,13 +23,15 @@ const AmbientBackground = () => {
             linear-gradient(0deg, hsl(var(--primary) / 0.06) 1px, transparent 1px)
           `,
           backgroundSize: "80px 80px",
-          maskImage: "radial-gradient(circle at center, black, transparent 75%)",
+          maskImage:
+            "radial-gradient(circle at center, black, transparent 75%)",
         }}
       />
       <div
         className="absolute inset-0 opacity-20"
         style={{
-          backgroundImage: "linear-gradient(130deg, rgba(255,255,255,0.25), transparent 55%)",
+          backgroundImage:
+            "linear-gradient(130deg, rgba(255,255,255,0.25), transparent 55%)",
           filter: "blur(30px)",
         }}
       />

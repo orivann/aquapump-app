@@ -1,3 +1,4 @@
+---
 # ==============================================================================
 # Aquapump App CI/CD Workflow
 # ----------------------------------------------------------------------------
@@ -7,7 +8,7 @@
 # ==============================================================================
 name: Aquapump App CI/CD
 
-on:
+'on':
   push:
     branches:
       - main
@@ -37,16 +38,23 @@ jobs:
         shell: bash
         run: |
           BRANCH_NAME="${GITHUB_HEAD_REF:-${GITHUB_REF_NAME}}"
-          SANITIZED_BRANCH=$(echo "$BRANCH_NAME" | tr '[:upper:]' '[:lower:]' | tr -c 'a-z0-9-.' '-')
+          SANITIZED_BRANCH=$(
+            echo "$BRANCH_NAME" |
+              tr '[:upper:]' '[:lower:]' |
+              tr -c 'a-z0-9-.' '-'
+          )
           SHORT_SHA=${GITHUB_SHA::7}
           IMAGE_TAG="${SHORT_SHA}-${SANITIZED_BRANCH}"
-          if [[ "${GITHUB_EVENT_NAME}" == "push" && "${GITHUB_REF}" == "refs/heads/main" ]]; then
+          if [[ "${GITHUB_EVENT_NAME}" == "push" ]] &&
+             [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then
             PUSH_IMAGES=true
           else
             PUSH_IMAGES=false
           fi
-          echo "image_tag=${IMAGE_TAG}" >> "$GITHUB_OUTPUT"
-          echo "push_images=${PUSH_IMAGES}" >> "$GITHUB_OUTPUT"
+          {
+            echo "image_tag=${IMAGE_TAG}"
+            echo "push_images=${PUSH_IMAGES}"
+          } >> "$GITHUB_OUTPUT"
 
   frontend_checks:
     name: Frontend lint, format & build
@@ -61,7 +69,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: "20"
           cache: npm
           cache-dependency-path: package-lock.json
 
@@ -88,12 +96,16 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: "3.12"
           cache: pip
           cache-dependency-path: backend/requirements.txt
 
       - name: Install Python dependencies
-        run: pip install -r backend/requirements.txt black==24.10.0 bandit==1.7.10
+        run: |
+          pip install \
+            -r backend/requirements.txt \
+            black==24.10.0 \
+            bandit==1.7.10
 
       - name: Check formatting with Black
         run: black --check backend
@@ -118,10 +130,10 @@ jobs:
         with:
           scan-type: fs
           format: table
-          exit-code: '1'
+          exit-code: "1"
           ignore-unfixed: true
-          vuln-type: 'os,library'
-          severity: 'CRITICAL,HIGH'
+          vuln-type: "os,library"
+          severity: "CRITICAL,HIGH"
 
   build_and_push:
     name: Build and publish container images
@@ -159,18 +171,21 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Set registry value
-        run: echo "ECR_REGISTRY=${{ steps.login-ecr.outputs.registry }}" >> "$GITHUB_ENV"
+        run: |
+          REGISTRY="${{ steps.login-ecr.outputs.registry }}"
+          echo "ECR_REGISTRY=${REGISTRY}" >> "$GITHUB_ENV"
 
       - name: Determine image tags
         id: tags
         shell: bash
         run: |
           REPOSITORY="${{ env[matrix.repository_env] }}"
-          IMAGE_TAG="${IMAGE_TAG}"
+          BASE_TAG="${ECR_REGISTRY}/${REPOSITORY}:${IMAGE_TAG}"
           if [[ "${PUSH_IMAGES}" == "true" ]]; then
-            echo "IMAGE_TAGS=${ECR_REGISTRY}/${REPOSITORY}:${IMAGE_TAG},${ECR_REGISTRY}/${REPOSITORY}:latest" >> "$GITHUB_ENV"
+            LATEST_TAG="${ECR_REGISTRY}/${REPOSITORY}:latest"
+            echo "IMAGE_TAGS=${BASE_TAG},${LATEST_TAG}" >> "$GITHUB_ENV"
           else
-            echo "IMAGE_TAGS=${ECR_REGISTRY}/${REPOSITORY}:${IMAGE_TAG}" >> "$GITHUB_ENV"
+            echo "IMAGE_TAGS=${BASE_TAG}" >> "$GITHUB_ENV"
           fi
 
       - name: Set up Docker Buildx
@@ -214,13 +229,15 @@ jobs:
         uses: mikefarah/yq@v4
         with:
           cmd: |
-            yq -i '.backend.image.tag = strenv(IMAGE_TAG)' deploy/helm/aquapump/values.yaml
-            yq -i '.frontend.image.tag = strenv(IMAGE_TAG)' deploy/helm/aquapump/values.yaml
+            VALUES_FILE="deploy/helm/aquapump/values.yaml"
+            yq -i '.backend.image.tag = strenv(IMAGE_TAG)' "$VALUES_FILE"
+            yq -i '.frontend.image.tag = strenv(IMAGE_TAG)' "$VALUES_FILE"
 
       - name: Commit manifest updates
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "chore(ci): update container tags to ${{ env.IMAGE_TAG }}"
+          commit_message: >-
+            chore(ci): update container tags to ${{ env.IMAGE_TAG }}
           commit_user_name: aquapump-ci
           commit_user_email: ci@aquapump.dev
           file_pattern: deploy/helm/aquapump/values.yaml
@@ -241,13 +258,23 @@ jobs:
           SERVER_SANITIZED="${SERVER_RAW#*://}"
           SERVER_SANITIZED="${SERVER_SANITIZED%%/}"
           printf '::add-mask::%s\n' "$SERVER_SANITIZED"
-          ARGOCD_ARGS=("--server" "$SERVER_SANITIZED" "--auth-token" "${{ secrets.ARGOCD_AUTH_TOKEN }}" "--insecure")
+          ARGOCD_ARGS=(
+            "--server" "$SERVER_SANITIZED"
+            "--auth-token" "${{ secrets.ARGOCD_AUTH_TOKEN }}"
+            "--insecure"
+          )
           if [[ "$SERVER_RAW" == http://* || "$SERVER_RAW" == https://* ]]; then
             ARGOCD_ARGS+=("--grpc-web")
           fi
           for i in {1..20}; do
-            STATUS=$(argocd app get aquapump "${ARGOCD_ARGS[@]}" -o json | jq -r '.status.health.status')
-            SYNC=$(argocd app get aquapump "${ARGOCD_ARGS[@]}" -o json | jq -r '.status.sync.status')
+            STATUS=$(
+              argocd app get aquapump "${ARGOCD_ARGS[@]}" -o json |
+                jq -r '.status.health.status'
+            )
+            SYNC=$(
+              argocd app get aquapump "${ARGOCD_ARGS[@]}" -o json |
+                jq -r '.status.sync.status'
+            )
             echo "Attempt $i: Sync=$SYNC | Health=$STATUS"
             if [[ "$STATUS" == "Healthy" && "$SYNC" == "Synced" ]]; then
               exit 0
@@ -266,7 +293,11 @@ jobs:
           SERVER_SANITIZED="${SERVER_RAW#*://}"
           SERVER_SANITIZED="${SERVER_SANITIZED%%/}"
           printf '::add-mask::%s\n' "$SERVER_SANITIZED"
-          ARGOCD_ARGS=("--server" "$SERVER_SANITIZED" "--auth-token" "${{ secrets.ARGOCD_AUTH_TOKEN }}" "--insecure")
+          ARGOCD_ARGS=(
+            "--server" "$SERVER_SANITIZED"
+            "--auth-token" "${{ secrets.ARGOCD_AUTH_TOKEN }}"
+            "--insecure"
+          )
           if [[ "$SERVER_RAW" == http://* || "$SERVER_RAW" == https://* ]]; then
             ARGOCD_ARGS+=("--grpc-web")
           fi

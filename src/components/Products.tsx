@@ -78,13 +78,19 @@ const Products = () => {
               data-animate
               style={{ "--stagger-delay": `${index * 80}ms` } as CSSProperties}
             >
-              <div className={`pointer-events-none absolute inset-0 bg-gradient-to-br ${product.gradient} opacity-80 transition-opacity duration-500 group-hover:opacity-100`} />
+              <div
+                className={`pointer-events-none absolute inset-0 bg-gradient-to-br ${product.gradient} opacity-80 transition-opacity duration-500 group-hover:opacity-100`}
+              />
               <div className="relative flex h-full flex-col gap-5">
                 <div className="text-xs font-semibold uppercase tracking-[0.3em] text-muted-foreground/80">
                   {t(product.categoryKey)}
                 </div>
-                <h3 className="text-2xl font-semibold text-foreground">{t(product.nameKey)}</h3>
-                <p className="text-sm text-muted-foreground">{t(product.descKey)}</p>
+                <h3 className="text-2xl font-semibold text-foreground">
+                  {t(product.nameKey)}
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  {t(product.descKey)}
+                </p>
                 <ul className="mt-2 space-y-2 text-sm text-muted-foreground">
                   {product.specs.map((spec) => (
                     <li key={spec} className="flex items-center gap-3">
@@ -121,9 +127,15 @@ const Products = () => {
               }}
             />
             <div className="relative flex flex-col gap-4 text-left">
-              <p className="text-xs font-semibold uppercase tracking-[0.35em] text-primary-foreground/70">{t("products.badge")}</p>
-              <h3 className="text-3xl font-semibold leading-tight">{t("products.configureTitle")}</h3>
-              <p className="text-sm text-primary-foreground/85">{t("products.configureSubtitle")}</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.35em] text-primary-foreground/70">
+                {t("products.badge")}
+              </p>
+              <h3 className="text-3xl font-semibold leading-tight">
+                {t("products.configureTitle")}
+              </h3>
+              <p className="text-sm text-primary-foreground/85">
+                {t("products.configureSubtitle")}
+              </p>
             </div>
             <div className="relative mt-auto flex flex-wrap items-center gap-4">
               <Button

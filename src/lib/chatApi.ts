@@ -23,7 +23,10 @@ export async function fetchChatHistory(sessionId: string) {
   return apiRequest<ChatHistoryResponse>(`/chat/${sessionId}`);
 }
 
-export async function sendChatMessage(sessionId: string | null, message: string) {
+export async function sendChatMessage(
+  sessionId: string | null,
+  message: string,
+) {
   return apiRequest<ChatResponse>("/chat", {
     method: "POST",
     headers: {

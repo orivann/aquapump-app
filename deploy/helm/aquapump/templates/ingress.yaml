@@ -1,25 +1,28 @@
-{{- $ing := .Values.ingress -}}
+{{- $root := . -}}
+{{- $ing := $root.Values.ingress -}}
+{{- $hasAnnotations := or $ing.annotations (and $ing.tls.enabled $ing.tls.clusterIssuer) -}}
+---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ include "aquapump.fullname" . }}-ingress
+  name: {{ include "aquapump.fullname" $root }}-ingress
   labels:
-    app.kubernetes.io/instance: {{ .Release.Name }}
-    app.kubernetes.io/managed-by: {{ .Release.Service }}
-    app.kubernetes.io/name: {{ include "aquapump.name" . }}
+    app.kubernetes.io/instance: {{ $root.Release.Name }}
+    app.kubernetes.io/managed-by: {{ $root.Release.Service }}
+    app.kubernetes.io/name: {{ include "aquapump.name" $root }}
+{{- if $hasAnnotations }}
   annotations:
-    {{- if $ing.annotations }}
+{{- if $ing.annotations }}
 {{ toYaml $ing.annotations | indent 4 }}
-    {{- end }}
-    {{- if and $ing.tls.enabled $ing.tls.clusterIssuer }}
+{{ end }}
+{{- if and $ing.tls.enabled $ing.tls.clusterIssuer }}
     cert-manager.io/cluster-issuer: {{ $ing.tls.clusterIssuer | quote }}
-    {{- end }}
-
+{{- end }}
+{{- end }}
 spec:
   ingressClassName: {{ $ing.className | default "nginx" }}
   rules:
-    {{- /* frontend hosts (simple list of strings) */}}
-    {{- range $host := $ing.frontend.hosts }}
+{{- range $host := $ing.frontend.hosts }}
     - host: {{ $host | quote }}
       http:
         paths:
@@ -27,12 +30,10 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: {{ include "aquapump.frontendFullname" $ }}
+                name: {{ include "aquapump.frontendFullname" $root }}
                 port:
-                  number: {{ $.Values.frontend.service.port }}
-    {{- end }}
-
-    {{- /* backend host (single string) */}}
+                  number: {{ $root.Values.frontend.service.port }}
+{{ end }}
     - host: {{ $ing.backend.host | quote }}
       http:
         paths:
@@ -40,18 +41,17 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: {{ include "aquapump.backendFullname" . }}
+                name: {{ include "aquapump.backendFullname" $root }}
                 port:
-                  number: {{ $.Values.backend.service.port }}
-
-  {{- if $ing.tls.enabled }}
+                  number: {{ $root.Values.backend.service.port }}
+{{- if $ing.tls.enabled }}
   tls:
     - secretName: {{ $ing.tls.frontendSecretName }}
       hosts:
-        {{- range $host := $ing.frontend.hosts }}
+{{- range $host := $ing.frontend.hosts }}
         - {{ $host | quote }}
-        {{- end }}
+{{ end }}
     - secretName: {{ $ing.tls.backendSecretName }}
       hosts:
         - {{ $ing.backend.host | quote }}
-  {{- end }}
+{{- end }}

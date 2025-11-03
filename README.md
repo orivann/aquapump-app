@@ -61,13 +61,13 @@ Copy `backend/.env.example` to `backend/.env` and provide your credentials:
 
 The backend expects a Supabase table with the following columns:
 
-| Column       | Type    | Notes                        |
-|--------------|---------|------------------------------|
-| `id`         | uuid    | Primary key (default uuid)   |
-| `session_id` | uuid    | Conversation identifier      |
-| `role`       | text    | `user`, `assistant`, `system`|
-| `content`    | text    | Message body                 |
-| `created_at` | timestamptz | Defaults to `now()`      |
+| Column       | Type        | Notes                         |
+| ------------ | ----------- | ----------------------------- |
+| `id`         | uuid        | Primary key (default uuid)    |
+| `session_id` | uuid        | Conversation identifier       |
+| `role`       | text        | `user`, `assistant`, `system` |
+| `content`    | text        | Message body                  |
+| `created_at` | timestamptz | Defaults to `now()`           |
 
 ## Running locally
 

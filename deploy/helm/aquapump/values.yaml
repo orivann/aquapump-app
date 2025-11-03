@@ -1,26 +1,27 @@
+---
 global:
   imagePullSecrets:
     - name: ecr-creds
-
-externalSecret:
-  enabled: false
-  name: aquapump-secrets
-  refreshInterval: 1h
-  secretStoreRef:
-    kind: ClusterSecretStore
-    name: ""
-  target:
+  externalSecret:
+    enabled: false
     name: aquapump-secrets
-    creationPolicy: Owner
-  data: []
+    refreshInterval: 1h
+    secretStoreRef:
+      kind: ClusterSecretStore
+      name: ""
+    target:
+      name: aquapump-secrets
+      creationPolicy: Owner
+      data: []
 
 backend:
   replicaCount: 1
   image:
-    repository: 043309328819.dkr.ecr.eu-central-1.amazonaws.com/aquapump/backend
+    repository: >-
+      043309328819.dkr.ecr.eu-central-1.amazonaws.com/aquapump/backend
     tag: 7b22838d6ab7fc80c3d3b15dbc1997472c90f658
     pullPolicy: IfNotPresent
-  containerPort: 8000
+    containerPort: 8000
   service:
     type: ClusterIP
     port: 8000
@@ -33,7 +34,8 @@ backend:
     AI_API_KEY: ""
     AI_MODEL: "gpt-4o-mini"
     AI_API_BASE_URL: ""
-    CORS_ALLOW_ORIGINS: "https://www.aqua-pump.net,https://api.aqua-pump.net,http://localhost:5173"
+    CORS_ALLOW_ORIGINS: >-
+      https://www.aqua-pump.net,https://api.aqua-pump.net,http://localhost:5173
   existingSecret: ""
   envFrom: []
   resources:
@@ -50,10 +52,11 @@ backend:
 frontend:
   replicaCount: 1
   image:
-    repository: 043309328819.dkr.ecr.eu-central-1.amazonaws.com/aquapump/frontend
+    repository: >-
+      043309328819.dkr.ecr.eu-central-1.amazonaws.com/aquapump/frontend
     tag: 7b22838d6ab7fc80c3d3b15dbc1997472c90f658
     pullPolicy: IfNotPresent
-  containerPort: 80
+    containerPort: 80
   service:
     type: ClusterIP
     port: 80
@@ -61,9 +64,12 @@ frontend:
   imagePullSecrets:
     - name: ecr-creds
   env:
-    VITE_REACT_APP_API_BASE: "https://api.aqua-pump.net"
+    VITE_REACT_APP_API_BASE: "/api"
   existingSecret: ""
   envFrom: []
+  backendProxy:
+    enabled: true
+    serviceUrl: ""
   resources:
     requests:
       cpu: 50m

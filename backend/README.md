@@ -12,17 +12,17 @@ FastAPI service that powers the conversational assistant and persists chat trans
 
 Copy `backend/.env.example` to `backend/.env` and provide:
 
-| Variable | Description |
-| --- | --- |
-| `SUPABASE_URL` | Supabase project URL |
-| `SUPABASE_SERVICE_ROLE_KEY` | Service role key with read/write access to the `chat_messages` table |
-| `SUPABASE_CHAT_TABLE` | Table for persisted chat messages (defaults to `chat_messages`) |
+| Variable                      | Description                                                                                |
+| ----------------------------- | ------------------------------------------------------------------------------------------ |
+| `SUPABASE_URL`                | Supabase project URL                                                                       |
+| `SUPABASE_SERVICE_ROLE_KEY`   | Service role key with read/write access to the `chat_messages` table                       |
+| `SUPABASE_CHAT_TABLE`         | Table for persisted chat messages (defaults to `chat_messages`)                            |
 | `SUPABASE_CHAT_SESSION_TABLE` | Table that tracks per-session metadata such as message counts (`chat_sessions` by default) |
-| `SUPABASE_NEWSLETTER_TABLE` | Table that stores newsletter signups (`newsletter_signups` by default) |
-| `AI_API_KEY` | Key for your AI provider |
-| `AI_MODEL` | Model identifier (defaults to `gpt-4o-mini`) |
-| `AI_API_BASE_URL` | Override when using a custom-compatible endpoint |
-| `CORS_ALLOW_ORIGINS` | Comma-separated origins allowed to call the API |
+| `SUPABASE_NEWSLETTER_TABLE`   | Table that stores newsletter signups (`newsletter_signups` by default)                     |
+| `AI_API_KEY`                  | Key for your AI provider                                                                   |
+| `AI_MODEL`                    | Model identifier (defaults to `gpt-4o-mini`)                                               |
+| `AI_API_BASE_URL`             | Override when using a custom-compatible endpoint                                           |
+| `CORS_ALLOW_ORIGINS`          | Comma-separated origins allowed to call the API                                            |
 
 The `/chat` endpoints read/write rows inside `SUPABASE_CHAT_TABLE` and `SUPABASE_CHAT_SESSION_TABLE`, while the `/newsletter` endpoint upserts subscribers into `SUPABASE_NEWSLETTER_TABLE`.
 

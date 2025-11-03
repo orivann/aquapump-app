@@ -32,7 +32,9 @@ logger = get_logger("routes")
 
 
 @router.get("/health", response_model=HealthResponse)
-async def health(include: str = Query(default="basic", pattern="^(basic|dependencies|all)$")) -> HealthResponse:
+async def health(
+    include: str = Query(default="basic", pattern="^(basic|dependencies|all)$")
+) -> HealthResponse:
     checks: dict[str, HealthCheck] = {}
     include_dependencies = include in {"dependencies", "all"}
 
@@ -60,9 +62,14 @@ async def health(include: str = Query(default="basic", pattern="^(basic|dependen
 async def get_chat_history(session_id: UUID) -> ChatHistoryResponse:
     client = get_client()
     settings = get_settings()
-    raw_history = await run_in_threadpool(fetch_history, client, str(session_id), settings.history_limit)
+    raw_history = await run_in_threadpool(
+        fetch_history, client, str(session_id), settings.history_limit
+    )
     messages = [Message(**row) for row in raw_history]
-    logger.debug("Fetched chat history", extra={"session_id": str(session_id), "messages": len(messages)})
+    logger.debug(
+        "Fetched chat history",
+        extra={"session_id": str(session_id), "messages": len(messages)},
+    )
     return ChatHistoryResponse(session_id=session_id, messages=messages)
 
 
@@ -72,10 +79,15 @@ async def create_chat_completion(payload: ChatRequest) -> ChatResponse:
     settings = get_settings()
     session_id = payload.session_id or uuid4()
 
-    raw_history = await run_in_threadpool(fetch_history, client, str(session_id), settings.history_limit)
+    raw_history = await run_in_threadpool(
+        fetch_history, client, str(session_id), settings.history_limit
+    )
     history = [Message(**row) for row in raw_history]
 
-    logger.info("Generating assistant response", extra={"session_id": str(session_id), "history": len(history)})
+    logger.info(
+        "Generating assistant response",
+        extra={"session_id": str(session_id), "history": len(history)},
+    )
 
     reply = await generate_response(history, payload.message)
 
@@ -99,8 +111,14 @@ async def create_chat_completion(payload: ChatRequest) -> ChatResponse:
     try:
         await run_in_threadpool(store_messages, client, records)
     except Exception as exc:  # pragma: no cover - database errors
-        logger.error("Unable to persist chat messages", extra={"session_id": str(session_id)}, exc_info=exc)
-        raise HTTPException(status_code=502, detail="Unable to persist chat messages") from exc
+        logger.error(
+            "Unable to persist chat messages",
+            extra={"session_id": str(session_id)},
+            exc_info=exc,
+        )
+        raise HTTPException(
+            status_code=502, detail="Unable to persist chat messages"
+        ) from exc
 
     total_messages = len(history) + len(records)
     try:
@@ -117,19 +135,28 @@ async def create_chat_completion(payload: ChatRequest) -> ChatResponse:
             },
         )
     except Exception as exc:  # pragma: no cover - metadata failures
-        logger.warning("Unable to upsert chat session metadata", extra={"session_id": str(session_id)}, exc_info=exc)
+        logger.warning(
+            "Unable to upsert chat session metadata",
+            extra={"session_id": str(session_id)},
+            exc_info=exc,
+        )
 
     messages = history + [
         Message(role="user", content=payload.message, created_at=timestamp),
         Message(role="assistant", content=reply, created_at=timestamp),
     ]
 
-    logger.debug("Assistant reply generated", extra={"session_id": str(session_id), "total_messages": len(messages)})
+    logger.debug(
+        "Assistant reply generated",
+        extra={"session_id": str(session_id), "total_messages": len(messages)},
+    )
     return ChatResponse(session_id=session_id, reply=reply, messages=messages)
 
 
 @router.post("/newsletter", response_model=NewsletterSignupResponse, status_code=201)
-async def subscribe_newsletter(payload: NewsletterSignupRequest) -> NewsletterSignupResponse:
+async def subscribe_newsletter(
+    payload: NewsletterSignupRequest,
+) -> NewsletterSignupResponse:
     client = get_client()
     metadata = payload.metadata or {}
 
@@ -142,8 +169,17 @@ async def subscribe_newsletter(payload: NewsletterSignupRequest) -> NewsletterSi
             metadata,
         )
     except Exception as exc:  # pragma: no cover - database errors
-        logger.error("Unable to persist newsletter signup", extra={"email": payload.email}, exc_info=exc)
-        raise HTTPException(status_code=502, detail="Unable to subscribe at the moment") from exc
+        logger.error(
+            "Unable to persist newsletter signup",
+            extra={"email": payload.email},
+            exc_info=exc,
+        )
+        raise HTTPException(
+            status_code=502, detail="Unable to subscribe at the moment"
+        ) from exc
 
-    logger.info("Newsletter signup stored", extra={"email": payload.email, "source": payload.source})
+    logger.info(
+        "Newsletter signup stored",
+        extra={"email": payload.email, "source": payload.source},
+    )
     return NewsletterSignupResponse()

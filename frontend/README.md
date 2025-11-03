@@ -17,12 +17,12 @@ VITE_REACT_APP_API_BASE=http://localhost:8000
 
 ## Scripts
 
-| Command | Description |
-| --- | --- |
-| `npm run dev` | Start the Vite dev server on port 5173 |
-| `npm run build` | Build a production bundle (used by CI) |
-| `npm run lint` | Lint with ESLint and TypeScript |
-| `npm run preview` | Preview the production build locally |
+| Command           | Description                            |
+| ----------------- | -------------------------------------- |
+| `npm run dev`     | Start the Vite dev server on port 5173 |
+| `npm run build`   | Build a production bundle (used by CI) |
+| `npm run lint`    | Lint with ESLint and TypeScript        |
+| `npm run preview` | Preview the production build locally   |
 
 The GitHub Actions pipeline runs `lint` and `build` on every push and pull request.
 
