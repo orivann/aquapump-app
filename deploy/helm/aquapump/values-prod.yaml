@@ -1,32 +1,8 @@
----
-externalSecret:
-  enabled: true
-  secretStoreRef:
-    kind: ClusterSecretStore
-    name: aws-secrets
-  data:
-    - secretKey: SUPABASE_URL
-      remoteRef:
-        key: prod/aquapump
-        property: SUPABASE_URL
-    - secretKey: SUPABASE_SERVICE_ROLE_KEY
-      remoteRef:
-        key: prod/aquapump
-        property: SUPABASE_SERVICE_ROLE_KEY
-    - secretKey: AI_API_KEY
-      remoteRef:
-        key: prod/aquapump
-        property: AI_API_KEY
-    - secretKey: VITE_REACT_APP_API_BASE
-      remoteRef:
-        key: prod/aquapump
-        property: VITE_REACT_APP_API_BASE
-
-backend:
-  existingSecret: aquapump-secrets
-
-frontend:
-  existingSecret: aquapump-secrets
-
-global:
-  imagePullSecrets: []
+--- externalSecret: enabled: true secretStoreRef: kind: ClusterSecretStore name:
+aws-secrets data: - secretKey: SUPABASE_URL remoteRef: key: prod/aquapump
+property: SUPABASE_URL - secretKey: SUPABASE_SERVICE_ROLE_KEY remoteRef: key:
+prod/aquapump property: SUPABASE_SERVICE_ROLE_KEY - secretKey: AI_API_KEY
+remoteRef: key: prod/aquapump property: AI_API_KEY - secretKey:
+VITE_REACT_APP_API_BASE remoteRef: key: prod/aquapump property:
+VITE_REACT_APP_API_BASE backend: existingSecret: aquapump-secrets frontend:
+existingSecret: aquapump-secrets global: imagePullSecrets: []

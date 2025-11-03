@@ -1,99 +1,26 @@
----
-global:
-  imagePullSecrets:
-    - name: ecr-creds
-  externalSecret:
-    enabled: false
-    name: aquapump-secrets
-    refreshInterval: 1h
-    secretStoreRef:
-      kind: ClusterSecretStore
-      name: ""
-    target:
-      name: aquapump-secrets
-      creationPolicy: Owner
-      data: []
-
-backend:
-  replicaCount: 1
-  image:
-    repository: >-
-      043309328819.dkr.ecr.eu-central-1.amazonaws.com/aquapump/backend
-    tag: 7b22838d6ab7fc80c3d3b15dbc1997472c90f658
-    pullPolicy: IfNotPresent
-    containerPort: 8000
-  service:
-    type: ClusterIP
-    port: 8000
-  imagePullSecrets:
-    - name: ecr-creds
-  env:
-    SUPABASE_URL: ""
-    SUPABASE_SERVICE_ROLE_KEY: ""
-    SUPABASE_CHAT_TABLE: "chat_messages"
-    AI_API_KEY: ""
-    AI_MODEL: "gpt-4o-mini"
-    AI_API_BASE_URL: ""
-    CORS_ALLOW_ORIGINS: >-
-      https://www.aqua-pump.net,https://api.aqua-pump.net,http://localhost:5173
-  existingSecret: ""
-  envFrom: []
-  resources:
-    requests:
-      cpu: 100m
-      memory: 256Mi
-    limits:
-      cpu: 500m
-      memory: 512Mi
-  nodeSelector: {}
-  affinity: {}
-  tolerations: []
-
-frontend:
-  replicaCount: 1
-  image:
-    repository: >-
-      043309328819.dkr.ecr.eu-central-1.amazonaws.com/aquapump/frontend
-    tag: 7b22838d6ab7fc80c3d3b15dbc1997472c90f658
-    pullPolicy: IfNotPresent
-    containerPort: 80
-  service:
-    type: ClusterIP
-    port: 80
-    targetPort: 80
-  imagePullSecrets:
-    - name: ecr-creds
-  env:
-    VITE_REACT_APP_API_BASE: "/api"
-  existingSecret: ""
-  envFrom: []
-  backendProxy:
-    enabled: true
-    serviceUrl: ""
-  resources:
-    requests:
-      cpu: 50m
-      memory: 128Mi
-    limits:
-      cpu: 200m
-      memory: 256Mi
-  nodeSelector: {}
-  affinity: {}
-  tolerations: []
-
-ingress:
-  className: nginx
-  annotations:
-    nginx.ingress.kubernetes.io/from-to-www-redirect: "true"
-    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-  frontend:
-    hosts:
-      - www.aqua-pump.net
-      - aqua-pump.net
-  backend:
-    host: api.aqua-pump.net
-  tls:
-    enabled: true
-    clusterIssuer: letsencrypt-http
-    frontendSecretName: aquapump-frontend-tls
-    backendSecretName: aquapump-backend-tls
+--- global: imagePullSecrets: - name: ecr-creds externalSecret: enabled: false
+name: aquapump-secrets refreshInterval: 1h secretStoreRef: kind:
+ClusterSecretStore name: "" target: name: aquapump-secrets creationPolicy: Owner
+data: [] backend: replicaCount: 1 image: repository: >-
+043309328819.dkr.ecr.eu-central-1.amazonaws.com/aquapump/backend tag:
+7b22838d6ab7fc80c3d3b15dbc1997472c90f658 pullPolicy: IfNotPresent containerPort:
+8000 service: type: ClusterIP port: 8000 imagePullSecrets: - name: ecr-creds
+env: SUPABASE_URL: "" SUPABASE_SERVICE_ROLE_KEY: "" SUPABASE_CHAT_TABLE:
+"chat_messages" AI_API_KEY: "" AI_MODEL: "gpt-4o-mini" AI_API_BASE_URL: ""
+CORS_ALLOW_ORIGINS: >-
+https://www.aqua-pump.net,https://api.aqua-pump.net,http://localhost:5173
+existingSecret: "" envFrom: [] resources: requests: cpu: 100m memory: 256Mi
+limits: cpu: 500m memory: 512Mi nodeSelector: {} affinity: {} tolerations: []
+frontend: replicaCount: 1 image: repository: >-
+043309328819.dkr.ecr.eu-central-1.amazonaws.com/aquapump/frontend tag:
+7b22838d6ab7fc80c3d3b15dbc1997472c90f658 pullPolicy: IfNotPresent containerPort:
+80 service: type: ClusterIP port: 80 targetPort: 80 imagePullSecrets: - name:
+ecr-creds env: VITE_REACT_APP_API_BASE: "/api" existingSecret: "" envFrom: []
+backendProxy: enabled: true serviceUrl: "" resources: requests: cpu: 50m memory:
+128Mi limits: cpu: 200m memory: 256Mi nodeSelector: {} affinity: {} tolerations:
+[] ingress: className: nginx annotations:
+nginx.ingress.kubernetes.io/from-to-www-redirect: "true"
+nginx.ingress.kubernetes.io/force-ssl-redirect: "true" frontend: hosts: -
+www.aqua-pump.net - aqua-pump.net backend: host: api.aqua-pump.net tls: enabled:
+true clusterIssuer: letsencrypt-http frontendSecretName: aquapump-frontend-tls
+backendSecretName: aquapump-backend-tls
