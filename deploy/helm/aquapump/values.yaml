@@ -1,5 +1,6 @@
 global:
-  imagePullSecrets: []
+  imagePullSecrets:
+    - name: ecr-creds
 
 externalSecret:
   enabled: false
@@ -12,6 +13,7 @@ externalSecret:
     name: aquapump-secrets
     creationPolicy: Owner
   data: []
+
 backend:
   replicaCount: 1
   image:
@@ -22,6 +24,8 @@ backend:
   service:
     type: ClusterIP
     port: 8000
+  imagePullSecrets:
+    - name: ecr-creds
   env:
     SUPABASE_URL: ""
     SUPABASE_SERVICE_ROLE_KEY: ""
@@ -29,7 +33,6 @@ backend:
     AI_API_KEY: ""
     AI_MODEL: "gpt-4o-mini"
     AI_API_BASE_URL: ""
-    # לאפשר גם apex, גם www וגם לוקאלי (פיתוח)
     CORS_ALLOW_ORIGINS: "https://www.aqua-pump.net,https://api.aqua-pump.net,http://localhost:5173"
   existingSecret: ""
   envFrom: []
@@ -43,6 +46,7 @@ backend:
   nodeSelector: {}
   affinity: {}
   tolerations: []
+
 frontend:
   replicaCount: 1
   image:
@@ -54,6 +58,8 @@ frontend:
     type: ClusterIP
     port: 80
     targetPort: 80
+  imagePullSecrets:
+    - name: ecr-creds
   env:
     VITE_REACT_APP_API_BASE: "https://api.aqua-pump.net"
   existingSecret: ""
@@ -68,6 +74,7 @@ frontend:
   nodeSelector: {}
   affinity: {}
   tolerations: []
+
 ingress:
   className: nginx
   annotations:
