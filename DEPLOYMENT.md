@@ -1,8 +1,123 @@
 # Deployment Guide
 
-This document explains how AquaPump moves from source code to production using Helm, Argo CD, and GitHub Actions.
+This document explains how AquaPump moves from source code to production using Helm, Argo CD, and GitHub Actions, and how to spin everything up locally for day-to-day development.
 
-## Prerequisites
+## Local deployment workflow
+
+1. **Prepare the environment**
+   - Install Node.js 20+, Python 3.12+, Docker, and Docker Compose.
+   - Copy env files and tailor them to your Supabase/AI credentials:
+     ```bash
+     cp .env.example .env
+     cp backend/.env.example backend/.env
+     ```
+     Ensure `VITE_REACT_APP_API_BASE=http://localhost:8000` in `.env` and fill in Supabase + AI settings inside `backend/.env`.
+2. **Start everything with Docker Compose (recommended)**
+   ```bash
+   docker compose up --build
+   ```
+   - First run builds two images (`frontend`, `backend`) before starting the containers.
+   - Frontend serves on `http://localhost:5173`, backend on `http://localhost:8000`. Health checks keep `frontend` waiting until the API is ready.
+   - Override the API base URL (for remote backends) by exporting `VITE_REACT_APP_API_BASE`.
+   - Stop with `Ctrl+C` and clean up containers/images with `docker compose down --volumes`.
+3. **Manual split workflow (if you do not want Docker)**
+   - Backend:
+     ```bash
+     cd backend
+     python -m venv .venv
+     source .venv/bin/activate
+     pip install -r requirements.txt
+     uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+     ```
+   - Frontend (second terminal):
+     ```bash
+     npm install
+     npm run dev -- --host 0.0.0.0 --port 5173
+     ```
+     Update `backend/.env` `CORS_ALLOW_ORIGINS` if you expose the dev server to other hosts.
+4. **Validate the stack**
+   - Quick checks:
+     ```bash
+     curl http://localhost:8000/health
+     curl http://localhost:5173 --head
+     ```
+   - Full smoke test:
+     ```bash
+     python scripts/health_check.py \
+       --backend-base http://localhost:8000 \
+       --frontend-url http://localhost:5173
+     ```
+     The script blocks until both services respond with HTTP 200.
+5. **Iterate**
+   - Run backend type checks/tests as you edit (`pytest` if tests exist, `uvicorn --reload` already hot-reloads).
+   - Run frontend quality gates (`npm run lint`, `npm run test`) before committing.
+
+## Local Kubernetes cluster (kind/minikube)
+
+Use this path to exercise the Helm chart against a local cluster instead of Docker Compose or AWS.
+
+1. **Install tools** – `kubectl`, `helm`, and either [kind](https://kind.sigs.k8s.io/) (recommended) or [minikube](https://minikube.sigs.k8s.io/). Docker Desktop/Engine must be running because the cluster nodes run as containers/VMs.
+2. **Create a cluster with ingress support (kind example)**  
+   ```bash
+   cat <<'EOF' > kind-aquapump.yaml
+   kind: Cluster
+   apiVersion: kind.x-k8s.io/v1alpha4
+   nodes:
+     - role: control-plane
+       extraPortMappings:
+         - containerPort: 80
+           hostPort: 8080
+         - containerPort: 443
+           hostPort: 8443
+   EOF
+   kind create cluster --name aquapump --config kind-aquapump.yaml
+   ```
+   This exposes the in-cluster ingress controller on `http://localhost:8080` / `https://localhost:8443`. For minikube you can simply run `minikube start` and enable ingress with `minikube addons enable ingress`.
+3. **Install ingress-nginx and cert-manager**
+   ```bash
+   helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+   helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx \
+     --namespace ingress-nginx --create-namespace \
+     --set controller.publishService.enabled=true
+
+   helm repo add jetstack https://charts.jetstack.io
+   helm upgrade --install cert-manager jetstack/cert-manager \
+     --namespace cert-manager --create-namespace \
+     --set installCRDs=true
+   ```
+4. **Load local container images (optional)** – If you build images locally, tag them (e.g., `aquapump-frontend:dev`, `aquapump-backend:dev`) and run `kind load docker-image aquapump-frontend:dev aquapump-backend:dev --name aquapump`. Otherwise point the Helm values at images hosted in a pullable registry and configure `global.imagePullSecrets`.
+5. **Create secrets and install the chart**
+   ```bash
+   kubectl create namespace aquapump
+   kubectl create secret generic aquapump-secrets -n aquapump \
+     --from-literal=SUPABASE_URL=... \
+     --from-literal=SUPABASE_SERVICE_ROLE_KEY=... \
+     --from-literal=AI_API_KEY=... \
+     --from-literal=VITE_REACT_APP_API_BASE=http://aquapump-backend.aquapump.svc.cluster.local:8000
+
+   helm upgrade --install aquapump deploy/helm/aquapump \
+     --namespace aquapump \
+     --set backend.existingSecret=aquapump-secrets \
+     --set frontend.existingSecret=aquapump-secrets \
+     --set backend.image.repository=aquapump-backend \
+     --set backend.image.tag=dev \
+     --set frontend.image.repository=aquapump-frontend \
+     --set frontend.image.tag=dev
+   ```
+   Adjust the image repository/tag overrides to match whatever you loaded into the cluster (or remove them if you use the default ECR images).
+6. **Access the app** – With the kind config above, browse to `http://localhost:8080` for the frontend and `http://localhost:8080/api` for backend routes. Alternatively, port-forward: `kubectl port-forward svc/aquapump-frontend 8081:80 -n aquapump`.
+7. **Cleanup** – `kind delete cluster --name aquapump && rm kind-aquapump.yaml`. For minikube run `minikube delete`.
+
+## Production deployment checklist
+
+1. **Provision or update infrastructure** – From `aquapump-infra/`, run Terraform (`terraform init/plan/apply`) to ensure VPC, EKS, ingress, cert-manager, and Argo CD exist.
+2. **Build and publish images** – The GitHub Actions pipeline builds/pushes both Docker images on every merge to `main`. For emergency/manual releases, run `docker build` for `backend` and `frontend`, tag with the desired version, and push to Amazon ECR.
+3. **Manage runtime secrets** – Create or update the `aquapump-secrets` Kubernetes Secret (or configure External Secrets) so the Helm chart can mount Supabase/AI credentials.
+4. **Promote configuration** – Update `deploy/helm/aquapump/values*.yaml` with new image tags or settings, commit, and push.
+5. **Deploy via Helm or Argo CD** – Either run `helm upgrade --install ...` (below) for a direct rollout or rely on the Argo CD Application syncing the repository automatically.
+6. **Observe and verify** – Use `kubectl`, `argocd app get aquapump`, and `scripts/health_check.py` (pointed at the public endpoints) to make sure pods become `Ready`, Argo reports `Healthy/Synced`, and smoke tests pass.
+
+## Kubernetes prerequisites
 
 - Kubernetes cluster with an ingress controller (examples assume `nginx`).
 - Amazon ECR repositories `aquapump/backend` and `aquapump/frontend`.
@@ -83,3 +198,4 @@ Ensure the following secrets exist in the repository settings:
 - `kubectl logs deploy/aquapump-backend -n aquapump` for API failures.
 - `argo app history aquapump` to review recent syncs/rollbacks.
 - `python scripts/health_check.py --backend-base https://api.aquapump.net --frontend-url https://aquapump.net` for post-deploy smoke tests.
+- `docker compose ps` and `docker compose logs -f backend` help diagnose local startup issues (missing env vars, Supabase connectivity, etc.).

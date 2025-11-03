@@ -15,8 +15,17 @@ from .schemas import (
     HealthResponse,
     HealthStatus,
     Message,
+    NewsletterSignupRequest,
+    NewsletterSignupResponse,
 )
-from .supabase_client import fetch_history, get_client, ping_database, store_messages
+from .supabase_client import (
+    fetch_history,
+    get_client,
+    ping_database,
+    store_messages,
+    store_newsletter_signup,
+    upsert_chat_session,
+)
 
 router = APIRouter()
 logger = get_logger("routes")
@@ -93,6 +102,23 @@ async def create_chat_completion(payload: ChatRequest) -> ChatResponse:
         logger.error("Unable to persist chat messages", extra={"session_id": str(session_id)}, exc_info=exc)
         raise HTTPException(status_code=502, detail="Unable to persist chat messages") from exc
 
+    total_messages = len(history) + len(records)
+    try:
+        await run_in_threadpool(
+            upsert_chat_session,
+            client,
+            {
+                "session_id": str(session_id),
+                "message_count": total_messages,
+                "last_user_message": payload.message,
+                "last_assistant_message": reply,
+                "updated_at": timestamp.isoformat(),
+                "metadata": {"history_before_request": len(history)},
+            },
+        )
+    except Exception as exc:  # pragma: no cover - metadata failures
+        logger.warning("Unable to upsert chat session metadata", extra={"session_id": str(session_id)}, exc_info=exc)
+
     messages = history + [
         Message(role="user", content=payload.message, created_at=timestamp),
         Message(role="assistant", content=reply, created_at=timestamp),
@@ -100,3 +126,24 @@ async def create_chat_completion(payload: ChatRequest) -> ChatResponse:
 
     logger.debug("Assistant reply generated", extra={"session_id": str(session_id), "total_messages": len(messages)})
     return ChatResponse(session_id=session_id, reply=reply, messages=messages)
+
+
+@router.post("/newsletter", response_model=NewsletterSignupResponse, status_code=201)
+async def subscribe_newsletter(payload: NewsletterSignupRequest) -> NewsletterSignupResponse:
+    client = get_client()
+    metadata = payload.metadata or {}
+
+    try:
+        await run_in_threadpool(
+            store_newsletter_signup,
+            client,
+            payload.email,
+            payload.source,
+            metadata,
+        )
+    except Exception as exc:  # pragma: no cover - database errors
+        logger.error("Unable to persist newsletter signup", extra={"email": payload.email}, exc_info=exc)
+        raise HTTPException(status_code=502, detail="Unable to subscribe at the moment") from exc
+
+    logger.info("Newsletter signup stored", extra={"email": payload.email, "source": payload.source})
+    return NewsletterSignupResponse()

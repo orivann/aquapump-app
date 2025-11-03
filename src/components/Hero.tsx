@@ -1,5 +1,5 @@
 import { type CSSProperties, useEffect, useMemo, useRef } from "react";
-import { ArrowRight, ChevronDown } from "lucide-react";
+import { ArrowRight, ChevronDown, Globe, Headphones, Sparkles } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import heroImage from "@/assets/hero-pump.jpg";
@@ -22,6 +22,26 @@ const Hero = () => {
       { label: t("hero.metrics.energy.label"), value: t("hero.metrics.energy.value"), description: t("hero.metrics.energy.description") },
       { label: t("hero.metrics.roi.label"), value: t("hero.metrics.roi.value"), description: t("hero.metrics.roi.description") },
       { label: t("hero.metrics.support.label"), value: t("hero.metrics.support.value"), description: t("hero.metrics.support.description") },
+    ],
+    [t],
+  );
+  const highlightPills = useMemo(
+    () => [
+      {
+        icon: Sparkles,
+        title: t("hero.pills.ai.title"),
+        description: t("hero.pills.ai.desc"),
+      },
+      {
+        icon: Globe,
+        title: t("hero.pills.remote.title"),
+        description: t("hero.pills.remote.desc"),
+      },
+      {
+        icon: Headphones,
+        title: t("hero.pills.support.title"),
+        description: t("hero.pills.support.desc"),
+      },
     ],
     [t],
   );
@@ -144,6 +164,25 @@ const Hero = () => {
               <p className="text-xs uppercase tracking-[0.35em] text-primary-foreground/60">{metric.label}</p>
               <p className="mt-3 text-3xl font-semibold text-primary-foreground">{metric.value}</p>
               <p className="mt-2 text-sm text-primary-foreground/75">{metric.description}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="grid gap-3 text-left sm:grid-cols-2 lg:grid-cols-3">
+          {highlightPills.map((pill, index) => (
+            <div
+              key={pill.title}
+              className="group relative flex items-start gap-3 rounded-2xl border border-primary-foreground/30 bg-primary-foreground/10 p-4 text-primary-foreground/90 backdrop-blur"
+              data-animate
+              style={{ "--stagger-delay": `${540 + index * 90}ms` } as CSSProperties}
+            >
+              <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary-foreground/20 text-primary">
+                <pill.icon className="h-5 w-5" />
+              </span>
+              <div>
+                <p className="text-sm font-semibold text-primary-foreground">{pill.title}</p>
+                <p className="mt-1 text-xs text-primary-foreground/80">{pill.description}</p>
+              </div>
             </div>
           ))}
         </div>

@@ -8,12 +8,14 @@ import Products from '@/components/Products';
 import Chatbot from '@/components/Chatbot';
 import Contact from '@/components/Contact';
 import Footer from '@/components/Footer';
+import AmbientBackground from '@/components/AmbientBackground';
 
 const Index = () => {
   return (
-    <div className="min-h-screen">
+    <div className="relative min-h-screen bg-background text-foreground">
+      <AmbientBackground />
       <Navbar />
-      <main className="bg-background">
+      <main className="relative isolate bg-background/80">
         <Hero />
         <Features />
         <Technology />

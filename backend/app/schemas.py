@@ -1,8 +1,8 @@
 from datetime import datetime
-from typing import Literal
+from typing import Any, Literal
 from uuid import UUID
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, EmailStr, Field, field_validator
 
 
 Role = Literal["user", "assistant", "system"]
@@ -37,6 +37,16 @@ class ChatResponse(BaseModel):
 class ChatHistoryResponse(BaseModel):
     session_id: UUID
     messages: list[Message]
+
+
+class NewsletterSignupRequest(BaseModel):
+    email: EmailStr
+    source: str = Field(default="footer-newsletter", max_length=120)
+    metadata: dict[str, Any] | None = None
+
+
+class NewsletterSignupResponse(BaseModel):
+    status: Literal["subscribed"] = "subscribed"
 
 
 class HealthCheck(BaseModel):

@@ -37,6 +37,12 @@ const translations = {
     'hero.metrics.support.value': '24/7',
     'hero.metrics.support.description': 'Human experts backed by AI',
     'hero.metrics.ariaLabel': 'Performance highlights',
+    'hero.pills.ai.title': 'AI-Optimized Flow',
+    'hero.pills.ai.desc': 'Predictive automation tunes performance every hour.',
+    'hero.pills.remote.title': 'Remote Insights',
+    'hero.pills.remote.desc': 'Secure dashboards stream live telemetry to your team.',
+    'hero.pills.support.title': 'White-Glove Support',
+    'hero.pills.support.desc': 'Field engineers remain on standby 24/7 worldwide.',
 
     // Features
     'features.badge': 'Design DNA',
@@ -95,6 +101,10 @@ const translations = {
     'products.smart.desc': 'Connected pumps with AI-powered optimization',
     'products.learnMore': 'Learn More',
     'products.listAriaLabel': 'Product cards',
+    'products.configureTitle': 'Not sure where to start?',
+    'products.configureSubtitle': 'Share flow targets and site constraints — our engineers reply with a tuned bill of materials within one business day.',
+    'products.configureCta': 'Open configurator',
+    'products.configureHelper': 'Avg. 4h turnaround on weekdays',
 
     // Chatbot
     'chatbot.badge': 'Conversational AI',
@@ -132,6 +142,12 @@ const translations = {
     'footer.products': 'Products',
     'footer.company': 'Company',
     'footer.support': 'Support',
+    'footer.newsletterTitle': 'Stay on top of AquaPump launches',
+    'footer.newsletterPlaceholder': 'you@company.com',
+    'footer.newsletterCta': 'Keep me posted',
+    'footer.newsletterNote': 'No spam — unsubscribe anytime.',
+    'footer.newsletterSuccess': 'Thanks for subscribing! Expect updates soon.',
+    'footer.newsletterError': 'Unable to subscribe right now. Please try again in a moment.',
     'footer.copyright': 'AquaPump. All rights reserved.',
   },
   he: {
@@ -160,6 +176,12 @@ const translations = {
     'hero.metrics.support.value': '24/7',
     'hero.metrics.support.description': 'מומחים אנושיים עם גב AI',
     'hero.metrics.ariaLabel': 'מדדי ביצועים מובילים',
+    'hero.pills.ai.title': 'זרימה מיטבית מבוססת AI',
+    'hero.pills.ai.desc': 'אוטומציה חכמה מכווננת ביצועים בכל שעה.',
+    'hero.pills.remote.title': 'תובנות מרחוק',
+    'hero.pills.remote.desc': 'לוח מחוונים מאובטח מציג טלמטריה חיה לצוות שלך.',
+    'hero.pills.support.title': 'תמיכה מותאמת אישית',
+    'hero.pills.support.desc': 'מהנדסי שטח זמינים 24/7 בכל אזור.',
 
     // Features
     'features.badge': 'DNA הנדסי',
@@ -218,6 +240,10 @@ const translations = {
     'products.smart.desc': 'משאבות מחוברות עם אופטימיזציה מבוססת AI',
     'products.learnMore': 'למד עוד',
     'products.listAriaLabel': 'כרטיסי מוצרים',
+    'products.configureTitle': 'לא בטוחים מאיפה להתחיל?',
+    'products.configureSubtitle': 'שתפו יעדי ספיקת מים ומגבלות האתר — המהנדסים שלנו יחזרו עם מפרט מותאם בתוך יום עסקים אחד.',
+    'products.configureCta': 'פתחו את הקונפיגורטור',
+    'products.configureHelper': 'זמן תגובה ממוצע: 4 שעות בימי חול',
 
     // Chatbot
     'chatbot.badge': 'בינה מלאכותית שיחתית',
@@ -255,6 +281,12 @@ const translations = {
     'footer.products': 'מוצרים',
     'footer.company': 'חברה',
     'footer.support': 'תמיכה',
+    'footer.newsletterTitle': 'הישארו מעודכנים בהשקות של AquaPump',
+    'footer.newsletterPlaceholder': 'you@company.com',
+    'footer.newsletterCta': 'עדכנו אותי',
+    'footer.newsletterNote': 'ללא ספאם — ניתן להסיר בכל עת.',
+    'footer.newsletterSuccess': 'תודה שנרשמתם! העדכונים בדרך.',
+    'footer.newsletterError': 'לא הצלחנו לרשום אתכם כעת. נסו שוב בעוד רגע.',
     'footer.copyright': 'AquaPump. כל הזכויות שמורות.',
   }
 };

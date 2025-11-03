@@ -105,6 +105,39 @@ const Products = () => {
               </div>
             </article>
           ))}
+          <article
+            role="listitem"
+            className="relative flex min-w-[280px] flex-1 flex-col gap-6 overflow-hidden rounded-[28px] border border-primary/40 bg-gradient-to-br from-primary via-primary-dark to-background p-8 text-primary-foreground shadow-[0_35px_70px_rgba(0,63,123,0.35)] transition hover:-translate-y-2 md:col-span-2 md:min-w-0 xl:col-span-4"
+            data-animate
+            style={{ "--stagger-delay": "460ms" } as CSSProperties}
+          >
+            <div
+              className="pointer-events-none absolute inset-0 opacity-30"
+              style={{
+                backgroundImage: `
+                  linear-gradient(120deg, rgba(255,255,255,0.25) 0%, transparent 60%),
+                  radial-gradient(circle at 30% 20%, rgba(255,255,255,0.35), transparent 45%)
+                `,
+              }}
+            />
+            <div className="relative flex flex-col gap-4 text-left">
+              <p className="text-xs font-semibold uppercase tracking-[0.35em] text-primary-foreground/70">{t("products.badge")}</p>
+              <h3 className="text-3xl font-semibold leading-tight">{t("products.configureTitle")}</h3>
+              <p className="text-sm text-primary-foreground/85">{t("products.configureSubtitle")}</p>
+            </div>
+            <div className="relative mt-auto flex flex-wrap items-center gap-4">
+              <Button
+                size="lg"
+                className="rounded-full border-none bg-primary-foreground px-6 text-base font-semibold text-primary hover:bg-primary-foreground/90"
+                asChild
+              >
+                <a href="#contact">{t("products.configureCta")}</a>
+              </Button>
+              <p className="text-xs uppercase tracking-[0.35em] text-primary-foreground/70">
+                {t("products.configureHelper")}
+              </p>
+            </div>
+          </article>
         </div>
       </div>
     </section>

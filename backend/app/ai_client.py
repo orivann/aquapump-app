@@ -13,7 +13,14 @@ logger = get_logger("ai_client")
 
 def _client() -> OpenAI:
     settings = get_settings()
-    return OpenAI(api_key=settings.ai_api_key, base_url=settings.ai_api_base_url, timeout=settings.ai_request_timeout)
+    client_kwargs = {
+        "api_key": settings.ai_api_key,
+        "timeout": settings.ai_request_timeout,
+    }
+    if settings.ai_api_base_url:
+        client_kwargs["base_url"] = settings.ai_api_base_url
+
+    return OpenAI(**client_kwargs)
 
 
 def _build_messages(history: list[Message], prompt: str) -> list[dict[str, Any]]:

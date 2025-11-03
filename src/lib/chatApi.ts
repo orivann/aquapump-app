@@ -1,3 +1,5 @@
+import { apiRequest } from "./apiClient";
+
 export type ChatRole = "user" | "assistant" | "system";
 
 export interface ChatMessage {
@@ -17,32 +19,12 @@ export interface ChatHistoryResponse {
   messages: ChatMessage[];
 }
 
-const apiBase = (import.meta.env.VITE_REACT_APP_API_BASE as string | undefined) || "";
-
-const withBase = (path: string) => {
-  if (!apiBase) {
-    return path;
-  }
-
-  return `${apiBase.replace(/\/$/, "")}${path}`;
-};
-
-async function handleResponse<T>(response: Response): Promise<T> {
-  if (!response.ok) {
-    const message = await response.text();
-    throw new Error(message || "Request failed");
-  }
-
-  return response.json() as Promise<T>;
-}
-
 export async function fetchChatHistory(sessionId: string) {
-  const response = await fetch(withBase(`/chat/${sessionId}`));
-  return handleResponse<ChatHistoryResponse>(response);
+  return apiRequest<ChatHistoryResponse>(`/chat/${sessionId}`);
 }
 
 export async function sendChatMessage(sessionId: string | null, message: string) {
-  const response = await fetch(withBase("/chat"), {
+  return apiRequest<ChatResponse>("/chat", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -52,6 +34,4 @@ export async function sendChatMessage(sessionId: string | null, message: string)
       message,
     }),
   });
-
-  return handleResponse<ChatResponse>(response);
 }

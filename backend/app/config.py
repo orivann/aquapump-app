@@ -14,6 +14,8 @@ class Settings(BaseSettings):
     supabase_url: str
     supabase_service_role_key: str
     supabase_chat_table: str = "chat_messages"
+    supabase_chat_session_table: str = "chat_sessions"
+    supabase_newsletter_table: str = "newsletter_signups"
 
     ai_api_key: str
     ai_model: str = "gpt-4o-mini"
