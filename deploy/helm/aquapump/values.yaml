@@ -83,6 +83,7 @@ frontend:
   tolerations: []
 
 ingress:
+  enabled: true
   className: nginx
   annotations:
     nginx.ingress.kubernetes.io/from-to-www-redirect: "true"

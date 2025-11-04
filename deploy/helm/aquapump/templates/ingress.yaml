@@ -1,5 +1,6 @@
 {{- $root := . -}}
 {{- $ing := $root.Values.ingress -}}
+{{- if ($ing.enabled | default true) }}
 {{- $hasAnnotations := or $ing.annotations (and $ing.tls.enabled $ing.tls.clusterIssuer) -}}
 ---
 apiVersion: networking.k8s.io/v1
@@ -54,4 +55,5 @@ spec:
     - secretName: {{ $ing.tls.backendSecretName }}
       hosts:
         - {{ $ing.backend.host | quote }}
+{{- end }}
 {{- end }}

@@ -290,6 +290,8 @@ kubectl get secret aquapump-secrets -n aquapump -o yaml | \
   sed 's/namespace: aquapump/namespace: aquapump-dev/' | kubectl apply -f -
 ```
 
+The dev environment in GitOps disables ingress by default (`ingress.enabled=false`) so local clusters do not collide with production hostnames. Flip it back on in `environments/dev/values.yaml` only if you map a unique host.
+
 For production, enable `externalSecret` in `values-prod.yaml` so AWS Secrets Manager/ESO owns the secret contents:
 
 ```yaml
