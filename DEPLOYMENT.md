@@ -18,7 +18,7 @@ This document explains how AquaPump moves from source code to production using H
    ```
    - First run builds two images (`frontend`, `backend`) before starting the containers.
    - Frontend serves on `http://localhost:5173`, backend on `http://localhost:8000`. Health checks keep `frontend` waiting until the API is ready.
-   - Override the API base URL (for remote backends) by exporting `VITE_REACT_APP_API_BASE`.
+   - Keep `VITE_REACT_APP_API_BASE=/api` for Docker Compose so Nginx can proxy `/api/*` to the backend; the entrypoint falls back to `/api` if you mistakenly set a full URL.
    - Stop with `Ctrl+C` and clean up containers/images with `docker compose down --volumes`.
 3. **Manual split workflow (if you do not want Docker)**
    - Backend:
@@ -171,10 +171,13 @@ Use additional value files (e.g. `values-prod.yaml`) for environment-specific ov
 
 ## Argo CD
 
-Apply `deploy/argocd/application.yaml` once:
+Apply the Application manifests from the GitOps repository once (from the repo root):
 
 ```bash
-kubectl apply -f deploy/argocd/application.yaml -n argocd
+kubectl apply -n argocd -f ../aquapump-gitops/applications/project.yaml
+kubectl apply -n argocd -f ../aquapump-gitops/applications/aquapump-dev.yaml
+kubectl apply -n argocd -f ../aquapump-gitops/applications/aquapump-stage.yaml
+kubectl apply -n argocd -f ../aquapump-gitops/applications/aquapump-prod.yaml
 ```
 
 Argo CD will continuously sync the Helm chart from this repository. Use the CLI to trigger manual syncs or monitor status:
@@ -197,6 +200,16 @@ Ensure the following secrets exist in the repository settings:
 - `AWS_GITHUB_ROLE_ARN`
 - `ARGOCD_SERVER`
 - `ARGOCD_AUTH_TOKEN`
+
+## Automated verification script
+
+After any deployment (local, staging, or production), run the repository-level helper to perform HTTP checks plus Argo CD/Helm validation:
+
+```bash
+./verify_deployments.sh dev     # or stage / prod
+```
+
+Override the default endpoints via `FRONTEND_URL`, `BACKEND_URL`, and `INGRESS_URL` if your environment differs. Set `ARGOCD_SERVER`, `ARGOCD_AUTH_TOKEN`, and `ARGOCD_FLAGS` (e.g., `--grpc-web --insecure`) so the script can verify GitOps status; configure `KUBECONFIG`/`helm` context for Helm release checks.
 
 ## Troubleshooting
 

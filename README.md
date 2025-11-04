@@ -14,9 +14,7 @@ This project delivers the AquaPump marketing experience with a modern React fron
 ├── public/                    # Static assets
 ├── scripts/health_check.py    # Composite health verification script
 ├── deploy/
-│   ├── helm/                  # Helm chart scaffold
-│   ├── kubernetes/            # Kustomize-ready base manifests
-│   └── argocd/                # Argo CD Application definition
+│   └── helm/                  # Helm chart scaffold (synced by aquapump-gitops)
 ├── .github/workflows/         # GitHub Actions pipeline definitions
 ├── docs/                      # Operational runbooks and architecture notes
 ├── docker-compose.yml         # Local orchestration for frontend + backend
@@ -80,6 +78,7 @@ docker compose up --build
 - Frontend available at http://localhost:5173
 - Backend available at http://localhost:8000
 - Containers expose health checks so `docker compose ps` reflects readiness once the services finish booting.
+- Leave `VITE_REACT_APP_API_BASE` set to `/api` for Docker Compose so the frontend proxies API calls through Nginx; using a full URL here will be ignored and logged as a warning.
 
 ### Manual setup
 
@@ -123,6 +122,8 @@ The frontend keeps the chat session ID in local storage so visitors can resume c
 
   Environment variables `BACKEND_BASE_URL`, `FRONTEND_URL`, and `HEALTH_CHECK_TIMEOUT` can be used instead of command-line flags.
 
+- For cluster-wide smoke tests (frontend, backend, ingress, Argo CD, Helm), run `../verify_deployments.sh dev|stage|prod` from the repository root.
+
 ## Production build
 
 ```sh
@@ -141,7 +142,7 @@ The build artifacts are generated in `dist/` and served via Nginx in the provide
 ## DevOps scaffolding
 
 - **Helm** – `deploy/helm/aquapump` contains a chart that templates both services, ingress configuration, and environment variables.
-- **Argo CD** – `deploy/argocd/application.yaml` defines how to sync the Helm chart from this repository using GitOps.
+- **Argo CD** – the companion [`aquapump-gitops`](../aquapump-gitops) repository stores the Application CRDs (`applications/*.yaml`) that continuously sync this chart into dev/stage/prod clusters.
 - **GitHub Actions** – `.github/workflows/main.yaml` builds and pushes images to Amazon ECR, updates Helm values, and triggers Argo CD.
 
 ## Additional documentation

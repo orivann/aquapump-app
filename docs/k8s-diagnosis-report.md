@@ -6,7 +6,7 @@ A diagnose→fix pass was attempted against the existing Kubernetes, Helm, and A
 
 ## Successes
 
-- Reviewed the `deploy/helm/aquapump` chart and updated values/templates so the frontend and backend publish distinct ingress resources, expose the correct container ports (5173/8000), and remain aligned with the AWS ECR repositories. 【F:deploy/helm/aquapump/values.yaml†L1-L64】【F:deploy/helm/aquapump/templates/deployment-frontend.yaml†L24-L42】【F:deploy/helm/aquapump/templates/deployment-backend.yaml†L24-L42】【F:deploy/helm/aquapump/templates/ingress.yaml†L1-L29】【F:deploy/helm/aquapump/templates/ingress-backend.yaml†L1-L32】【F:deploy/helm/aquapump/templates/service-frontend.yaml†L1-L17】
+- Reviewed the `deploy/helm/aquapump` chart and updated values/templates so the frontend and backend publish distinct ingress paths, expose the correct container ports (5173/8000), and remain aligned with the AWS ECR repositories. 【F:deploy/helm/aquapump/values.yaml†L1-L64】【F:deploy/helm/aquapump/templates/deployment-frontend.yaml†L24-L42】【F:deploy/helm/aquapump/templates/deployment-backend.yaml†L24-L42】【F:deploy/helm/aquapump/templates/ingress.yaml†L1-L29】【F:deploy/helm/aquapump/templates/service-frontend.yaml†L1-L17】【F:deploy/helm/aquapump/templates/service-backend.yaml†L1-L17】
 - Documented the required DNS records and cluster-level follow-up steps so the platform owner can complete the rollout once cluster access is available.
 
 ## Failures
@@ -23,7 +23,7 @@ A diagnose→fix pass was attempted against the existing Kubernetes, Helm, and A
 | `kubectl -n argocd get ing`                              | `kubectl` binary unavailable. 【52a4fa†L1-L2】                              | Install/configure `kubectl`.                                                             |
 | `kubectl -n argocd logs deploy/argocd-server --tail=300` | `kubectl` binary unavailable. 【44dac6†L1-L2】                              | Install/configure `kubectl`.                                                             |
 
-Because `kubectl`/`helm` were unavailable, MetalLB, ingress-nginx, Argo CD exposure, workload rollout, and HTTP validation could not be executed during this pass.
+Because `kubectl`/`helm` were unavailable, ingress-nginx, AWS load balancer exposure, Argo CD status, workload rollout, and HTTP validation could not be executed during this pass.
 
 ## Required User Actions
 
@@ -41,6 +41,6 @@ Because `kubectl`/`helm` were unavailable, MetalLB, ingress-nginx, Argo CD expos
 
 ## Next Steps
 
-- Re-run the diagnostics once `kubectl`/`helm` are available to confirm MetalLB, ingress-nginx, and Argo CD exposure.
+- Re-run the diagnostics once `kubectl`/`helm` are available to confirm ingress-nginx and the AWS load balancer endpoints that front Argo CD and the applications.
 - After confirming external IPs/DNS, enable TLS (e.g., via cert-manager) for `aqua-pump.net`, `api.aqua-pump.net`, and `argocd.aqua-pump.net`.
-- Proceed to the Terraform stage (EC2 + K3s bootstrap + S3 backend) only after the Kubernetes layer is validated.
+- Proceed to the Terraform stage (EKS bootstrap + S3/DynamoDB state backend) only after the Kubernetes layer is validated.

@@ -1,0 +1,9 @@
+# Generated or third-party assets
+node_modules/
+dist/
+frontend/dist/
+backend/.mypy_cache/
+
+# Helm chart templates and values contain Go templating that Prettier mangles
+deploy/helm/**/*.yaml
+deploy/helm/**/*.tpl

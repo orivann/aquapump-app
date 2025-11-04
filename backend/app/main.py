@@ -33,3 +33,14 @@ app.add_middleware(
 )
 
 app.include_router(router, prefix=settings.api_v1_prefix)
+
+
+@app.get("/", tags=["meta"])
+async def root() -> dict[str, str]:
+    """Human-friendly message when someone browses the API root."""
+    return {
+        "message": "AquaPump API is running.",
+        "health": "/health",
+        "chat": "/chat",
+        "docs": "/docs",
+    }

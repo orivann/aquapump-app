@@ -8,7 +8,7 @@ This guide explains how to run Aquapump in every environment and how the automat
 - **Backend** – FastAPI service that proxies AI requests and persists chat history in Supabase.
 - **Data** – Supabase provides Postgres storage for chat transcripts.
 - **Automation** – GitHub Actions builds and ships container images to Amazon ECR and triggers Argo CD for GitOps deployments.
-- **Infrastructure** – Terraform provisions the baseline AWS resources (EC2 worker nodes, K3s, MetalLB, Argo CD bootstrap).
+- **Infrastructure** – Terraform (see `../aquapump-infra`) provisions the AWS VPC, EKS control plane/node groups, ingress-nginx, cert-manager, and Argo CD via Helm.
 
 ```
 ┌──────────┐        ┌────────────┐        ┌─────────┐
@@ -19,16 +19,17 @@ This guide explains how to run Aquapump in every environment and how the automat
      │        ┌────────────────────────┘
      │        │
      ▼        ▼
-GitHub Actions ──► Amazon ECR ──► Argo CD ──► Kubernetes (K3s)
+GitHub Actions ──► Amazon ECR ──► Argo CD ──► AWS EKS
 ```
 
 ## 2. Environment Matrix
 
-| Environment    | Purpose                                   | How it is deployed                                                                                        |
-| -------------- | ----------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| **Local**      | Developer workstation, demos              | `docker compose up --build` (or manual `npm run dev` / `uvicorn`)                                         |
-| **Staging**    | Integration testing, stakeholder previews | Trigger GitHub Action from the `release/*` branch; Argo CD syncs the staging namespace                    |
-| **Production** | Customer-facing site                      | Merge to `main` so the GitHub Action builds tagged images and Argo CD deploys to the production namespace |
+| Environment    | Namespace      | Argo CD App      | Git Source                             | Purpose / Notes                                                                                   |
+| -------------- | -------------- | ---------------- | -------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| **Local**      | n/a            | n/a              | working tree                           | `docker compose up --build` (or manual `npm run dev` / `uvicorn`) for workstation demos.          |
+| **Development**| `aquapump-dev` | `aquapump-dev`   | `main` + Helm overrides (`tag=dev`)    | Auto-syncs on every push so dev images tagged `dev` roll out quickly.                             |
+| **Staging**    | `aquapump-stage`| `aquapump-stage`| `main`                                 | Mirrors production values minus `values-prod.yaml` overrides for integration testing.             |
+| **Production** | `aquapump`     | `aquapump-prod`  | `refs/tags/prod` + `values-prod.yaml`  | Tracks the immutable `prod` tag; promoting a release means retagging and letting Argo CD sync it. |
 
 ## 3. Local Operations
 
@@ -45,11 +46,13 @@ GitHub Actions ──► Amazon ECR ──► Argo CD ──► Kubernetes (K3s)
 
 4. Validate with the bundled script:
 
-   ```bash
-   python scripts/health_check.py \
-     --backend-base http://localhost:8000 \
-     --frontend-url http://localhost:5173
-   ```
+  ```bash
+  python scripts/health_check.py \
+    --backend-base http://localhost:8000 \
+    --frontend-url http://localhost:5173
+  ```
+
+5. Need to validate a remote cluster? From the repository root run `./verify_deployments.sh dev|stage|prod` to exercise frontend, backend, ingress, Argo CD, and Helm in one go.
 
 ## 4. CI/CD Pipeline (GitHub Actions → ECR → Argo CD)
 
@@ -76,6 +79,7 @@ The Helm chart (`deploy/helm/aquapump`) deploys both services with sensible defa
 - Namespaced Deployments with rolling updates and resource requests/limits.
 - Liveness/readiness probes hitting `/health` (backend) and `/` (frontend via Service + Nginx).
 - Optional ingress object with TLS stub (replace `aquapump.example.com` and `aquapump-tls`).
+- Optional ExternalSecret integration (`externalSecret.*` values) so credentials can flow from AWS Secrets Manager or ESO without baking them into `values.yaml`.
 
 Override values per environment through Helm values files or Argo CD Application parameters. Example Helm install for a new cluster:
 
@@ -93,14 +97,14 @@ For production you can turn on the bundled ExternalSecret (`externalSecret.enabl
 
 ## 6. Terraform & Cluster Bootstrap
 
-Terraform modules (see `deploy/terraform/` if present in your fork) are expected to:
+The infrastructure lives in `../aquapump-infra` and is applied with standard `terraform init/plan/apply` commands. The stack handles:
 
-1. Provision the VPC, subnets, and security groups.
-2. Launch EC2 instances that install K3s and configure MetalLB for load balancing.
-3. Install Argo CD via Helm and configure an initial admin password.
-4. Create IAM roles/policies for GitHub OIDC (see `trust-policy.json`, `ecr-policy.json`).
+1. VPC, subnet, and security group creation inside the target AWS account/region.
+2. EKS control plane + managed node groups sized via `nodegroup.tf`.
+3. Cluster add-ons via Helm (`ingress-nginx`, `cert-manager`, `Argo CD`, cluster-autoscaler).
+4. IAM roles/policies for GitHub OIDC plus Amazon ECR (see `trust-policy.json`, `ecr-policy.json`).
 
-> **Note**: If Terraform modules are not yet committed, copy them from the infrastructure repository used by your DevOps team or create new modules following these steps.
+When bootstrapping a new environment, run Terraform first, then apply the Argo CD Applications from `../aquapump-gitops/applications` so the workloads sync automatically.
 
 ## 7. Secrets Management
 
