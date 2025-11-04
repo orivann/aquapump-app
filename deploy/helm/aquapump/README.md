@@ -39,9 +39,10 @@ kubectl create secret generic aquapump-secrets \
 
 helm upgrade --install aquapump ./deploy/helm/aquapump \
   --namespace aquapump --create-namespace \
-  --set backend.existingSecret=aquapump-secrets \
-  --set frontend.existingSecret=aquapump-secrets
+  -f values-local.yaml
 ```
+
+`values-local.yaml` disables ExternalSecret/TLS and maps ingress hosts to `localhost` so you can run the chart on kind/minikube without extra flags. Cloud environments continue to rely on `values.yaml` plus any GitOps overrides.
 
 ## Configuration Highlights
 

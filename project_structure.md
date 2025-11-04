@@ -112,9 +112,12 @@ Use case: marketing or sales teams can launch the full experience locally with D
 
 A Helm chart that describes how to deploy the frontend and backend onto Kubernetes clusters. It defines container images, environment variables, health checks, and optional ingress (public URL) configuration.
 
-### GitOps Applications (`../aquapump-gitops/applications/*.yaml`)
+- `values.yaml` — defaults consumed by Terraform/Argo CD (EKS-focused).
+- `values-local.yaml` — overrides for kind/minikube; disables ExternalSecret/TLS and maps ingress to `localhost` so you can test the chart without cloud dependencies.
 
-Each environment (`aquapump-dev`, `aquapump-stage`, `aquapump-prod`) has an ArgoCD `Application` definition in the sibling `aquapump-gitops` repository. Those manifests point at this Helm chart and keep EKS namespaces in sync with Git.
+### GitOps ApplicationSet (`../aquapump-gitops/applications/*.yaml`)
+
+The sibling `aquapump-gitops` repository now ships an Argo CD `AppProject` plus a single `ApplicationSet`. The ApplicationSet renders `aquapump-dev`, `aquapump-stage`, and `aquapump-prod`, combining this Helm chart with per-environment overrides stored in `aquapump-gitops/environments/<env>/values.yaml`.
 
 ### `.github/workflows/main.yaml`
 

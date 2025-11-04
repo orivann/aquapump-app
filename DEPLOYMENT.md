@@ -87,27 +87,27 @@ Use this path to exercise the Helm chart against a local cluster instead of Dock
      --set installCRDs=true
    ```
 
-4. **Load local container images (optional)** – If you build images locally, tag them (e.g., `aquapump-frontend:dev`, `aquapump-backend:dev`) and run `kind load docker-image aquapump-frontend:dev aquapump-backend:dev --name aquapump`. Otherwise point the Helm values at images hosted in a pullable registry and configure `global.imagePullSecrets`.
+4. **Load local container images (optional)** – If you build images locally, tag them (e.g., `aquapump-frontend:dev`, `aquapump-backend:dev`) and run `kind load docker-image aquapump-frontend:dev aquapump-backend:dev --name aquapump`. Rebuild after chart changes so the `dev` tag stays current:
+   ```bash
+   docker build -t aquapump-frontend:dev -f frontend/Dockerfile .
+   docker build -t aquapump-backend:dev -f backend/Dockerfile .
+   ```
+   Otherwise point the Helm values at images hosted in a pullable registry and configure `global.imagePullSecrets`.
 5. **Create secrets and install the chart**
 
-   ```bash
-   kubectl create namespace aquapump
-   kubectl create secret generic aquapump-secrets -n aquapump \
-     --from-literal=SUPABASE_URL=... \
-     --from-literal=SUPABASE_SERVICE_ROLE_KEY=... \
-     --from-literal=AI_API_KEY=...
+```bash
+kubectl create namespace aquapump
+kubectl create secret generic aquapump-secrets -n aquapump \
+  --from-literal=SUPABASE_URL=... \
+  --from-literal=SUPABASE_SERVICE_ROLE_KEY=... \
+  --from-literal=AI_API_KEY=...
 
-   helm upgrade --install aquapump deploy/helm/aquapump \
-     --namespace aquapump \
-     --set backend.existingSecret=aquapump-secrets \
-     --set frontend.existingSecret=aquapump-secrets \
-     --set backend.image.repository=aquapump-backend \
-     --set backend.image.tag=dev \
-     --set frontend.image.repository=aquapump-frontend \
-     --set frontend.image.tag=dev
-   ```
+helm upgrade --install aquapump deploy/helm/aquapump \
+  --namespace aquapump \
+  -f deploy/helm/aquapump/values-local.yaml
+```
 
-   Adjust the image repository/tag overrides to match whatever you loaded into the cluster (or remove them if you use the default ECR images). The frontend container proxies `/api/*` requests to the in-cluster backend service, so browsers just call `/api/chat` on the same origin—no special DNS entries or Kubernetes-only hostnames are required.
+Run this command from `aquapump-app/` so Helm can resolve the relative chart path; if you invoke it from another directory (e.g., `aquapump-infra/`), reference the chart via an absolute path or `../aquapump-app/deploy/helm/aquapump`. `values-local.yaml` disables ExternalSecret, drops TLS, and points the ingress at `localhost`. Update the `backend/frontend.image.*` entries inside that file if you publish different tags to your local cluster. The frontend container proxies `/api/*` requests to the in-cluster backend service, so browsers just call `/api/chat` on the same origin—no special DNS entries or Kubernetes-only hostnames are required.
 
 6. **Access the app** – With the kind config above, browse to `http://localhost:8080` for the frontend and `http://localhost:8080/api` for backend routes. Alternatively, port-forward: `kubectl port-forward svc/aquapump-frontend 8081:80 -n aquapump`.
 7. **Cleanup** – `kind delete cluster --name aquapump && rm kind-aquapump.yaml`. For minikube run `minikube delete`.
@@ -118,8 +118,8 @@ Use this path to exercise the Helm chart against a local cluster instead of Dock
 2. **Build and publish images** – The GitHub Actions pipeline builds/pushes both Docker images on every merge to `main`. For emergency/manual releases, run `docker build` for `backend` and `frontend`, tag with the desired version, and push to Amazon ECR.
 3. **Manage runtime secrets** – Create or update the `aquapump-secrets` Kubernetes Secret (or configure External Secrets) so the Helm chart can mount Supabase/AI credentials.
 4. **Promote configuration** – Update `deploy/helm/aquapump/values*.yaml` with new image tags or settings, commit, and push.
-5. **Deploy via Helm or Argo CD** – Either run `helm upgrade --install ...` (below) for a direct rollout or rely on the Argo CD Application syncing the repository automatically.
-6. **Observe and verify** – Use `kubectl`, `argocd app get aquapump`, and `scripts/health_check.py` (pointed at the public endpoints) to make sure pods become `Ready`, Argo reports `Healthy/Synced`, and smoke tests pass.
+5. **Deploy via Helm or Argo CD** – Either run `helm upgrade --install ...` (below) for a direct rollout or rely on the Argo CD ApplicationSet syncing the repository automatically (`aquapump-dev|stage|prod`).
+6. **Observe and verify** – Use `kubectl`, `argocd app get aquapump-prod` (swap for `-dev`/`-stage`), and `scripts/health_check.py` (pointed at the public endpoints) to make sure pods become `Ready`, Argo reports `Healthy/Synced`, and smoke tests pass.
 
 ## Kubernetes prerequisites
 
@@ -153,8 +153,7 @@ Render manifests for a dry run:
 
 ```bash
 helm template aquapump deploy/helm/aquapump \
-  --set backend.existingSecret=aquapump-secrets \
-  --set frontend.existingSecret=aquapump-secrets
+  -f deploy/helm/aquapump/values-local.yaml
 ```
 
 Deploy or upgrade:
@@ -163,29 +162,28 @@ Deploy or upgrade:
 helm upgrade --install aquapump deploy/helm/aquapump \
   --namespace aquapump \
   --create-namespace \
-  --set backend.existingSecret=aquapump-secrets \
-  --set frontend.existingSecret=aquapump-secrets
+  -f deploy/helm/aquapump/values-local.yaml
 ```
 
-Use additional value files (e.g. `values-prod.yaml`) for environment-specific overrides such as enabling `externalSecret`.
+Use additional value files (e.g. `values-prod.yaml` for production or `values-local.yaml` for kind/minikube) for environment-specific overrides such as enabling `externalSecret` or pointing ingress at localhost.
 
 ## Argo CD
 
-Apply the Application manifests from the GitOps repository once (from the repo root):
+Apply the AppProject and ApplicationSet from the GitOps repository once (from the repo root):
 
 ```bash
 kubectl apply -n argocd -f ../aquapump-gitops/applications/project.yaml
-kubectl apply -n argocd -f ../aquapump-gitops/applications/aquapump-dev.yaml
-kubectl apply -n argocd -f ../aquapump-gitops/applications/aquapump-stage.yaml
-kubectl apply -n argocd -f ../aquapump-gitops/applications/aquapump-prod.yaml
+kubectl apply -n argocd -f ../aquapump-gitops/applications/aquapump-applicationset.yaml
 ```
 
-Argo CD will continuously sync the Helm chart from this repository. Use the CLI to trigger manual syncs or monitor status:
+The ApplicationSet renders three Applications (`aquapump-dev`, `aquapump-stage`, `aquapump-prod`) that continuously sync the Helm chart from this repository using the environment overrides in `aquapump-gitops/environments/<env>/values.yaml`. Use the CLI to trigger manual syncs or monitor status:
 
 ```bash
-argocd app sync aquapump
-argocd app get aquapump
+argocd app sync aquapump-dev
+argocd app get aquapump-dev
 ```
+
+When promoting through infrastructure-as-code, stick with the Terraform → ApplicationSet flow: update `deploy/helm/aquapump/values.yaml` plus the overrides in `aquapump-gitops/environments/` and let Argo CD reconcile each environment instead of applying ad-hoc manifests.
 
 ## GitHub Actions pipeline
 
@@ -215,6 +213,6 @@ Override the default endpoints via `FRONTEND_URL`, `BACKEND_URL`, and `INGRESS_U
 
 - `kubectl get events -n aquapump --sort-by=.metadata.creationTimestamp` to inspect rollout issues.
 - `kubectl logs deploy/aquapump-backend -n aquapump` for API failures.
-- `argo app history aquapump` to review recent syncs/rollbacks.
+- `argocd app history aquapump-prod` (swap prod for dev/stage) to review recent syncs/rollbacks.
 - `python scripts/health_check.py --backend-base https://api.aquapump.net --frontend-url https://aquapump.net` for post-deploy smoke tests.
 - `docker compose ps` and `docker compose logs -f backend` help diagnose local startup issues (missing env vars, Supabase connectivity, etc.).

@@ -248,7 +248,7 @@ jobs:
           address: ${{ secrets.ARGOCD_SERVER }}
           auth-token: ${{ secrets.ARGOCD_AUTH_TOKEN }}
           action: sync
-          appName: aquapump
+          appName: aquapump-prod
 
       - name: Verify Argo CD application health
         shell: bash
@@ -268,11 +268,11 @@ jobs:
           fi
           for i in {1..20}; do
             STATUS=$(
-              argocd app get aquapump "${ARGOCD_ARGS[@]}" -o json |
+              argocd app get aquapump-prod "${ARGOCD_ARGS[@]}" -o json |
                 jq -r '.status.health.status'
             )
             SYNC=$(
-              argocd app get aquapump "${ARGOCD_ARGS[@]}" -o json |
+              argocd app get aquapump-prod "${ARGOCD_ARGS[@]}" -o json |
                 jq -r '.status.sync.status'
             )
             echo "Attempt $i: Sync=$SYNC | Health=$STATUS"
@@ -301,4 +301,4 @@ jobs:
           if [[ "$SERVER_RAW" == http://* || "$SERVER_RAW" == https://* ]]; then
             ARGOCD_ARGS+=("--grpc-web")
           fi
-          argocd app rollback aquapump "${ARGOCD_ARGS[@]}"
+          argocd app rollback aquapump-prod "${ARGOCD_ARGS[@]}"

@@ -29,4 +29,5 @@ frontend:
   existingSecret: aquapump-secrets
 
 global:
-  imagePullSecrets: []
+  imagePullSecrets: 
+   - name: ecr-creds

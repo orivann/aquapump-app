@@ -81,17 +81,16 @@ The Helm chart (`deploy/helm/aquapump`) deploys both services with sensible defa
 - Optional ingress object with TLS stub (replace `aquapump.example.com` and `aquapump-tls`).
 - Optional ExternalSecret integration (`externalSecret.*` values) so credentials can flow from AWS Secrets Manager or ESO without baking them into `values.yaml`.
 
-Override values per environment through Helm values files or Argo CD Application parameters. Example Helm install for a new cluster:
+Override values per environment through Helm values files or the GitOps ApplicationSet overrides. Example Helm install for a new cluster:
 
 ```bash
 helm upgrade --install aquapump deploy/helm/aquapump \
   --namespace aquapump \
   --create-namespace \
-  --set backend.existingSecret=aquapump-secrets \
-  --set frontend.existingSecret=aquapump-secrets
+  -f deploy/helm/aquapump/values-local.yaml
 ```
 
-Create the `aquapump-secrets` secret once with the required keys (e.g. `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `AI_API_KEY`, `VITE_REACT_APP_API_BASE`) before running the Helm command. If you prefer inline variables, omit `existingSecret` and set `backend.env.*`/`frontend.env.*` instead.
+Create the `aquapump-secrets` secret once with the required keys (e.g. `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `AI_API_KEY`, `VITE_REACT_APP_API_BASE`) before running the Helm command. `values-local.yaml` points at localhost ingress and disables ExternalSecret/TLS for kind/minikube; IaC-driven environments keep using the default `values.yaml` plus GitOps overrides. If you prefer inline variables, omit `existingSecret` in the values file and set `backend.env.*`/`frontend.env.*` instead.
 
 For production you can turn on the bundled ExternalSecret (`externalSecret.enabled=true`) and point it at your preferred `SecretStore` so the cluster syncs credentials automatically.
 
@@ -104,7 +103,7 @@ The infrastructure lives in `../aquapump-infra` and is applied with standard `te
 3. Cluster add-ons via Helm (`ingress-nginx`, `cert-manager`, `Argo CD`, cluster-autoscaler).
 4. IAM roles/policies for GitHub OIDC plus Amazon ECR (see `trust-policy.json`, `ecr-policy.json`).
 
-When bootstrapping a new environment, run Terraform first, then apply the Argo CD Applications from `../aquapump-gitops/applications` so the workloads sync automatically.
+When bootstrapping a new environment, run Terraform first, then apply the Argo CD AppProject and ApplicationSet from `../aquapump-gitops/applications` so the workloads sync automatically.
 
 ## 7. Secrets Management
 
@@ -112,6 +111,7 @@ When bootstrapping a new environment, run Terraform first, then apply the Argo C
 - Kubernetes recommends [External Secrets Operator](https://external-secrets.io/) or AWS Secrets Manager + `SecretProviderClass`.
 - Update Helm chart to reference secrets via environment variable names and `valueFrom` when ESO is available.
 - Rotate `SUPABASE_SERVICE_ROLE_KEY` and `AI_API_KEY` regularly; document the rotation schedule in your team runbook.
+- For GitOps environments, copy `aquapump-secrets` into `aquapump-dev` and `aquapump-stage` namespaces (or add matching ExternalSecrets) before syncing so FastAPI boots without Pydantic validation errors.
 
 ## 8. Observability & Diagnostics
 
@@ -131,7 +131,7 @@ Before merging into `main`:
 
 ## 10. Disaster Recovery
 
-1. Roll back to the previous image using Argo CD UI or the CLI: `argocd app rollback aquapump --revision <REV>`.
+1. Roll back to the previous image using Argo CD UI or the CLI: `argocd app rollback aquapump-prod --revision <REV>` (replace with the environment you need).
 2. If the cluster is unhealthy, redeploy infrastructure via Terraform and then re-run the Helm install.
 3. Restore Supabase backups using the Supabase dashboard or the `supabase` CLI.
 4. Document the incident in your operations log and capture follow-up actions.

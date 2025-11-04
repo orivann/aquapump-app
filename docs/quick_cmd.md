@@ -22,8 +22,7 @@ Fastest way to start, stop, and inspect AquaPump across local dev and Kubernetes
   ```bash
   helm upgrade --install aquapump deploy/helm/aquapump \
     --namespace aquapump --create-namespace \
-    --set backend.existingSecret=aquapump-secrets \
-    --set frontend.existingSecret=aquapump-secrets
+    -f deploy/helm/aquapump/values-local.yaml
   ```
 - **Tail backend logs:** `kubectl logs -n aquapump deploy/aquapump-backend -f`
 - **Tail frontend logs:** `kubectl logs -n aquapump deploy/aquapump-frontend -f`
@@ -35,8 +34,10 @@ Fastest way to start, stop, and inspect AquaPump across local dev and Kubernetes
   `kubectl port-forward -n argocd svc/argocd-server 8080:80`
 - **CLI login (with port-forward above):**  
   `argocd login localhost:8080 --username admin --grpc-web --insecure`
-- **Sync app:** `argocd app sync aquapump`
-- **App status:** `argocd app get aquapump`
+- **Reapply GitOps manifests:**  
+  `kubectl apply -n argocd -f ../aquapump-gitops/applications/{project.yaml,aquapump-applicationset.yaml}`
+- **Sync environment:** `argocd app sync aquapump-dev` (replace with `aquapump-stage` / `aquapump-prod`)
+- **Environment status:** `argocd app get aquapump-dev`
 
 ## Diagnostics
 
