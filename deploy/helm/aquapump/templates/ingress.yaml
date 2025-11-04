@@ -1,6 +1,10 @@
 {{- $root := . -}}
 {{- $ing := $root.Values.ingress -}}
-{{- if ($ing.enabled | default true) }}
+{{- $enabled := true -}}
+{{- if hasKey $ing "enabled" -}}
+  {{- $enabled = $ing.enabled -}}
+{{- end -}}
+{{- if $enabled }}
 {{- $hasAnnotations := or $ing.annotations (and $ing.tls.enabled $ing.tls.clusterIssuer) -}}
 ---
 apiVersion: networking.k8s.io/v1
