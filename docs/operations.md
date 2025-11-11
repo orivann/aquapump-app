@@ -24,12 +24,12 @@ GitHub Actions ──► Amazon ECR ──► Argo CD ──► AWS EKS
 
 ## 2. Environment Matrix
 
-| Environment    | Namespace      | Argo CD App      | Git Source                             | Purpose / Notes                                                                                   |
-| -------------- | -------------- | ---------------- | -------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| **Local**      | n/a            | n/a              | working tree                           | `docker compose up --build` (or manual `npm run dev` / `uvicorn`) for workstation demos.          |
-| **Development**| `aquapump-dev` | `aquapump-dev`   | `main` + Helm overrides (`tag=dev`)    | Auto-syncs on every push so dev images tagged `dev` roll out quickly.                             |
-| **Staging**    | `aquapump-stage`| `aquapump-stage`| `main`                                 | Mirrors production values minus `values-prod.yaml` overrides for integration testing.             |
-| **Production** | `aquapump`     | `aquapump-prod`  | `refs/tags/prod` + `values-prod.yaml`  | Tracks the immutable `prod` tag; promoting a release means retagging and letting Argo CD sync it. |
+| Environment     | Namespace        | Argo CD App      | Git Source                            | Purpose / Notes                                                                                   |
+| --------------- | ---------------- | ---------------- | ------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| **Local**       | n/a              | n/a              | working tree                          | `docker compose up --build` (or manual `npm run dev` / `uvicorn`) for workstation demos.          |
+| **Development** | `aquapump-dev`   | `aquapump-dev`   | `main` + Helm overrides (`tag=dev`)   | Auto-syncs on every push so dev images tagged `dev` roll out quickly.                             |
+| **Staging**     | `aquapump-stage` | `aquapump-stage` | `main`                                | Mirrors production values minus `values-prod.yaml` overrides for integration testing.             |
+| **Production**  | `aquapump`       | `aquapump-prod`  | `refs/tags/prod` + `values-prod.yaml` | Tracks the immutable `prod` tag; promoting a release means retagging and letting Argo CD sync it. |
 
 ## 3. Local Operations
 
@@ -46,11 +46,11 @@ GitHub Actions ──► Amazon ECR ──► Argo CD ──► AWS EKS
 
 4. Validate with the bundled script:
 
-  ```bash
-  python scripts/health_check.py \
-    --backend-base http://localhost:8000 \
-    --frontend-url http://localhost:5173
-  ```
+```bash
+python scripts/health_check.py \
+  --backend-base http://localhost:8000 \
+  --frontend-url http://localhost:5173
+```
 
 5. Need to validate a remote cluster? From the repository root run `./verify_deployments.sh dev|stage|prod` to exercise frontend, backend, ingress, Argo CD, and Helm in one go.
 

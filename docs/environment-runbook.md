@@ -346,12 +346,12 @@ kubectl rollout status deployment aquapump-backend -n aquapump
 
 ## 4. Verification Checklist
 
-| Scope | Command | Expectation |
-| ----- | ------- | ----------- |
-| Pods  | `kubectl get pods -n aquapump` | Backend & frontend show `1/1 Running` |
-| Deployments | `kubectl rollout status deployment aquapump-backend -n aquapump` | Successful rollout |
-| Logs | `kubectl logs deploy/aquapump-backend -n aquapump --tail=100` | No Pydantic errors |
-| Health | `python scripts/health_check.py --backend-base <url> --frontend-url <url>` | Both checks pass |
-| Argo | `argocd app get aquapump-prod` | `Sync Status: Synced`, `Health Status: Healthy` |
+| Scope       | Command                                                                    | Expectation                                     |
+| ----------- | -------------------------------------------------------------------------- | ----------------------------------------------- |
+| Pods        | `kubectl get pods -n aquapump`                                             | Backend & frontend show `1/1 Running`           |
+| Deployments | `kubectl rollout status deployment aquapump-backend -n aquapump`           | Successful rollout                              |
+| Logs        | `kubectl logs deploy/aquapump-backend -n aquapump --tail=100`              | No Pydantic errors                              |
+| Health      | `python scripts/health_check.py --backend-base <url> --frontend-url <url>` | Both checks pass                                |
+| Argo        | `argocd app get aquapump-prod`                                             | `Sync Status: Synced`, `Health Status: Healthy` |
 
 Keep this runbook aligned with automation updates (Terraform, Helm, GitHub Actions). When any workflow changes, update the relevant section with the exact command sequence and new verification steps.
