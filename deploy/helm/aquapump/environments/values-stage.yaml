@@ -7,6 +7,7 @@ frontend:
   image:
     repository: 043309328819.dkr.ecr.eu-central-1.amazonaws.com/aquapump/frontend
     tag: latest
+    pullPolicy: Always
   service:
     port: 80
   existingSecret: aquapump-secrets
@@ -18,6 +19,7 @@ backend:
   image:
     repository: 043309328819.dkr.ecr.eu-central-1.amazonaws.com/aquapump/backend
     tag: latest
+    pullPolicy: Always
   service:
     port: 8000
   existingSecret: aquapump-secrets
