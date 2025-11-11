@@ -5,7 +5,7 @@ global:
 
 frontend:
   image:
-    repository: 123456789012.dkr.ecr.eu-central-1.amazonaws.com/aquapump/frontend
+    repository: 043309328819.dkr.ecr.eu-central-1.amazonaws.com/aquapump/frontend
     tag: latest
   service:
     port: 80
@@ -16,7 +16,7 @@ frontend:
 
 backend:
   image:
-    repository: 123456789012.dkr.ecr.eu-central-1.amazonaws.com/aquapump/backend
+    repository: 043309328819.dkr.ecr.eu-central-1.amazonaws.com/aquapump/backend
     tag: latest
   service:
     port: 8000
