@@ -77,6 +77,20 @@ python scripts/health_check.py \
 - **Frontend cannot reach API** → ensure `VITE_REACT_APP_API_BASE` matches the backend URL.
 - **Docker port conflicts** → stop other services or change `docker-compose.yaml` port mappings.
 
+### 1.7 Seed test data (optional)
+
+Populate Supabase with deterministic chat transcripts and newsletter signups so you
+can validate dashboards or analytics:
+
+```bash
+cd backend
+python scripts/seed_supabase.py --sessions 5 --newsletter 10
+```
+
+The script reuses the FastAPI settings, so ensure `backend/.env` is filled. It
+upserts on `session_id`/`email`, which means you can rerun it safely whenever you
+need fresh fixtures.
+
 ---
 
 ## 2. Local Kubernetes Cluster (kind/minikube)
@@ -100,7 +114,7 @@ nodes:
       - containerPort: 443
         hostPort: 8443
 EOF
-kind create cluster --name aquapump --config kind-aquapump.yaml
+kind create cluster --name aquapump --config kind.aquapump.yaml
 ```
 
 For minikube:

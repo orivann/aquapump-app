@@ -36,7 +36,20 @@ pip install -r requirements.txt
 uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
+## Seed sample data
+
+Once your `.env` is populated you can inject representative chat transcripts and
+newsletter signups into Supabase:
+
+```bash
+cd backend
+python scripts/seed_supabase.py --sessions 5 --newsletter 10
+```
+
+Re-run the script any time; it upserts on `session_id`/`email` so duplicates are
+avoided.
+
 ## Quality checks
 
-- `python -m compileall backend/app` – simple syntax verification used by CI.
+- `python -m compileall app` – simple syntax verification used by CI.
 - Add `pytest` suites under `backend/tests/` as the project grows; CI will automatically pick them up once `pytest` is present in `requirements.txt`.
