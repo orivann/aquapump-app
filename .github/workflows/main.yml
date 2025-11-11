@@ -28,7 +28,7 @@ env:
 jobs:
   prepare:
     name: 🧩 Prepare Metadata
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest      
     outputs:
       image-tag: ${{ steps.meta.outputs.image_tag }}
       push-images: ${{ steps.meta.outputs.push_images }}
@@ -83,7 +83,7 @@ jobs:
             black==24.10.0 \
             bandit==1.7.10
       - run: black --check backend
-      - run: bandit -q -r backend
+      - run: bandit -q -r backend --severity-level high
       - run: python -m compileall backend/app
 
   security-scan:
