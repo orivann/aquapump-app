@@ -1,5 +1,4 @@
 global:
-  namespace: aquapump-prod
   env: prod
   imagePullSecrets:
     - name: ecr-creds
@@ -7,18 +6,17 @@ global:
 frontend:
   image:
     repository: 123456789012.dkr.ecr.eu-central-1.amazonaws.com/aquapump/frontend
-    tag: prod
+    tag: latest
   service:
     port: 80
   existingSecret: aquapump-secrets
-    backendProxy:
+  backendProxy:
     serviceUrl: "http://aquapump-prod-backend.aquapump.svc.cluster.local:8000"
-
 
 backend:
   image:
     repository: 123456789012.dkr.ecr.eu-central-1.amazonaws.com/aquapump/backend
-    tag: prod
+    tag: latest
   service:
     port: 8000
   existingSecret: aquapump-secrets
@@ -59,10 +57,10 @@ ingress:
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
     alb.ingress.kubernetes.io/group.name: aquapump-prod
-    external-dns.alpha.kubernetes.io/hostname: app.aqua-pump.net
+    external-dns.alpha.kubernetes.io/hostname: app.prod.aqua-pump.net
     cert-manager.io/cluster-issuer: letsencrypt-http01
   hosts:
-    - host: app.aqua-pump.net
+    - host: app.prod.aqua-pump.net
       paths:
         - path: /
           pathType: Prefix
@@ -76,5 +74,5 @@ ingress:
             port: 8000
   tls:
     - hosts:
-        - app.aqua-pump.net
+        - app.prod.aqua-pump.net
       secretName: aquapump-prod-tls

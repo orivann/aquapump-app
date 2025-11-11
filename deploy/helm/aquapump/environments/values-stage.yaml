@@ -1,5 +1,4 @@
 global:
-  namespace: aquapump-stage
   env: stage
   imagePullSecrets:
     - name: ecr-creds
@@ -7,7 +6,7 @@ global:
 frontend:
   image:
     repository: 123456789012.dkr.ecr.eu-central-1.amazonaws.com/aquapump/frontend
-    tag: stage
+    tag: latest
   service:
     port: 80
   existingSecret: aquapump-secrets
@@ -17,16 +16,21 @@ frontend:
 backend:
   image:
     repository: 123456789012.dkr.ecr.eu-central-1.amazonaws.com/aquapump/backend
-    tag: stage
+    tag: latest
   service:
     port: 8000
   existingSecret: aquapump-secrets
 
 externalSecret:
   enabled: true
+  name: aquapump-secrets
+  refreshInterval: 1h
   secretStoreRef:
     kind: ClusterSecretStore
     name: aws-secrets
+  target:
+    name: aquapump-secrets
+    creationPolicy: Owner
   data:
     - secretKey: SUPABASE_URL
       remoteRef:
