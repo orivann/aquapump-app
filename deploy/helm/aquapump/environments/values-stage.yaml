@@ -11,6 +11,7 @@ frontend:
     port: 80
   existingSecret: aquapump-secrets
   backendProxy:
+    enabled: true
     serviceUrl: "http://aquapump-stage-backend.aquapump-stage.svc.cluster.local:8000"
 
 backend:

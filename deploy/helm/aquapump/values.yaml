@@ -3,9 +3,30 @@ global:
     - name: ecr-creds
 
 frontend:
+  replicaCount: 1
+  image:
+    repository: ""
+    tag: latest
+    pullPolicy: IfNotPresent
+  containerPort: 80
   service:
     port: 80
+  existingSecret: ""
+  env: {}
+  envFrom: []
+  backendProxy:
+    enabled: false
+    serviceUrl: "http://placeholder"
 
 backend:
+  replicaCount: 1
+  image:
+    repository: ""
+    tag: latest
+    pullPolicy: IfNotPresent
+  containerPort: 8000
   service:
     port: 8000
+  existingSecret: ""
+  env: {}
+  envFrom: []

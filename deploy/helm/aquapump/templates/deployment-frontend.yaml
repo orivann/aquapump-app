@@ -1,12 +1,13 @@
+{{- $frontendEnv := .Values.frontend.env | default dict }}
 {{- $inlineEnv := list }}
-{{- range $key, $value := .Values.frontend.env }}
+{{- range $key, $value := $frontendEnv }}
   {{- if ne (default "" $value) "" }}
     {{- $inlineEnv = append $inlineEnv (dict "name" $key "value" $value) }}
   {{- end }}
 {{- end }}
-{{- $proxyServiceUrl := .Values.frontend.backendProxy.serviceUrl | default (include "aquapump.backendServiceUrl" .) }}
-{{- if and .Values.frontend.backendProxy.enabled (not (hasKey .Values.frontend.env "BACKEND_SERVICE_URL")) }}
-  {{- $inlineEnv = append $inlineEnv (dict "name" "BACKEND_SERVICE_URL" "value" $proxyServiceUrl) }}
+{{- $backendProxy := .Values.frontend.backendProxy | default dict }}
+{{- if and ($backendProxy.enabled) (not (hasKey $frontendEnv "BACKEND_URL")) }}
+  {{- $inlineEnv = append $inlineEnv (dict "name" "BACKEND_URL" "value" ($backendProxy.serviceUrl | default "http://placeholder")) }}
 {{- end }}
 {{- $envFrom := list }}
 {{- if .Values.frontend.existingSecret }}
