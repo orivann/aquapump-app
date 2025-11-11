@@ -1,4 +1,5 @@
 global:
+  namespace: aquapump-dev
   env: dev
   imagePullSecrets:
     - name: ecr-creds
@@ -10,7 +11,9 @@ frontend:
   service:
     port: 80
   existingSecret: aquapump-secrets
-
+  backendProxy:
+    serviceUrl: "http://aquapump-dev-backend.aquapump-dev.svc.cluster.local:8000"
+    
 backend:
   image:
     repository: 123456789012.dkr.ecr.eu-central-1.amazonaws.com/aquapump/backend
