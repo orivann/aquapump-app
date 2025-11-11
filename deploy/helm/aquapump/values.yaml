@@ -1,0 +1,11 @@
+global:
+  imagePullSecrets:
+    - name: ecr-creds
+
+frontend:
+  service:
+    port: 80
+
+backend:
+  service:
+    port: 8000
