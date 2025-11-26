@@ -1,3 +1,8 @@
+{{- $imageRegistry := trimSuffix "/" (default "" .Values.global.imageRegistry) }}
+{{- $frontendRepo := default (printf "%s/frontend" $imageRegistry) .Values.frontend.image.repository }}
+{{- if not $frontendRepo }}
+  {{- fail "frontend.image.repository must be set or provide global.imageRegistry" }}
+{{- end }}
 {{- $frontendEnv := .Values.frontend.env | default dict }}
 {{- $inlineEnv := list }}
 {{- range $key, $value := $frontendEnv }}
@@ -6,9 +11,9 @@
   {{- end }}
 {{- end }}
 {{- $backendProxy := .Values.frontend.backendProxy | default dict }}
-{{- if and ($backendProxy.enabled) (not (hasKey $frontendEnv "BACKEND_URL")) }}
-  {{- $inlineEnv = append $inlineEnv (dict "name" "BACKEND_URL" "value" ($backendProxy.serviceUrl | default "http://placeholder")) }}
-{{- end }}
+{{- if and ($backendProxy.enabled) (not (hasKey $frontendEnv "BACKEND_SERVICE_URL")) }}
+  {{- $inlineEnv = append $inlineEnv (dict "name" "BACKEND_SERVICE_URL" "value" ($backendProxy.serviceUrl | default "http://placeholder")) }}
+  {{- end }}
 {{- $envFrom := list }}
 {{- if .Values.frontend.existingSecret }}
   {{- $envFrom = append $envFrom (dict "secretRef" (dict "name" .Values.frontend.existingSecret)) }}
@@ -44,7 +49,7 @@ spec:
 {{- end }}
       containers:
         - name: frontend
-          image: "{{ .Values.frontend.image.repository }}:{{ .Values.frontend.image.tag }}"
+          image: "{{ $frontendRepo }}:{{ .Values.frontend.image.tag }}"
           imagePullPolicy: {{ .Values.frontend.image.pullPolicy }}
           ports:
             - containerPort: {{ .Values.frontend.containerPort }}

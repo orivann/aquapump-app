@@ -7,9 +7,9 @@ from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
     app_name: str = "AquaPump API"
-    api_v1_prefix: str = ""
+    api_v1_prefix: str = "/api"
     history_limit: int = Field(default=20, ge=1, le=100)
-    cors_allow_origins: str = "*"
+    cors_allow_origins: str = ""
 
     supabase_url: str
     supabase_service_role_key: str
@@ -31,7 +31,10 @@ class Settings(BaseSettings):
     @property
     def cors_origins(self) -> list[str]:
         raw = (self.cors_allow_origins or "").strip()
-        if not raw or raw == "*":
+        if not raw:
+            return []
+
+        if raw == "*":
             return ["*"]
 
         if raw.startswith("["):

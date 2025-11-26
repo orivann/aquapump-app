@@ -1,4 +1,8 @@
 global:
+  env: dev
+  domain: aqua-pump.net
+  secretPrefix: dev/aquapump
+  imageRegistry: 043309328819.dkr.ecr.eu-central-1.amazonaws.com/aquapump
   imagePullSecrets:
     - name: ecr-creds
 
@@ -10,9 +14,12 @@ frontend:
     pullPolicy: IfNotPresent
   containerPort: 80
   service:
+    type: ClusterIP
     port: 80
-  existingSecret: ""
-  env: {}
+    targetPort: http
+  existingSecret: aquapump-secrets
+  env:
+    VITE_REACT_APP_API_BASE: ""
   envFrom: []
   backendProxy:
     enabled: false
@@ -26,7 +33,30 @@ backend:
     pullPolicy: IfNotPresent
   containerPort: 8000
   service:
+    type: ClusterIP
     port: 8000
-  existingSecret: ""
-  env: {}
+    targetPort: http
+  existingSecret: aquapump-secrets
+  env:
+    API_V1_PREFIX: /api
   envFrom: []
+  probePath: /api/health
+
+externalSecret:
+  enabled: true
+  name: ""
+  refreshInterval: 1h
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: aws-secretsmanager
+  target:
+    name: ""
+    creationPolicy: Owner
+  data: []
+
+ingress:
+  enabled: true
+  className: alb
+  annotations: {}
+  hosts: []
+  tls: []

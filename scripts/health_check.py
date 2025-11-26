@@ -11,7 +11,7 @@ from typing import Any, Tuple
 from urllib import error, parse, request
 
 DEFAULT_TIMEOUT = float(os.getenv("HEALTH_CHECK_TIMEOUT", "5"))
-DEFAULT_BACKEND_BASE = os.getenv("BACKEND_BASE_URL", "http://localhost:8000")
+DEFAULT_BACKEND_BASE = os.getenv("BACKEND_BASE_URL", "http://localhost:8000/api/")
 DEFAULT_FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
 
 

@@ -1,0 +1,55 @@
+global:
+  env: local
+  imageRegistry: ""
+  imagePullSecrets: []
+  secretPrefix: local/aquapump
+  domain: localhost
+
+frontend:
+  image:
+    repository: aquapump-frontend
+    tag: dev
+    pullPolicy: IfNotPresent
+  existingSecret: ""
+  env:
+    VITE_REACT_APP_API_BASE: http://localhost:8080/api
+  backendProxy:
+    enabled: true
+    serviceUrl: http://aquapump-backend.default.svc.cluster.local:8000
+
+backend:
+  image:
+    repository: aquapump-backend
+    tag: dev
+    pullPolicy: IfNotPresent
+  existingSecret: ""
+  env:
+    SUPABASE_URL: http://stub
+    SUPABASE_SERVICE_ROLE_KEY: stub
+    SUPABASE_CHAT_TABLE: chat_messages
+    SUPABASE_CHAT_SESSION_TABLE: chat_sessions
+    SUPABASE_NEWSLETTER_TABLE: newsletter_signups
+    AI_API_KEY: stub
+    API_V1_PREFIX: /api
+
+externalSecret:
+  enabled: false
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations: {}
+  hosts:
+    - host: localhost
+      paths:
+        - path: /
+          pathType: Prefix
+          service:
+            name: aquapump-frontend
+            port: 80
+        - path: /api
+          pathType: Prefix
+          service:
+            name: aquapump-backend
+            port: 8000
+  tls: []

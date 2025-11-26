@@ -33,6 +33,10 @@ env:
   AWS_REGION: eu-central-1
   FRONTEND_REPOSITORY: aquapump/frontend
   BACKEND_REPOSITORY: aquapump/backend
+  ARGOCD_WEBHOOK_URL: https://argocd.aqua-pump.net/api/webhook
+  GITOPS_REPOSITORY: orivann/aquapump-gitops
+  NODE_VERSION: "20"
+  PYTHON_VERSION: "3.12"
 
 jobs:
   build-and-deploy:
@@ -42,6 +46,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Determine environment
         id: env
@@ -54,19 +60,19 @@ jobs:
               ENVIRONMENT="dev"
               IMAGE_TAG="dev-${SHORT_SHA}"
               ARGO_APP="aquapump-dev"
-              VALUES_FILE="deploy/helm/aquapump/environments/values-dev.yaml"
+              GITOPS_VALUES_FILE="environments/dev/values.yaml"
               ;;
             stage)
               ENVIRONMENT="stage"
               IMAGE_TAG="stage-${SHORT_SHA}"
               ARGO_APP="aquapump-stage"
-              VALUES_FILE="deploy/helm/aquapump/environments/values-stage.yaml"
+              GITOPS_VALUES_FILE="environments/stage/values.yaml"
               ;;
             main)
               ENVIRONMENT="prod"
               IMAGE_TAG="latest"
               ARGO_APP="aquapump-prod"
-              VALUES_FILE="deploy/helm/aquapump/environments/values-prod.yaml"
+              GITOPS_VALUES_FILE="environments/prod/values.yaml"
               ;;
             *)
               echo "❌ Unsupported branch: $BRANCH"
@@ -77,12 +83,43 @@ jobs:
           echo "ENVIRONMENT=$ENVIRONMENT" >> "$GITHUB_ENV"
           echo "IMAGE_TAG=$IMAGE_TAG" >> "$GITHUB_ENV"
           echo "ARGO_APP=$ARGO_APP" >> "$GITHUB_ENV"
-          echo "VALUES_FILE=$VALUES_FILE" >> "$GITHUB_ENV"
+          echo "GITOPS_VALUES_FILE=$GITOPS_VALUES_FILE" >> "$GITHUB_ENV"
 
           echo "📦 Environment: $ENVIRONMENT"
           echo "🏷️ Tag: $IMAGE_TAG"
           echo "🌀 Argo App: $ARGO_APP"
-          echo "📁 Helm File: $VALUES_FILE"
+          echo "📁 GitOps Values: $GITOPS_VALUES_FILE"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Lint frontend
+        run: npm run lint
+
+      - name: Build frontend
+        run: npm run build
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Install backend dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r backend/requirements.txt
+
+      - name: Backend syntax check
+        run: python -m compileall backend/app
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -105,51 +142,50 @@ jobs:
             docker push $REGISTRY/aquapump/$SERVICE:${IMAGE_TAG}
           done
 
-      - name: Update Helm values dynamically
+      - name: Ensure GitOps token present
+        run: |
+          if [ -z "${{ secrets.GITOPS_TOKEN }}" ]; then
+            echo "GITOPS_TOKEN is required to push GitOps changes" >&2
+            exit 1
+          fi
+
+      - name: Checkout GitOps repository
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.GITOPS_REPOSITORY }}
+          token: ${{ secrets.GITOPS_TOKEN }}
+          path: gitops
+
+      - name: Update GitOps image tags
         uses: mikefarah/yq@v4
+        env:
+          GITOPS_VALUES_PATH: gitops/${{ env.GITOPS_VALUES_FILE }}
         with:
           cmd: |
-            yq -i ".backend.image.tag = strenv(IMAGE_TAG)" $VALUES_FILE
-            yq -i ".frontend.image.tag = strenv(IMAGE_TAG)" $VALUES_FILE
+            yq -i ".backend.image.tag = strenv(IMAGE_TAG)" "$GITOPS_VALUES_PATH"
+            yq -i ".frontend.image.tag = strenv(IMAGE_TAG)" "$GITOPS_VALUES_PATH"
 
-      - name: Commit manifest update
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: "chore(${ENVIRONMENT}): update image tags to ${{ env.IMAGE_TAG }}"
-          file_pattern: ${{ env.VALUES_FILE }}
-          commit_user_name: aquapump-ci
-          commit_user_email: ci@aquapump.dev
-
-      - name: Trigger ArgoCD sync
-        uses: clowdhaus/argo-cd-action@v3.1.0
-        with:
-          address: ${{ secrets.ARGOCD_SERVER }}
-          auth-token: ${{ secrets.ARGOCD_AUTH_TOKEN }}
-          action: sync
-          appName: ${{ env.ARGO_APP }}
-
-      - name: Verify ArgoCD health
+      - name: Push GitOps commit
+        working-directory: gitops
+        env:
+          ENVIRONMENT: ${{ env.ENVIRONMENT }}
+          IMAGE_TAG: ${{ env.IMAGE_TAG }}
+          GITOPS_VALUES_FILE: ${{ env.GITOPS_VALUES_FILE }}
         run: |
-          echo "⏳ Waiting for $ARGO_APP to be Healthy..."
-          for i in {1..20}; do
-            STATUS=$(argocd app get $ARGO_APP --server ${{ secrets.ARGOCD_SERVER }} --auth-token ${{ secrets.ARGOCD_AUTH_TOKEN }} -o json | jq -r '.status.health.status')
-            SYNC=$(argocd app get $ARGO_APP --server ${{ secrets.ARGOCD_SERVER }} --auth-token ${{ secrets.ARGOCD_AUTH_TOKEN }} -o json | jq -r '.status.sync.status')
-            echo "Attempt $i: Sync=$SYNC | Health=$STATUS"
-            if [[ "$STATUS" == "Healthy" && "$SYNC" == "Synced" ]]; then
-              echo "✅ $ARGO_APP is healthy!"
-              break
-            fi
-            sleep 15
-          done
+          if git diff --quiet; then
+            echo "No GitOps changes detected."
+            exit 0
+          fi
+          git config user.name "aquapump-ci"
+          git config user.email "ci@aquapump.dev"
+          git add "$GITOPS_VALUES_FILE"
+          git commit -m "chore(${ENVIRONMENT}): update image tags to ${IMAGE_TAG}"
+          git push origin HEAD
 
-      - name: Smoke test API (only prod)
-        if: env.ENVIRONMENT == 'prod'
+      - name: Trigger ArgoCD Sync
+        env:
+          WEBHOOK_URL: ${{ env.ARGOCD_WEBHOOK_URL }}
         run: |
-          echo "🔥 Running smoke test for Production..."
-          curl -fsS https://api.aqua-pump.net/health || exit 1
-
-      - name: Rollback on failure
-        if: failure()
-        run: |
-          echo "⚠️ Rolling back $ARGO_APP..."
-          argocd app rollback $ARGO_APP --server ${{ secrets.ARGOCD_SERVER }} --auth-token ${{ secrets.ARGOCD_AUTH_TOKEN }}
+          curl -f -X POST "$WEBHOOK_URL" \
+            -H "Content-Type: application/json" \
+            -d '{"ref":"main"}'
