@@ -1,0 +1,195 @@
+# ==============================================================================
+# 🌊 AQUAPUMP - MULTI-ENV CI/CD PIPELINE
+# ------------------------------------------------------------------------------
+# ✅ Smart unified workflow for Dev / Stage / Prod
+#    - Auto builds, tags, and deploys per branch
+#    - Dynamic Helm value updates per environment
+#    - ArgoCD sync + health checks
+# ------------------------------------------------------------------------------
+# 🧠 Logic:
+#    - dev → aquapump-dev (tag: dev-SHA)
+#    - stage → aquapump-stage (tag: stage-SHA)
+#    - main → aquapump-prod (tag: latest)
+# ==============================================================================
+
+name: Aquapump Unified CI/CD
+
+on:
+  push:
+    branches:
+      - dev
+      - stage
+      - main
+
+concurrency:
+  group: aquapump-${{ github.ref_name }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  id-token: write
+
+env:
+  AWS_REGION: eu-central-1
+  FRONTEND_REPOSITORY: aquapump/frontend
+  BACKEND_REPOSITORY: aquapump/backend
+  ARGOCD_WEBHOOK_URL: ${{ secrets.ARGOCD_WEBHOOK_URL }}
+  GITOPS_REPOSITORY: orivann/aquapump-gitops
+  NODE_VERSION: "20"
+  PYTHON_VERSION: "3.12"
+
+jobs:
+  build-and-deploy:
+    name: 🚀 Build & Deploy (${{ github.ref_name }})
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Determine environment
+        id: env
+        run: |
+          BRANCH="${GITHUB_REF_NAME}"
+          SHORT_SHA=${GITHUB_SHA::7}
+
+          case "$BRANCH" in
+            dev)
+              ENVIRONMENT="dev"
+              IMAGE_TAG="dev-${SHORT_SHA}"
+              ARGO_APP="aquapump-dev"
+              GITOPS_VALUES_FILE="environments/dev/values.yaml"
+              ;;
+            stage)
+              ENVIRONMENT="stage"
+              IMAGE_TAG="stage-${SHORT_SHA}"
+              ARGO_APP="aquapump-stage"
+              GITOPS_VALUES_FILE="environments/stage/values.yaml"
+              ;;
+            main)
+              ENVIRONMENT="prod"
+              IMAGE_TAG="latest"
+              ARGO_APP="aquapump-prod"
+              GITOPS_VALUES_FILE="environments/prod/values.yaml"
+              ;;
+            *)
+              echo "❌ Unsupported branch: $BRANCH"
+              exit 1
+              ;;
+          esac
+
+          echo "ENVIRONMENT=$ENVIRONMENT" >> "$GITHUB_ENV"
+          echo "IMAGE_TAG=$IMAGE_TAG" >> "$GITHUB_ENV"
+          echo "ARGO_APP=$ARGO_APP" >> "$GITHUB_ENV"
+          echo "GITOPS_VALUES_FILE=$GITOPS_VALUES_FILE" >> "$GITHUB_ENV"
+
+          echo "📦 Environment: $ENVIRONMENT"
+          echo "🏷️ Tag: $IMAGE_TAG"
+          echo "🌀 Argo App: $ARGO_APP"
+          echo "📁 GitOps Values: $GITOPS_VALUES_FILE"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Lint frontend
+        run: npm run lint
+
+      - name: Build frontend
+        run: npm run build
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Install backend dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r backend/requirements.txt
+
+      - name: Backend syntax check
+        run: python -m compileall backend/app
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_GITHUB_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build & Push Docker images
+        run: |
+          REGISTRY=${{ steps.login-ecr.outputs.registry }}
+          echo "🔨 Building and pushing images to $REGISTRY..."
+
+          for SERVICE in backend frontend; do
+            echo "⚙️ Building $SERVICE..."
+            docker build -t $REGISTRY/aquapump/$SERVICE:${IMAGE_TAG} -f $SERVICE/Dockerfile .
+            docker push $REGISTRY/aquapump/$SERVICE:${IMAGE_TAG}
+          done
+
+      - name: Ensure GitOps token present
+        run: |
+          if [ -z "${{ secrets.GITOPS_TOKEN }}" ]; then
+            echo "GITOPS_TOKEN is required to push GitOps changes" >&2
+            exit 1
+          fi
+
+      - name: Checkout GitOps repository
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.GITOPS_REPOSITORY }}
+          token: ${{ secrets.GITOPS_TOKEN }}
+          path: gitops
+
+      - name: Update GitOps image tags
+        uses: mikefarah/yq@v4
+        env:
+          GITOPS_VALUES_PATH: gitops/${{ env.GITOPS_VALUES_FILE }}
+        with:
+          cmd: |
+            yq -i ".backend.image.tag = strenv(IMAGE_TAG)" "$GITOPS_VALUES_PATH"
+            yq -i ".frontend.image.tag = strenv(IMAGE_TAG)" "$GITOPS_VALUES_PATH"
+
+      - name: Push GitOps commit
+        working-directory: gitops
+        env:
+          ENVIRONMENT: ${{ env.ENVIRONMENT }}
+          IMAGE_TAG: ${{ env.IMAGE_TAG }}
+          GITOPS_VALUES_FILE: ${{ env.GITOPS_VALUES_FILE }}
+        run: |
+          if git diff --quiet; then
+            echo "No GitOps changes detected."
+            exit 0
+          fi
+          git config user.name "aquapump-ci"
+          git config user.email "ci@aquapump.dev"
+          git add "$GITOPS_VALUES_FILE"
+          git commit -m "chore(${ENVIRONMENT}): update image tags to ${IMAGE_TAG}"
+          git push origin HEAD
+
+      - name: Trigger ArgoCD Sync
+        if: env.ARGOCD_WEBHOOK_URL != ''
+        env:
+          WEBHOOK_URL: ${{ env.ARGOCD_WEBHOOK_URL }}
+        run: |
+          curl -f -X POST "$WEBHOOK_URL" \
+            -H "Content-Type: application/json" \
+            -d '{"ref":"main"}'
+      - name: Skip ArgoCD Sync (webhook not configured)
+        if: env.ARGOCD_WEBHOOK_URL == ''
+        run: echo "ARGOCD_WEBHOOK_URL not set; skipping ArgoCD sync trigger."
