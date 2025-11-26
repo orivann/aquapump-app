@@ -2,7 +2,7 @@
 """Seed Supabase tables with representative Aquapump data.
 
 This script is safe to run multiple times – it upserts newsletter signups and
-chat sessions so duplicates are avoided. Use it to validate that a freshly
+chat sessions so duplicates are avoided. Use it to validate that a freshly.
 provisioned environment (local or AWS) has working credentials and can persist
 data end-to-end.
 """
