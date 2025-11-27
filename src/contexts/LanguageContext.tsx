@@ -249,10 +249,10 @@ const translations = {
     "tech.tested.desc": "בקרת איכות קפדנית בתנאי קיצון",
 
     // Sustainability
-    "sustain.badge": "קיימות בהיקף",
-    "sustain.title": "ירוק. בר קיימא. מוכן לעתיד.",
+    "sustain.badge": "קיימות במרכז",
+    "sustain.title": "ירוק. מקיים. מוכן לעתיד.",
     "sustain.intro":
-      "ב-AquaPump, אנו מאמינים ביצירת פתרונות שלא רק משרתים את הצרכים של היום, אלא גם מגנים על עולם המחר. הטכנולוגיה הידידותית לסביבה שלנו מפחיתה את ההשפעה הסביבתית תוך מתן ביצועים מעולים.",
+      "ב-AquaPump אנחנו מתכננים פתרונות שמספקים היום ומגינים על המחר. הטכנולוגיה הירוקה שלנו מצמצמת השפעה סביבתית בלי לוותר על ביצועים.",
     "sustain.energy": "הפחתת אנרגיה",
     "sustain.recyclable": "חומרים הניתנים למיחזור",
     "sustain.lifespan": "שנות חיים",
@@ -282,7 +282,7 @@ const translations = {
     "products.configureTitle": "לא בטוחים מאיפה להתחיל?",
     "products.configureSubtitle":
       "שתפו יעדי ספיקת מים ומגבלות האתר — המהנדסים שלנו יחזרו עם מפרט מותאם בתוך יום עסקים אחד.",
-    "products.configureCta": "פתחו את הקונפיגורטור",
+    "products.configureCta": "פתחו את בונה ההצעה",
     "products.configureHelper": "זמן תגובה ממוצע: 4 שעות בימי חול",
 
     // Chatbot
@@ -323,7 +323,7 @@ const translations = {
 
     // Footer
     "footer.tagline":
-      "המשאבה שלך, הפתרון שלנו. מובילים את עתיד טכנולוגיית המים הברת קיימא.",
+      "המשאבה שלך, הפתרון שלנו. מובילים את עתיד טכנולוגיית המים המקיימת.",
     "footer.products": "מוצרים",
     "footer.company": "חברה",
     "footer.support": "תמיכה",
