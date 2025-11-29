@@ -46,3 +46,4 @@ Fastest way to start, stop, and inspect AquaPump across local dev and Kubernetes
 - **Describe resource:** `kubectl describe <kind>/<name> -n aquapump`
 - **Cluster events:**  
   `kubectl get events -A --sort-by=.metadata.creationTimestamp | tail`
+Contributor: Noam – safe exam proof (docs only, no runtime change)
