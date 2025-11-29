@@ -20,6 +20,9 @@ on:
       - dev
       - stage
       - main
+      - "feature/**"
+      - "hotfix/**"
+      - "codex/**"
 
 concurrency:
   group: aquapump-${{ github.ref_name }}
@@ -73,6 +76,13 @@ jobs:
               IMAGE_TAG="latest"
               ARGO_APP="aquapump-prod"
               GITOPS_VALUES_FILE="environments/prod/values.yaml"
+              ;;
+            feature/*|hotfix/*|codex/*)
+              # Treat feature/hotfix/codex branches as dev for CI/CD
+              ENVIRONMENT="dev"
+              IMAGE_TAG="dev-${SHORT_SHA}"
+              ARGO_APP="aquapump-dev"
+              GITOPS_VALUES_FILE="environments/dev/values.yaml"
               ;;
             *)
               echo "❌ Unsupported branch: $BRANCH"
